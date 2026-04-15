@@ -1,7 +1,10 @@
 // ══════════════════════════════════════════════════
 //  MKC Registration Form — js/register.js
-//  Replace SCRIPT_URL with your Google Apps Script URL
 // ══════════════════════════════════════════════════
+
+// ⚠ STEP REQUIRED: Paste your Google Apps Script Web App URL below
+// Get this from: Google Sheet → Extensions → Apps Script → Deploy → Web App URL
+// Both register.js AND admin.js must use the SAME URL
 var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec';
 
 var currentStep = 1;
