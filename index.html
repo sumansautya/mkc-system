@@ -80,51 +80,85 @@
     .step-content { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
 
-    /* ── PASSPORT PHOTO UPLOAD ── */
-    .photo-upload-row {
-      display: flex; gap: 24px; align-items: flex-start;
-      padding: 1rem 0 1.25rem; margin-bottom: 1.25rem;
+    /* ── PASSPORT PHOTO UPLOAD — mobile-first redesign ── */
+    .photo-section {
+      padding: 0 0 1.25rem;
+      margin-bottom: 1.25rem;
       border-bottom: 2px solid var(--ivory-border);
     }
-    .photo-slot { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .photo-section-label {
+      font-size: 12px; font-weight: 600; color: var(--navy);
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    /* Two upload boxes side by side */
+    .photo-boxes-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .photo-slot {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
     .photo-box {
-      width: 110px; height: 130px;
+      width: 100%; aspect-ratio: 3/4;
+      max-height: 160px;
       border: 2px dashed var(--ivory-border);
-      border-radius: 6px; background: var(--ivory);
+      border-radius: 10px; background: var(--ivory);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       cursor: pointer; overflow: hidden;
       transition: border-color 0.2s, background 0.2s;
       position: relative;
     }
-    .photo-box:hover { border-color: var(--blue-accent); background: #EFF6FF; }
+    .photo-box:hover  { border-color: var(--blue-accent); background: #EFF6FF; }
     .photo-box.has-photo { border-style: solid; border-color: var(--navy); background: #fff; }
     .photo-box img {
       width: 100%; height: 100%; object-fit: cover;
       position: absolute; inset: 0;
     }
-    .photo-box-placeholder { text-align: center; padding: 8px; }
-    .photo-box-placeholder .ph-icon { font-size: 28px; margin-bottom: 4px; color: var(--text-muted); }
-    .photo-box-placeholder .ph-text { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
-    .photo-label {
-      font-size: 11px; font-weight: 600; color: var(--navy);
-      text-transform: uppercase; letter-spacing: 0.5px; text-align: center;
+    .photo-box-placeholder { text-align: center; padding: 6px; }
+    .photo-box-placeholder .ph-icon { font-size: 22px; margin-bottom: 4px; display: block; }
+    .photo-box-placeholder .ph-text { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+    .photo-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--navy); color: var(--gold);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
     }
-    .photo-sub { font-size: 10px; color: var(--text-muted); text-align: center; }
     .photo-change-btn {
-      font-size: 11px; color: var(--blue-accent); cursor: pointer;
+      font-size: 10px; color: var(--blue-accent); cursor: pointer;
       background: none; border: none; padding: 0; text-decoration: underline;
-      display: none;
+      display: none; margin-top: 0;
     }
     .photo-slot.has-photo .photo-change-btn { display: block; }
     .photo-slot.has-photo .ph-text { display: none; }
-    .photo-requirement {
-      flex: 1; background: #EFF6FF; border: 1px solid #BFDBFE;
-      border-radius: var(--radius); padding: 12px 14px;
-      font-size: 12px; color: var(--navy-mid); align-self: center;
+
+    /* Compact horizontal requirements strip below the boxes */
+    .photo-req-strip {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #EFF6FF; border: 1px solid #BFDBFE;
+      border-radius: 8px; padding: 8px 12px;
+      margin-top: 2px;
     }
-    .photo-requirement strong { display: block; color: var(--navy); margin-bottom: 6px; font-size: 13px; }
-    .photo-requirement li { margin: 3px 0 3px 14px; }
+    .photo-req-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .photo-req-tags {
+      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    }
+    .photo-req-chip {
+      display: inline-block;
+      background: #fff; border: 1px solid #BFDBFE;
+      border-radius: 20px; padding: 2px 9px;
+      font-size: 11px; color: var(--navy-mid);
+      white-space: nowrap;
+    }
+    .photo-req-chip.accent {
+      background: var(--navy); color: var(--gold);
+      border-color: var(--navy); font-weight: 600;
+    }
 
     .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
 
@@ -185,50 +219,68 @@
     <div class="card">
       <div class="section-header"><div class="section-num">1</div><div class="section-title">Personal Information</div></div>
 
-      <!-- PASSPORT PHOTOS -->
-      <div class="photo-upload-row">
-        <!-- Photo: Self -->
-        <div class="photo-slot" id="photoSlot-self">
-          <div class="photo-box" id="photoBox-self" onclick="document.getElementById('photoInput-self').click()" title="Upload your passport photo">
-            <div class="photo-box-placeholder">
-              <div class="ph-icon">🖼</div>
-              <div class="ph-text">Click to upload<br/>your photo</div>
-            </div>
-          </div>
-          <input type="file" id="photoInput-self" accept="image/*" style="display:none;" onchange="handlePhoto('self',this)"/>
-          <div class="photo-label">Self</div>
-          <div class="photo-sub">Passport size</div>
-          <button class="photo-change-btn" onclick="document.getElementById('photoInput-self').click()">Change photo</button>
+      <!-- PASSPORT PHOTOS — compact mobile-first layout -->
+      <div class="photo-section">
+        <div class="photo-section-label">
+          <span>📸</span> Passport Size Photographs
         </div>
 
-        <!-- Requirements info -->
-        <div class="photo-requirement">
-          <strong>📸 Passport Size Photographs Required</strong>
-          <ul style="list-style:disc; padding:0; margin:0;">
-            <li>One photograph of <strong>self</strong></li>
-            <li>One photograph of <strong>spouse</strong></li>
-            <li>Recent, clear, front-facing</li>
-            <li>White or light background preferred</li>
-            <li>JPG or PNG, max 2MB each</li>
-            <li>Used for Manthan Directory</li>
-          </ul>
+        <!-- Two upload boxes side by side -->
+        <div class="photo-boxes-row">
+
+          <!-- Self -->
+          <div class="photo-slot" id="photoSlot-self">
+            <div class="photo-box" id="photoBox-self"
+                 onclick="document.getElementById('photoInput-self').click()"
+                 title="Upload your passport photo">
+              <div class="photo-box-placeholder">
+                <span class="ph-icon">🧑</span>
+                <div class="ph-text">Tap to upload<br/>your photo</div>
+              </div>
+            </div>
+            <input type="file" id="photoInput-self" accept="image/*"
+                   style="display:none;" onchange="handlePhoto('self',this)"/>
+            <div class="photo-tag">&#128100; Self</div>
+            <button class="photo-change-btn"
+                    onclick="document.getElementById('photoInput-self').click()">
+              Change photo
+            </button>
+          </div>
+
+          <!-- Spouse -->
+          <div class="photo-slot" id="photoSlot-spouse">
+            <div class="photo-box" id="photoBox-spouse"
+                 onclick="document.getElementById('photoInput-spouse').click()"
+                 title="Upload spouse passport photo">
+              <div class="photo-box-placeholder">
+                <span class="ph-icon">🧑</span>
+                <div class="ph-text">Tap to upload<br/>spouse photo</div>
+              </div>
+            </div>
+            <input type="file" id="photoInput-spouse" accept="image/*"
+                   style="display:none;" onchange="handlePhoto('spouse',this)"/>
+            <div class="photo-tag">&#128100; Spouse</div>
+            <button class="photo-change-btn"
+                    onclick="document.getElementById('photoInput-spouse').click()">
+              Change photo
+            </button>
+          </div>
+
+        </div><!-- end photo-boxes-row -->
+
+        <!-- Compact requirements strip below the two boxes -->
+        <div class="photo-req-strip">
+          <div class="photo-req-icon">ℹ️</div>
+          <div class="photo-req-tags">
+            <span class="photo-req-chip accent">For Manthan Directory</span>
+            <span class="photo-req-chip">Recent &amp; front-facing</span>
+            <span class="photo-req-chip">Light background</span>
+            <span class="photo-req-chip">JPG / PNG</span>
+            <span class="photo-req-chip">Max 2 MB each</span>
+          </div>
         </div>
 
-        <!-- Photo: Spouse -->
-        <div class="photo-slot" id="photoSlot-spouse">
-          <div class="photo-box" id="photoBox-spouse" onclick="document.getElementById('photoInput-spouse').click()" title="Upload spouse passport photo">
-            <div class="photo-box-placeholder">
-              <div class="ph-icon">🖼</div>
-              <div class="ph-text">Click to upload<br/>spouse photo</div>
-            </div>
-          </div>
-          <input type="file" id="photoInput-spouse" accept="image/*" style="display:none;" onchange="handlePhoto('spouse',this)"/>
-          <div class="photo-label">Spouse</div>
-          <div class="photo-sub">Passport size</div>
-          <button class="photo-change-btn" onclick="document.getElementById('photoInput-spouse').click()">Change photo</button>
-        </div>
-      </div>
-      <!-- END PHOTOS -->
+      </div><!-- END PHOTOS -->
 
       <div class="form-grid">
         <div class="field" id="f-fname">
