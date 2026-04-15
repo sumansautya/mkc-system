@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GOOGLE APPS SCRIPT URL ──
 // Paste your deployed Web App URL here (same URL used in register.js)
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec';
+var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
 
 // ── LIVE DATA ──
 var MEMBERS = [];           // filled by loadMembers()
@@ -149,7 +149,7 @@ var invoiceCounter = 100;
 
 // ── LOAD MEMBERS FROM GOOGLE SHEETS ──
 function loadMembers(callback) {
-  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec') {
     // Demo mode — no URL set yet
     MEMBERS = DEMO_MEMBERS.slice();
     dataLoaded = true;
@@ -233,13 +233,13 @@ function showPage(name) {
 
 // ── DASHBOARD ──
 function renderDashboard() {
-  var total = MEMBERS.length;
-  var pending = MEMBERS.filter(function(m){ return m.status === 'Pending'; }).length;
-  var active = MEMBERS.filter(function(m){ return m.status === 'Active'; }).length;
-  var revenue = MEMBERS.filter(function(m){ return m.status === 'Active'; }).length * 29500;
-  document.getElementById('statTotal').textContent = total;
+  var total   = MEMBERS.length;
+  var pending = MEMBERS.filter(function(m){ return isPending(m.status); }).length;
+  var active  = MEMBERS.filter(function(m){ return isActive(m.status); }).length;
+  var revenue = active * 29500;
+  document.getElementById('statTotal').textContent   = total;
   document.getElementById('statPending').textContent = pending;
-  document.getElementById('statActive').textContent = active;
+  document.getElementById('statActive').textContent  = active;
   document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
   document.getElementById('pendingBadge').textContent = pending;
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -247,37 +247,48 @@ function renderDashboard() {
   if (pending > 0) {
     document.getElementById('pendingAlert').style.display = 'block';
     document.getElementById('pendingAlertText').textContent = pending + ' application(s) are waiting for your review.';
+  } else {
+    document.getElementById('pendingAlert').style.display = 'none';
   }
 
   // Recent list
   var recent = MEMBERS.slice().sort(function(a,b){ return b.appID.localeCompare(a.appID); }).slice(0,4);
   document.getElementById('recentList').innerHTML = recent.map(function(m){
     return '<div class="flex-center gap-12" style="padding:10px 0;border-bottom:1px solid var(--ivory-border);">' +
-      '<div class="avatar avatar-sm ' + (m.status==='Active'?'avatar-navy':'avatar-blue') + '">' + m.firstName[0] + m.lastName[0] + '</div>' +
+      '<div class="avatar avatar-sm ' + (isActive(m.status)?'avatar-navy':'avatar-blue') + '">' + (m.firstName||'?')[0] + (m.lastName||'?')[0] + '</div>' +
       '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--navy);">' + m.firstName + ' ' + m.lastName + '</div>' +
       '<div style="font-size:11px;color:var(--text-muted);">' + m.appID + '</div></div>' +
-      '<span class="badge badge-' + statusClass(m.status) + '">' + m.status + '</span></div>';
+      '<span class="badge badge-' + statusClass(m.status) + '">' + statusLabel(m.status) + '</span></div>';
   }).join('');
 
   // Status chart
-  var statuses = ['Active','Pending','Rejected'];
-  var max = Math.max.apply(null, statuses.map(function(s){ return MEMBERS.filter(function(m){ return m.status===s; }).length; })) || 1;
-  document.getElementById('statusChart').innerHTML = statuses.map(function(s){
-    var cnt = MEMBERS.filter(function(m){ return m.status===s; }).length;
+  var statusGroups = [
+    { label:'Active',               fn: isActive,   color:'var(--success)' },
+    { label:'Pending Verification', fn: isPending,   color:'var(--gold)'    },
+    { label:'Rejected',             fn: isRejected,  color:'var(--danger)'  }
+  ];
+  var max = Math.max.apply(null, statusGroups.map(function(sg){ return MEMBERS.filter(function(m){ return sg.fn(m.status); }).length; })) || 1;
+  document.getElementById('statusChart').innerHTML = statusGroups.map(function(sg){
+    var cnt = MEMBERS.filter(function(m){ return sg.fn(m.status); }).length;
     var pct = Math.round((cnt/max)*100);
-    var color = s==='Active'?'var(--success)':s==='Pending'?'var(--gold)':'var(--danger)';
-    return '<div class="chart-bar-row"><div class="chart-bar-label">' + s + '</div>' +
-      '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>' +
+    return '<div class="chart-bar-row"><div class="chart-bar-label" style="width:110px;font-size:11px;">' + sg.label + '</div>' +
+      '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+sg.color+'"></div></div>' +
       '<div class="chart-bar-val">' + cnt + '</div></div>';
   }).join('');
 }
 
 // ── MEMBERS TABLE ──
 function renderMembersTable() {
-  var filtered = MEMBERS.filter(function(m){ return currentFilter === 'All' || m.status === currentFilter; });
+  var filtered = MEMBERS.filter(function(m){
+    if (currentFilter === 'All') return true;
+    if (currentFilter === 'Pending') return isPending(m.status);
+    if (currentFilter === 'Active')  return isActive(m.status);
+    if (currentFilter === 'Rejected') return isRejected(m.status);
+    return true;
+  });
   if (currentSort === 'newest') filtered.sort(function(a,b){ return b.appID.localeCompare(a.appID); });
   else if (currentSort === 'oldest') filtered.sort(function(a,b){ return a.appID.localeCompare(b.appID); });
-  else if (currentSort === 'name') filtered.sort(function(a,b){ return a.firstName.localeCompare(b.firstName); });
+  else if (currentSort === 'name') filtered.sort(function(a,b){ return (a.firstName||'').localeCompare(b.firstName||''); });
 
   var tbody = document.getElementById('membersTable');
   if (!filtered.length) {
@@ -285,17 +296,23 @@ function renderMembersTable() {
     return;
   }
   tbody.innerHTML = filtered.map(function(m){
+    var id = m.appID.replace(/'/g, "\\'");
+    var pending  = isPending(m.status);
+    var active   = isActive(m.status);
     return '<tr>' +
-      '<td><div class="member-avatar-wrap"><div class="avatar avatar-sm avatar-navy">' + m.firstName[0]+m.lastName[0] + '</div>' +
-      '<div><div class="td-name">' + m.firstName + ' ' + m.lastName + '</div><div class="td-id">' + m.appID + '</div></div></div></td>' +
+      '<td><div class="member-avatar-wrap">' +
+        '<div class="avatar avatar-sm avatar-navy">' + (m.firstName||'?')[0] + (m.lastName||'?')[0] + '</div>' +
+        '<div><div class="td-name">' + m.firstName + ' ' + m.lastName + '</div>' +
+        '<div class="td-id">' + m.appID + '</div></div></div></td>' +
       '<td><div style="font-size:13px;">' + m.email + '</div><div class="td-id">' + m.mobile + '</div></td>' +
       '<td><div style="font-size:13px;">Annual</div><div class="td-id">₹29,500</div></td>' +
-      '<td><div style="font-size:13px;">' + m.paymentMethod + '</div><div class="td-id">' + m.paymentRef + '</div></td>' +
-      '<td><span class="badge badge-' + statusClass(m.status) + '">' + m.status + '</span></td>' +
-      '<td>' +
-        '<button class="action-btn" title="View Details" onclick="viewMember(\'' + m.appID + '\')">👁</button>' +
-        (m.status==='Pending' ? '<button class="action-btn" title="Approve" onclick="approveMember(\'' + m.appID + '\')">✅</button><button class="action-btn" title="Reject" onclick="rejectMember(\'' + m.appID + '\')">❌</button>' : '') +
-        (m.status==='Active' ? '<button class="action-btn" title="Send Invoice" onclick="openInvoice(\'' + m.appID + '\')">🧾</button>' : '') +
+      '<td><div style="font-size:13px;">' + (m.paymentMethod||'—') + '</div><div class="td-id">' + (m.paymentRef||'—') + '</div></td>' +
+      '<td><span class="badge badge-' + statusClass(m.status) + '">' + statusLabel(m.status) + '</span></td>' +
+      '<td style="white-space:nowrap;">' +
+        '<button class="action-btn" title="View Details" onclick="viewMember(\'' + id + '\')">👁</button>' +
+        (pending ? ' <button class="action-btn" title="Approve & Activate" onclick="approveMember(\'' + id + '\')" style="font-size:18px;">✅</button>' +
+                   ' <button class="action-btn" title="Reject" onclick="rejectMember(\'' + id + '\')" style="font-size:18px;">❌</button>' : '') +
+        (active  ? ' <button class="action-btn" title="Send Tax Invoice" onclick="openInvoice(\'' + id + '\')" style="font-size:18px;">🧾</button>' : '') +
       '</td></tr>';
   }).join('');
 }
@@ -323,36 +340,39 @@ function globalSearchFn(q) {
 function viewMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
+  _detCount = 0;
   document.getElementById('modalTitle').textContent = m.firstName + ' ' + m.lastName + ' — ' + appID;
   document.getElementById('modalBody').innerHTML =
     '<div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem;">' +
-    '<div class="avatar avatar-lg avatar-navy">' + m.firstName[0]+m.lastName[0] + '</div>' +
-    '<div><div style="font-size:18px;font-weight:600;color:var(--navy);">' + m.firstName+' '+m.lastName + '</div>' +
+    '<div class="avatar avatar-lg avatar-navy">' + (m.firstName||'?')[0] + (m.lastName||'?')[0] + '</div>' +
+    '<div><div style="font-size:18px;font-weight:600;color:var(--navy);">' + m.firstName + ' ' + m.lastName + '</div>' +
     '<div style="font-size:13px;color:var(--text-muted);">' + m.email + ' &nbsp;|&nbsp; ' + m.mobile + '</div>' +
-    '<span class="badge badge-' + statusClass(m.status) + '" style="margin-top:6px;">' + m.status + '</span>' +
+    '<span class="badge badge-' + statusClass(m.status) + '" style="margin-top:6px;">' + statusLabel(m.status) + '</span>' +
     (m.membershipNo ? '&nbsp;<span class="badge badge-info">Member No: '+m.membershipNo+'</span>' : '') +
     '</div></div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">' +
-    detRow('App ID', m.appID) + detRow('Date of Birth', m.dob||'—') +
-    detRow('Gender', m.gender) + detRow('Occupation', m.occupation||'—') +
-    detRow('City / PIN', (m.city||'') + (m.pin?' – '+m.pin:'')) + detRow('WhatsApp', m.whatsapp) +
-    detRow('Spouse', m.spouseName||'—') + detRow('Anniversary', m.anniversary||'—') +
-    detRow('Interests', m.interests||'—') + detRow('Referred By', m.referredBy||'—') +
-    detRow('Payment Method', m.paymentMethod) + detRow('Payment Ref', m.paymentRef) +
-    detRow('Payment Date', m.paymentDate||'—') + detRow('Amount Paid', '₹'+Number(m.amountPaid).toLocaleString('en-IN')) +
-    detRow('Receipt File', m.receiptFileName || '(not uploaded)') + detRow('Invoice Sent', m.invoiceSent ? 'Yes ✓' : 'No') +
-    detRow('Submitted At', m.submittedAt) + detRow('Serial No.', m.serialNo||'—') +
+    detRow('App ID', m.appID)                    + detRow('Date of Birth', m.dob||'—') +
+    detRow('Gender', m.gender||'—')              + detRow('Occupation', m.occupation||'—') +
+    detRow('City / PIN', (m.city||'') + (m.pin?' – '+m.pin:'')) + detRow('WhatsApp', m.whatsapp||'—') +
+    detRow('Spouse', m.spouseName||'—')          + detRow('Anniversary', m.anniversary||'—') +
+    detRow('Interests', m.interests||'—')        + detRow('Referred By', m.referredBy||'—') +
+    detRow('Payment Method', m.paymentMethod||'—') + detRow('Payment Ref', m.paymentRef||'—') +
+    detRow('Payment Date', m.paymentDate||'—')   + detRow('Amount Paid', '₹'+Number(m.amountPaid||0).toLocaleString('en-IN')) +
+    detRow('Receipt File', m.receiptFileName||'(not uploaded)') + detRow('Invoice Sent', m.invoiceSent ? 'Yes ✓' : 'No') +
+    detRow('Submitted At', m.submittedAt||'—')   + detRow('Serial No.', m.serialNo||'—') +
     '</div>' +
-    (m.status==='Pending' ? '<div class="alert alert-warning" style="margin-top:1rem;">⚠ This application is awaiting verification. Please review the payment receipt before approving.</div>' : '') +
-    (m.receiptFileName ? '<div style="margin-top:1rem;padding:10px 14px;background:var(--ivory-dark);border-radius:var(--radius);font-size:13px;display:flex;align-items:center;gap:8px;"><span>📎</span><span>'+m.receiptFileName+'</span><span style="color:var(--text-muted);font-size:11px;">(uploaded)</span></div>' : '');
+    (isPending(m.status) ? '<div class="alert alert-warning" style="margin-top:1rem;">⚠ Awaiting verification. Review payment receipt before approving.</div>' : '') +
+    (isActive(m.status)  ? '<div class="alert alert-success" style="margin-top:1rem;">✅ Member is active. You can send the Tax Invoice below.</div>' : '') +
+    (m.receiptFileName   ? '<div style="margin-top:1rem;padding:10px 14px;background:var(--ivory-dark);border-radius:var(--radius);font-size:13px;display:flex;align-items:center;gap:8px;"><span>📎</span><span>'+m.receiptFileName+'</span><span style="color:var(--text-muted);font-size:11px;">(payment receipt uploaded)</span></div>' : '');
 
+  var id = appID.replace(/'/g, "\\'");
   var footer = '';
-  if (m.status === 'Pending') {
-    footer += '<button class="btn btn-outline" onclick="rejectMember(\''+appID+'\');closeModal(\'memberModal\')">❌ Reject</button>';
-    footer += '<button class="btn btn-primary" onclick="approveMember(\''+appID+'\');closeModal(\'memberModal\')">✅ Approve &amp; Activate</button>';
+  if (isPending(m.status)) {
+    footer += '<button class="btn btn-danger" onclick="rejectMember(\''+id+'\');closeModal(\'memberModal\')">❌ Reject</button>';
+    footer += '<button class="btn btn-primary" onclick="approveMember(\''+id+'\');closeModal(\'memberModal\')">✅ Approve &amp; Activate</button>';
   }
-  if (m.status === 'Active') {
-    footer += '<button class="btn btn-gold" onclick="closeModal(\'memberModal\');openInvoice(\''+appID+'\')">🧾 Send Invoice</button>';
+  if (isActive(m.status)) {
+    footer += '<button class="btn btn-gold" onclick="closeModal(\'memberModal\');openInvoice(\''+id+'\')">🧾 Send Tax Invoice</button>';
   }
   footer += '<button class="btn btn-outline" onclick="closeModal(\'memberModal\')">Close</button>';
   document.getElementById('modalFooter').innerHTML = footer;
@@ -418,7 +438,7 @@ function rejectMember(appID) {
 
 // ── INVOICE ──
 function renderInvoiceList() {
-  var active = MEMBERS.filter(function(m){ return m.status==='Active'; });
+  var active = MEMBERS.filter(function(m){ return isActive(m.status); });
   _detCount = 0;
   document.getElementById('invMemberList').innerHTML = active.map(function(m){
     return '<div class="flex-center gap-10" style="padding:10px 12px;border-radius:8px;cursor:pointer;transition:background 0.15s;margin-bottom:4px;" ' +
@@ -533,7 +553,7 @@ function sendInvoiceEmail() {
 
 // ── REPORTS ──
 function renderReports() {
-  var active = MEMBERS.filter(function(m){ return m.status==='Active'; });
+  var active = MEMBERS.filter(function(m){ return isActive(m.status); });
   var gross = active.length * 29500;
   var base = active.length * 25000;
   var gst = active.length * 2250;
@@ -569,7 +589,7 @@ function renderReports() {
     return '<tr><td class="td-id">'+m.appID+'</td><td class="td-name">'+m.firstName+' '+m.lastName+'</td>' +
       '<td>'+m.email+'</td><td>'+m.mobile+'</td><td>'+m.city+'</td>' +
       '<td>Annual</td><td>₹25,000</td><td>₹4,500</td><td>₹29,500</td>' +
-      '<td><span class="badge badge-'+statusClass(m.status)+'">'+m.status+'</span></td>' +
+      '<td><span class="badge badge-'+statusClass(m.status)+'">'+statusLabel(m.status)+'</span></td>' +
       '<td style="font-size:12px;">'+m.submittedAt+'</td></tr>';
   }).join('');
 }
@@ -624,5 +644,27 @@ function saveSettings() { alert('Settings saved! (In production, this updates yo
 function openModal(id) { document.getElementById(id).classList.add('open'); _detCount=0; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function statusClass(s) { return s==='Active'?'success':s==='Pending'?'warning':s==='Rejected'?'danger':'info'; }
+// ── STATUS HELPERS ──
+// Google Sheets stores "Pending Verification", form uses "Pending" — normalise both
+function isPending(s) {
+  s = (s || '').toLowerCase().trim();
+  return s === 'pending' || s === 'pending verification';
+}
+function isActive(s)   { return (s || '').toLowerCase().trim() === 'active'; }
+function isRejected(s) { return (s || '').toLowerCase().trim() === 'rejected'; }
+
+function statusClass(s) {
+  if (isActive(s))   return 'success';
+  if (isPending(s))  return 'warning';
+  if (isRejected(s)) return 'danger';
+  return 'info';
+}
+
+// Normalise status for consistent display
+function statusLabel(s) {
+  if (isActive(s))   return 'Active';
+  if (isPending(s))  return 'Pending Verification';
+  if (isRejected(s)) return 'Rejected';
+  return s || 'Unknown';
+}
 
