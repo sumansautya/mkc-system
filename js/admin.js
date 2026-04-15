@@ -36,7 +36,7 @@ function doLogin() {
     document.getElementById('adminAvatar').textContent = user.substring(0,2).toUpperCase();
     errorEl.style.display = 'none';
     attemptsEl.textContent = '';
-    renderDashboard();
+    loadMembers(renderDashboard);
   } else {
     // ❌ FAILED
     failedAttempts++;
@@ -119,11 +119,11 @@ document.addEventListener('DOMContentLoaded', function() {
   st.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}';
   document.head.appendChild(st);
 
-  // Auto-login if session exists (stays logged in during same browser tab session)
+  // Auto-login if session exists
   if (sessionStorage.getItem(SESSION_KEY) === 'authenticated') {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appShell').style.display = 'block';
-    renderDashboard();
+    loadMembers(renderDashboard);
   } else {
     document.getElementById('loginUser').focus();
   }
@@ -135,18 +135,82 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-var MEMBERS = [
-  { appID:'MKC-2026-1001', firstName:'Arihant', lastName:'Niwas', gender:'Male', dob:'1972-06-15', occupation:'Business', email:'arihant@email.com', mobile:'9810182423', whatsapp:'Yes', residentialAddress:'Arihant Niwas, Greater Kailash-II', city:'New Delhi', pin:'110048', spouseName:'Sunita Niwas', anniversary:'1998-02-14', interests:'Classical Music, Visual Arts', referredBy:'', paymentMethod:'Cheque', paymentRef:'CHQ-2234', paymentDate:'2026-04-01', amountPaid:29500, receiptFileName:'receipt_arihant.jpg', status:'Active', membershipNo:'303/2', invoiceSent:true, submittedAt:'01/04/2026, 10:30:00', serialNo:'2026-27/M001' },
-  { appID:'MKC-2026-1002', firstName:'Priya', lastName:'Sharma', gender:'Female', dob:'1985-03-22', occupation:'Teacher', email:'priya.sharma@gmail.com', mobile:'9876543210', whatsapp:'Yes', residentialAddress:'45, Lajpat Nagar', city:'New Delhi', pin:'110024', spouseName:'Rajesh Sharma', anniversary:'2010-11-05', interests:'Classical Dance, Poetry / Literature', referredBy:'Arihant Niwas', paymentMethod:'NEFT / RTGS / IMPS', paymentRef:'PUNB0019283746', paymentDate:'2026-04-03', amountPaid:29500, receiptFileName:'receipt_priya.png', status:'Active', membershipNo:'304', invoiceSent:false, submittedAt:'03/04/2026, 14:22:00', serialNo:'2026-27/M002' },
-  { appID:'MKC-2026-1003', firstName:'Rohit', lastName:'Verma', gender:'Male', dob:'1990-09-10', occupation:'Software Engineer', email:'rohit.v@outlook.com', mobile:'9123456780', whatsapp:'Yes', residentialAddress:'B-12, Vasant Kunj', city:'New Delhi', pin:'110070', spouseName:'', anniversary:'', interests:'Theatre / Drama, Photography', referredBy:'', paymentMethod:'UPI / GPay / PhonePe', paymentRef:'GPY2026040512', paymentDate:'2026-04-05', amountPaid:29500, receiptFileName:'gpay_screenshot.jpg', status:'Pending', membershipNo:'', invoiceSent:false, submittedAt:'05/04/2026, 09:45:00', serialNo:'' },
-  { appID:'MKC-2026-1004', firstName:'Kavita', lastName:'Mehta', gender:'Female', dob:'1968-12-01', occupation:'Retired', email:'kavita.mehta@yahoo.com', mobile:'9988776655', whatsapp:'No', residentialAddress:'C-45, Defence Colony', city:'New Delhi', pin:'110024', spouseName:'Suresh Mehta', anniversary:'1992-03-15', interests:'Classical Music, Classical Dance, Folk Dance', referredBy:'Priya Sharma', paymentMethod:'Cash at Office', paymentRef:'CASH-001', paymentDate:'2026-04-08', amountPaid:29500, receiptFileName:'', status:'Pending', membershipNo:'', invoiceSent:false, submittedAt:'08/04/2026, 16:00:00', serialNo:'' },
-  { appID:'MKC-2026-1005', firstName:'Anil', lastName:'Kumar', gender:'Male', dob:'1975-07-04', occupation:'Doctor', email:'anil.kumar@hospital.com', mobile:'9811223344', whatsapp:'Yes', residentialAddress:'H-7, Green Park', city:'New Delhi', pin:'110016', spouseName:'Meena Kumar', anniversary:'2001-01-20', interests:'Visual Arts, Handicrafts', referredBy:'', paymentMethod:'NEFT / RTGS / IMPS', paymentRef:'PUNB0029384756', paymentDate:'2026-04-10', amountPaid:29500, receiptFileName:'neft_receipt.pdf', status:'Rejected', membershipNo:'', invoiceSent:false, submittedAt:'10/04/2026, 11:30:00', serialNo:'' },
-];
+// ── GOOGLE APPS SCRIPT URL ──
+// Paste your deployed Web App URL here (same URL used in register.js)
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec';
 
+// ── LIVE DATA ──
+var MEMBERS = [];           // filled by loadMembers()
+var dataLoaded = false;
 var currentFilter = 'All';
 var currentSort = 'newest';
 var selectedInvMember = null;
-var invoiceCounter = 3;
+var invoiceCounter = 100;
+
+// ── LOAD MEMBERS FROM GOOGLE SHEETS ──
+function loadMembers(callback) {
+  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+    // Demo mode — no URL set yet
+    MEMBERS = DEMO_MEMBERS.slice();
+    dataLoaded = true;
+    if (callback) callback();
+    return;
+  }
+  showLoadingState('Loading members from database...');
+  fetch(GAS_URL + '?action=getMembers', { method: 'GET' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        MEMBERS = data.members || [];
+        dataLoaded = true;
+        hideLoadingState();
+        if (callback) callback();
+      } else {
+        showDataError('Could not load data: ' + (data.message || 'Unknown error'));
+      }
+    })
+    .catch(function(err) {
+      showDataError('Network error. Check your internet connection and try again.');
+      console.error(err);
+    });
+}
+
+function showLoadingState(msg) {
+  var pages = document.querySelectorAll('[id^="page-"]');
+  pages.forEach(function(p) {
+    if (p.style.display !== 'none') {
+      var ex = p.querySelector('.loading-overlay');
+      if (!ex) {
+        var div = document.createElement('div');
+        div.className = 'loading-overlay';
+        div.style.cssText = 'text-align:center;padding:3rem;color:var(--text-muted);font-size:14px;';
+        div.innerHTML = '<div style="font-size:32px;margin-bottom:12px;">⏳</div><div>' + msg + '</div>';
+        p.insertBefore(div, p.firstChild);
+      }
+    }
+  });
+}
+function hideLoadingState() {
+  document.querySelectorAll('.loading-overlay').forEach(function(el){ el.remove(); });
+}
+function showDataError(msg) {
+  hideLoadingState();
+  var pages = document.querySelectorAll('[id^="page-"]');
+  pages.forEach(function(p) {
+    if (p.style.display !== 'none') {
+      var div = document.createElement('div');
+      div.style.cssText = 'background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:13px;color:#991B1B;display:flex;align-items:center;gap:10px;';
+      div.innerHTML = '<span style="font-size:20px;">⚠️</span><div>' + msg + '<br/><button onclick="location.reload()" style="margin-top:6px;background:none;border:1px solid #FCA5A5;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;color:#991B1B;">Retry</button></div>';
+      p.insertBefore(div, p.firstChild);
+    }
+  });
+}
+
+// ── DEMO DATA (shown when GAS_URL is not set yet) ──
+var DEMO_MEMBERS = [
+  { appID:'DEMO-001', firstName:'Demo', lastName:'Member', gender:'Male', dob:'1980-01-01', occupation:'Business', email:'demo@example.com', mobile:'9999999999', whatsapp:'Yes', residentialAddress:'Demo Address', city:'New Delhi', pin:'110001', spouseName:'', anniversary:'', interests:'Classical Music', referredBy:'', paymentMethod:'UPI', paymentRef:'DEMO123', paymentDate:'2026-04-01', amountPaid:29500, receiptFileName:'demo_receipt.jpg', status:'Pending Verification', membershipNo:'', invoiceSent:false, submittedAt:'Demo data — connect Google Sheets to see real members', serialNo:'' }
+];
+
 
 // ── PAGE SWITCHING ──
 function showPage(name) {
@@ -155,11 +219,15 @@ function showPage(name) {
   document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
   var titles = { dashboard:'Dashboard', members:'Members', invoices:'Tax Invoices', reports:'Reports', email:'Send Emails', settings:'Settings' };
   document.getElementById('topbarTitle').textContent = titles[name] || name;
-  if (name === 'dashboard') renderDashboard();
-  if (name === 'members') renderMembersTable();
-  if (name === 'invoices') renderInvoiceList();
-  if (name === 'reports') renderReports();
-  if (name === 'email') renderEmailRecipients();
+
+  // Always reload live data then render
+  loadMembers(function() {
+    if (name === 'dashboard') renderDashboard();
+    if (name === 'members')   renderMembersTable();
+    if (name === 'invoices')  renderInvoiceList();
+    if (name === 'reports')   renderReports();
+    if (name === 'email')     renderEmailRecipients();
+  });
   return false;
 }
 
@@ -312,24 +380,40 @@ function approveMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
   invoiceCounter++;
+  var newMemberNo = String(300 + invoiceCounter);
+
+  // Update locally immediately
   m.status = 'Active';
-  m.membershipNo = String(300 + invoiceCounter);
-  m.serialNo = '2026-27/M' + String(invoiceCounter).padStart(3,'0');
+  m.membershipNo = newMemberNo;
   renderMembersTable();
   renderDashboard();
-  if (confirm('Member approved! Send invoice email to ' + m.email + '?')) {
-    m.invoiceSent = true;
-    alert('Invoice sent to ' + m.email + '!');
+
+  // Write back to Google Sheets
+  if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+    fetch(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Active&memberNo=' + newMemberNo)
+      .then(function(r){ return r.json(); })
+      .then(function(d){ console.log('Approve result:', d); })
+      .catch(function(e){ console.error('Approve error:', e); });
+  }
+
+  if (confirm('Member approved! Send Tax Invoice email to ' + m.email + ' now?')) {
+    sendInvoiceToMember(m);
   }
 }
 
 function rejectMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
-  if (!confirm('Reject application for ' + m.firstName + ' ' + m.lastName + '?')) return;
+  if (!confirm('Reject application for ' + m.firstName + ' ' + m.lastName + '?\nThis action will notify the member.')) return;
   m.status = 'Rejected';
   renderMembersTable();
   renderDashboard();
+
+  if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+    fetch(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Rejected')
+      .then(function(r){ return r.json(); })
+      .catch(function(e){ console.error('Reject error:', e); });
+  }
 }
 
 // ── INVOICE ──
@@ -419,12 +503,32 @@ function buildInvoiceHTML(m) {
   '</div>';
 }
 
+function sendInvoiceToMember(m) {
+  if (!m) return;
+  if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+    fetch(GAS_URL + '?action=sendInvoice&appID=' + encodeURIComponent(m.appID))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        m.invoiceSent = true;
+        renderInvoiceList();
+        document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' successfully!';
+        openModal('emailSentModal');
+      })
+      .catch(function(e){
+        alert('Could not send invoice email. Please try again.\n' + e);
+      });
+  } else {
+    // Demo mode
+    m.invoiceSent = true;
+    renderInvoiceList();
+    document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' (demo mode)';
+    openModal('emailSentModal');
+  }
+}
+
 function sendInvoiceEmail() {
   if (!selectedInvMember) return;
-  selectedInvMember.invoiceSent = true;
-  renderInvoiceList();
-  document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + selectedInvMember.email + ' successfully!';
-  openModal('emailSentModal');
+  sendInvoiceToMember(selectedInvMember);
 }
 
 // ── REPORTS ──
