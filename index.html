@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manthan Kala Centre — Membership Registration</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    body { background: var(--ivory); min-height: 100vh; }
+    .reg-page { max-width: 780px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+    .reg-header {
+      text-align: center; margin-bottom: 2.5rem;
+      padding: 2.5rem 2rem;
+      background: var(--navy);
+      border-radius: var(--radius-xl);
+      position: relative; overflow: hidden;
+    }
+    .reg-header::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 200px; height: 200px; border-radius: 50%;
+      border: 40px solid rgba(201,168,76,0.15);
+    }
+    .reg-header::after {
+      content: ''; position: absolute; bottom: -40px; left: -40px;
+      width: 140px; height: 140px; border-radius: 50%;
+      border: 30px solid rgba(255,255,255,0.05);
+    }
+    .reg-logo-mark { font-size: 36px; margin-bottom: 12px; }
+    .reg-org { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--gold); margin-bottom: 4px; }
+    .reg-sub { font-size: 12px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; }
+    .reg-tagline { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 8px; }
+
+    .reg-addr { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 6px; }
+
+    /* stepper row */
+    .stepper-row { display: flex; align-items: flex-start; margin-bottom: 2rem; padding: 0 1rem; }
+    .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .step-circle {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; transition: all 0.3s; flex-shrink: 0;
+    }
+    .step-circle.done    { background: var(--success); color: #fff; }
+    .step-circle.active  { background: var(--navy); color: var(--gold); border: 2px solid var(--gold); box-shadow: 0 0 0 4px rgba(13,32,69,0.1); }
+    .step-circle.pending { background: var(--ivory-dark); color: var(--text-muted); border: 2px solid var(--ivory-border); }
+    .step-lbl { font-size: 11px; color: var(--text-muted); margin-top: 5px; text-align: center; }
+    .step-lbl.active { color: var(--navy); font-weight: 600; }
+    .step-conn { flex: 1; height: 2px; background: var(--ivory-border); margin: 16px 4px 0; }
+    .step-conn.done { background: var(--success); }
+
+    .section-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1.25rem; padding-bottom: 10px;
+      border-bottom: 2px solid var(--ivory-border);
+    }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--navy); color: var(--gold);
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--navy); }
+
+    .fee-box {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      color: #fff; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
+      margin-top: 1rem;
+    }
+    .fee-row { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; }
+    .fee-row.total { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 6px; padding-top: 10px; font-size: 18px; font-weight: 700; color: var(--gold); }
+
+    .bank-box {
+      background: #EFF6FF; border: 1px solid #BFDBFE;
+      border-radius: var(--radius); padding: 1rem 1.25rem; font-size: 13px; color: var(--navy-mid);
+    }
+    .bank-box strong { color: var(--navy); display: block; margin-bottom: 6px; }
+
+    .step-content { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+    /* ── PASSPORT PHOTO UPLOAD ── */
+    .photo-upload-row {
+      display: flex; gap: 24px; align-items: flex-start;
+      padding: 1rem 0 1.25rem; margin-bottom: 1.25rem;
+      border-bottom: 2px solid var(--ivory-border);
+    }
+    .photo-slot { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .photo-box {
+      width: 110px; height: 130px;
+      border: 2px dashed var(--ivory-border);
+      border-radius: 6px; background: var(--ivory);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      cursor: pointer; overflow: hidden;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .photo-box:hover { border-color: var(--blue-accent); background: #EFF6FF; }
+    .photo-box.has-photo { border-style: solid; border-color: var(--navy); background: #fff; }
+    .photo-box img {
+      width: 100%; height: 100%; object-fit: cover;
+      position: absolute; inset: 0;
+    }
+    .photo-box-placeholder { text-align: center; padding: 8px; }
+    .photo-box-placeholder .ph-icon { font-size: 28px; margin-bottom: 4px; color: var(--text-muted); }
+    .photo-box-placeholder .ph-text { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+    .photo-label {
+      font-size: 11px; font-weight: 600; color: var(--navy);
+      text-transform: uppercase; letter-spacing: 0.5px; text-align: center;
+    }
+    .photo-sub { font-size: 10px; color: var(--text-muted); text-align: center; }
+    .photo-change-btn {
+      font-size: 11px; color: var(--blue-accent); cursor: pointer;
+      background: none; border: none; padding: 0; text-decoration: underline;
+      display: none;
+    }
+    .photo-slot.has-photo .photo-change-btn { display: block; }
+    .photo-slot.has-photo .ph-text { display: none; }
+    .photo-requirement {
+      flex: 1; background: #EFF6FF; border: 1px solid #BFDBFE;
+      border-radius: var(--radius); padding: 12px 14px;
+      font-size: 12px; color: var(--navy-mid); align-self: center;
+    }
+    .photo-requirement strong { display: block; color: var(--navy); margin-bottom: 6px; font-size: 13px; }
+    .photo-requirement li { margin: 3px 0 3px 14px; }
+
+    .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
+
+    /* receipt upload */
+    .receipt-uploaded { background: var(--success-bg); border: 1.5px solid #A7F3D0; border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--success); margin-top: 10px; }
+
+    /* success screen */
+    .success-card { text-align: center; padding: 3rem 2rem; }
+    .success-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--success-bg); border: 3px solid var(--success); color: var(--success); font-size: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+    .success-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--navy); margin-bottom: 8px; }
+    .success-id { display: inline-block; background: var(--navy); color: var(--gold); font-size: 22px; font-weight: 700; padding: 10px 28px; border-radius: var(--radius); letter-spacing: 2px; margin: 1rem 0; }
+    .next-box { background: var(--ivory-dark); border-radius: var(--radius-lg); padding: 1.25rem; text-align: left; margin-top: 1.5rem; }
+    .next-box p { font-size: 13px; color: var(--text-mid); padding: 4px 0; }
+  </style>
+</head>
+<body>
+<div class="reg-page">
+
+  <!-- HEADER -->
+  <div class="reg-header">
+    <div class="reg-logo-mark">🎵</div>
+    <div class="reg-org">॥ Manthan ॥</div>
+    <div class="reg-sub">Manthan Kala Centre (Regd.)</div>
+    <div class="reg-tagline">A-62, Mayfair Garden, New Delhi – 110016</div>
+    <div class="reg-addr">Ph: 011-26850232 &nbsp;|&nbsp; M: 8527922395 &nbsp;|&nbsp; manthantree@gmail.com</div>
+  </div>
+
+  <!-- STEPPER -->
+  <div class="stepper-row" id="stepper">
+    <div class="step-item">
+      <div class="step-circle active" id="sc1">1</div>
+      <div class="step-lbl active" id="sl1">Personal</div>
+    </div>
+    <div class="step-conn" id="cn1"></div>
+    <div class="step-item">
+      <div class="step-circle pending" id="sc2">2</div>
+      <div class="step-lbl" id="sl2">Family</div>
+    </div>
+    <div class="step-conn" id="cn2"></div>
+    <div class="step-item">
+      <div class="step-circle pending" id="sc3">3</div>
+      <div class="step-lbl" id="sl3">Membership</div>
+    </div>
+    <div class="step-conn" id="cn3"></div>
+    <div class="step-item">
+      <div class="step-circle pending" id="sc4">4</div>
+      <div class="step-lbl" id="sl4">Payment</div>
+    </div>
+    <div class="step-conn" id="cn4"></div>
+    <div class="step-item">
+      <div class="step-circle pending" id="sc5">5</div>
+      <div class="step-lbl" id="sl5">Submit</div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 1: PERSONAL INFO ═══ -->
+  <div id="step1" class="step-content">
+    <div class="card">
+      <div class="section-header"><div class="section-num">1</div><div class="section-title">Personal Information</div></div>
+
+      <!-- PASSPORT PHOTOS -->
+      <div class="photo-upload-row">
+        <!-- Photo: Self -->
+        <div class="photo-slot" id="photoSlot-self">
+          <div class="photo-box" id="photoBox-self" onclick="document.getElementById('photoInput-self').click()" title="Upload your passport photo">
+            <div class="photo-box-placeholder">
+              <div class="ph-icon">🖼</div>
+              <div class="ph-text">Click to upload<br/>your photo</div>
+            </div>
+          </div>
+          <input type="file" id="photoInput-self" accept="image/*" style="display:none;" onchange="handlePhoto('self',this)"/>
+          <div class="photo-label">Self</div>
+          <div class="photo-sub">Passport size</div>
+          <button class="photo-change-btn" onclick="document.getElementById('photoInput-self').click()">Change photo</button>
+        </div>
+
+        <!-- Requirements info -->
+        <div class="photo-requirement">
+          <strong>📸 Passport Size Photographs Required</strong>
+          <ul style="list-style:disc; padding:0; margin:0;">
+            <li>One photograph of <strong>self</strong></li>
+            <li>One photograph of <strong>spouse</strong></li>
+            <li>Recent, clear, front-facing</li>
+            <li>White or light background preferred</li>
+            <li>JPG or PNG, max 2MB each</li>
+            <li>Used for Manthan Directory</li>
+          </ul>
+        </div>
+
+        <!-- Photo: Spouse -->
+        <div class="photo-slot" id="photoSlot-spouse">
+          <div class="photo-box" id="photoBox-spouse" onclick="document.getElementById('photoInput-spouse').click()" title="Upload spouse passport photo">
+            <div class="photo-box-placeholder">
+              <div class="ph-icon">🖼</div>
+              <div class="ph-text">Click to upload<br/>spouse photo</div>
+            </div>
+          </div>
+          <input type="file" id="photoInput-spouse" accept="image/*" style="display:none;" onchange="handlePhoto('spouse',this)"/>
+          <div class="photo-label">Spouse</div>
+          <div class="photo-sub">Passport size</div>
+          <button class="photo-change-btn" onclick="document.getElementById('photoInput-spouse').click()">Change photo</button>
+        </div>
+      </div>
+      <!-- END PHOTOS -->
+
+      <div class="form-grid">
+        <div class="field" id="f-fname">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="fname" placeholder="e.g. Arihant"/>
+          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
+        </div>
+        <div class="field" id="f-lname">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" id="lname" placeholder="e.g. Gupta"/>
+          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Date of Birth (Self)</label>
+          <input type="date" id="dob"/>
+        </div>
+        <div class="field" id="f-gender">
+          <label>Gender <span class="req">*</span></label>
+          <select id="gender">
+            <option value="">Select</option>
+            <option>Male</option><option>Female</option><option>Other</option>
+          </select>
+          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Occupation</label>
+        <input type="text" id="occ" placeholder="e.g. Teacher, Business, Retired..."/>
+      </div>
+      <div class="field" id="f-email">
+        <label>Email Address <span class="req">*</span></label>
+        <input type="email" id="email" placeholder="yourname@email.com"/>
+        <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Valid email required</div>
+      </div>
+      <div class="form-grid">
+        <div class="field" id="f-mobile">
+          <label>Mobile (Self) <span class="req">*</span></label>
+          <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10"/>
+          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Valid 10-digit number required</div>
+        </div>
+        <div class="field">
+          <label>Mobile (Spouse)</label>
+          <input type="tel" id="mobile2" placeholder="10-digit number" maxlength="10"/>
+        </div>
+      </div>
+      <label class="flex-center gap-8" style="font-size:13px;color:var(--text-mid);cursor:pointer;">
+        <input type="checkbox" id="whatsapp" checked style="accent-color:var(--navy);"/> 
+        My mobile number is on WhatsApp
+      </label>
+    </div>
+    <div class="card">
+      <div class="section-header"><div class="section-num">📍</div><div class="section-title">Address Details</div></div>
+      <div class="field">
+        <label>Residential Address <span class="req">*</span></label>
+        <textarea id="raddr" placeholder="House / Flat No., Street, Colony, Area..."></textarea>
+      </div>
+      <div class="form-grid-3">
+        <div class="field"><label>City</label><input type="text" id="city" placeholder="New Delhi"/></div>
+        <div class="field"><label>State</label><input type="text" id="state" placeholder="Delhi"/></div>
+        <div class="field"><label>PIN Code</label><input type="text" id="pin" maxlength="6" placeholder="110016"/></div>
+      </div>
+      <div class="field">
+        <label>Office Address <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        <textarea id="oaddr" placeholder="Office / work address..."></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goStep(2)">Next: Family Details &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2: FAMILY ═══ -->
+  <div id="step2" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="section-header"><div class="section-num">2</div><div class="section-title">Family Details</div></div>
+      <div class="form-grid">
+        <div class="field"><label>Spouse / Partner Name</label><input type="text" id="spouse" placeholder="Full name"/></div>
+        <div class="field"><label>Date of Birth (Spouse)</label><input type="date" id="sdob"/></div>
+      </div>
+      <div class="field"><label>Wedding Anniversary Date</label><input type="date" id="anniv"/></div>
+      <div class="field"><label>Dependants / Children Names</label><input type="text" id="dep" placeholder="e.g. Riya, Arjun (comma separated)"/></div>
+    </div>
+    <div class="card">
+      <div class="section-header"><div class="section-num">🎨</div><div class="section-title">Area of Interest in Arts</div></div>
+      <p class="text-muted text-small" style="margin-bottom:10px;">Select all that apply — we'll invite you to relevant events</p>
+      <div class="chip-group">
+        <div class="chip" onclick="toggleChip(this)">Classical Music</div>
+        <div class="chip" onclick="toggleChip(this)">Light Music</div>
+        <div class="chip" onclick="toggleChip(this)">Classical Dance</div>
+        <div class="chip" onclick="toggleChip(this)">Folk Dance</div>
+        <div class="chip" onclick="toggleChip(this)">Theatre / Drama</div>
+        <div class="chip" onclick="toggleChip(this)">Visual Arts</div>
+        <div class="chip" onclick="toggleChip(this)">Poetry / Literature</div>
+        <div class="chip" onclick="toggleChip(this)">Photography</div>
+        <div class="chip" onclick="toggleChip(this)">Handicrafts</div>
+        <div class="chip" onclick="toggleChip(this)">Other</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Next: Membership &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3: MEMBERSHIP ═══ -->
+  <div id="step3" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="section-header"><div class="section-num">3</div><div class="section-title">Membership Type</div></div>
+      <div class="mem-type-wrap">
+        <div class="mem-type-card selected">
+          <div class="flex-center gap-12">
+            <span style="font-size:24px;">⭐</span>
+            <div>
+              <div class="mem-type-name">Annual Membership</div>
+              <div class="mem-type-price">₹25,000 <span style="font-size:13px;color:var(--text-muted);font-weight:400;">per year</span></div>
+              <div class="mem-type-tax">+ CGST 9% (₹2,250) + SGST 9% (₹2,250) | HSN Code: 999599</div>
+              <div class="mem-type-total">Total Payable: ₹29,500 per year</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fee-box mt-2">
+        <div class="fee-row"><span>Yearly Subscription (HSN 999599)</span><span>₹25,000</span></div>
+        <div class="fee-row"><span>CGST @ 9%</span><span>₹2,250</span></div>
+        <div class="fee-row"><span>SGST @ 9%</span><span>₹2,250</span></div>
+        <div class="fee-row total"><span>Total Payable</span><span>₹29,500</span></div>
+      </div>
+      <p class="text-small text-muted mt-1" style="padding:8px 0;">
+        In words: <em>Rupees Twenty-Nine Thousand Five Hundred Only</em>
+      </p>
+      <div class="field mt-2">
+        <label>Referred by (Member Name or ID)</label>
+        <input type="text" id="refby" placeholder="Who introduced you to Manthan Kala Centre? (optional)"/>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(2)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="goStep(4)">Next: Payment &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: PAYMENT ═══ -->
+  <div id="step4" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="section-header"><div class="section-num">4</div><div class="section-title">Payment Details</div></div>
+
+      <div class="bank-box">
+        <strong>Bank Account Details — Manthan Kala Centre</strong>
+        <div class="form-grid" style="margin-top:6px;gap:8px;">
+          <div><span class="text-muted text-small">Bank Name</span><br/><strong>Punjab National Bank</strong></div>
+          <div><span class="text-muted text-small">Account No.</span><br/><strong>05622011010738</strong></div>
+          <div><span class="text-muted text-small">IFSC Code</span><br/><strong>PUNB0035610</strong></div>
+          <div><span class="text-muted text-small">Branch</span><br/><strong>New Delhi, Saket – 110017</strong></div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">Also payable via cheque/cash in favour of "MANTHAN KALA CENTRE". Write Name &amp; Membership No. on reverse of cheque.</div>
+        <div style="margin-top:6px;font-size:11px;color:var(--warning);background:var(--warning-bg);padding:6px 10px;border-radius:6px;">
+          ⚠ Payment due before <strong>15th May</strong> of each year. Interest @ ₹500/month applies after due date.
+        </div>
+      </div>
+
+      <div class="field mt-2">
+        <label>Payment Method <span class="req">*</span></label>
+        <select id="paymethod">
+          <option value="">Select method</option>
+          <option>NEFT / RTGS / IMPS</option>
+          <option>UPI / GPay / PhonePe</option>
+          <option>Cheque</option>
+          <option>Cash at Office</option>
+        </select>
+      </div>
+      <div class="form-grid">
+        <div class="field" id="f-payref">
+          <label>Transaction / UTR Reference No. <span class="req">*</span></label>
+          <input type="text" id="payref" placeholder="e.g. PUNB0012345678 or UPI Ref"/>
+          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
+        </div>
+        <div class="field">
+          <label>Payment Date <span class="req">*</span></label>
+          <input type="date" id="paydate"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Amount Paid (₹) <span class="req">*</span></label>
+        <input type="number" id="payamt" value="29500" min="0"/>
+      </div>
+
+      <!-- Receipt upload -->
+      <div class="field">
+        <label>Upload Payment Receipt / Screenshot <span class="req">*</span></label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('receiptFile').click()">
+          <div class="upload-icon">📎</div>
+          <div class="upload-text">Click to upload or drag &amp; drop</div>
+          <div class="upload-hint">JPG, PNG, PDF — max 5MB</div>
+        </div>
+        <input type="file" id="receiptFile" accept="image/*,.pdf" style="display:none;" onchange="handleUpload(this)"/>
+        <div id="uploadPreview" style="display:none;" class="receipt-uploaded">
+          <span>✅</span> <span id="uploadName"></span>
+          <button onclick="clearUpload()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;color:var(--danger);">✕</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Additional Notes / Message</label>
+        <textarea id="paynotes" placeholder="Any additional information for the office..."></textarea>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(3)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="goStep(5)">Review &amp; Submit &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5: REVIEW & SUBMIT ═══ -->
+  <div id="step5" class="step-content" style="display:none;">
+    <div class="card">
+      <div class="section-header"><div class="section-num">5</div><div class="section-title">Review Your Application</div></div>
+      <div id="summaryBody"></div>
+    </div>
+    <div class="card">
+      <label class="flex-center gap-8" style="font-size:13px;cursor:pointer;margin-bottom:10px;">
+        <input type="checkbox" id="agree" style="accent-color:var(--navy);"/>
+        I agree to abide by the rules, byelaws, and norms of Manthan Kala Centre (Regd.)
+      </label>
+      <label class="flex-center gap-8" style="font-size:13px;cursor:pointer;">
+        <input type="checkbox" id="accurate" style="accent-color:var(--navy);"/>
+        The information provided is true and accurate to the best of my knowledge
+      </label>
+    </div>
+    <div id="submitAlert" style="display:none;"></div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(4)">&larr; Back</button>
+      <button class="btn btn-gold" id="submitBtn" onclick="submitForm()">&#10003; Submit Application</button>
+    </div>
+  </div>
+
+  <!-- ═══ SUCCESS ═══ -->
+  <div id="stepSuccess" style="display:none;">
+    <div class="card success-card">
+      <div class="success-ring">✓</div>
+      <div class="success-title">Application Submitted!</div>
+      <p class="text-muted">Your membership application is under review.</p>
+      <div class="success-id" id="successID">MKC-2026-XXXX</div>
+      <p class="text-small text-muted">Save this Application Number for future reference</p>
+      <div class="next-box">
+        <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">What happens next?</p>
+        <p>📋 Admin will review your details and payment receipt</p>
+        <p>✅ Upon verification, your membership will be activated</p>
+        <p>📧 You will receive a Tax Invoice by email (for official records)</p>
+        <p>📞 For queries: 8527922395 (WhatsApp) or manthantree@gmail.com</p>
+        <p>⚠ Payment should be made before 15th May. Interest @ ₹500/month after due date.</p>
+      </div>
+      <button class="btn btn-outline mt-2" onclick="resetForm()">Register Another Member</button>
+    </div>
+  </div>
+
+</div><!-- end reg-page -->
+
+<script src="js/register.js"></script>
+</body>
+</html>
