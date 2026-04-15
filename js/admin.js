@@ -2,7 +2,139 @@
 //  MKC Admin Dashboard — js/admin.js
 // ══════════════════════════════════════════════════
 
-// ── DEMO DATA (replace with Google Sheets API in production) ──
+// ── ADMIN CREDENTIALS ──
+// To change: update USERNAME and PASSWORD below, then re-upload this file to GitHub
+var ADMIN_USERNAME = 'mkc_admin';
+var ADMIN_PASSWORD = 'Manthan@2026';
+
+// ── LOGIN STATE ──
+var MAX_ATTEMPTS = 5;
+var LOCKOUT_SECONDS = 30;
+var SESSION_KEY = 'mkc_admin_session';
+var failedAttempts = 0;
+var lockoutTimer = null;
+var isLocked = false;
+
+function doLogin() {
+  if (isLocked) return;
+  var user = document.getElementById('loginUser').value.trim();
+  var pass = document.getElementById('loginPass').value;
+  var errorEl = document.getElementById('loginError');
+  var attemptsEl = document.getElementById('attemptsMsg');
+
+  if (!user || !pass) {
+    showLoginError('Please enter both username and password.');
+    return;
+  }
+
+  if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+    // ✅ SUCCESS
+    failedAttempts = 0;
+    sessionStorage.setItem(SESSION_KEY, 'authenticated');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    document.getElementById('adminAvatar').textContent = user.substring(0,2).toUpperCase();
+    errorEl.style.display = 'none';
+    attemptsEl.textContent = '';
+    renderDashboard();
+  } else {
+    // ❌ FAILED
+    failedAttempts++;
+    var remaining = MAX_ATTEMPTS - failedAttempts;
+    if (failedAttempts >= MAX_ATTEMPTS) {
+      startLockout();
+    } else {
+      showLoginError('Incorrect username or password. Please try again.');
+      attemptsEl.textContent = remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining before lockout.';
+    }
+    // Shake the card
+    var card = document.querySelector('.login-card');
+    card.style.animation = 'none';
+    card.offsetHeight;
+    card.style.animation = 'shake 0.4s ease';
+  }
+}
+
+function showLoginError(msg) {
+  var el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function startLockout() {
+  isLocked = true;
+  var btn = document.getElementById('loginBtn');
+  var lockedEl = document.getElementById('loginLocked');
+  var errorEl = document.getElementById('loginError');
+  var attemptsEl = document.getElementById('attemptsMsg');
+  errorEl.style.display = 'none';
+  lockedEl.style.display = 'block';
+  btn.disabled = true;
+  btn.style.opacity = '0.4';
+  btn.style.cursor = 'not-allowed';
+  attemptsEl.textContent = '';
+
+  var secs = LOCKOUT_SECONDS;
+  document.getElementById('lockTimer').textContent = secs;
+  lockoutTimer = setInterval(function() {
+    secs--;
+    document.getElementById('lockTimer').textContent = secs;
+    if (secs <= 0) {
+      clearInterval(lockoutTimer);
+      isLocked = false;
+      failedAttempts = 0;
+      lockedEl.style.display = 'none';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginUser').focus();
+    }
+  }, 1000);
+}
+
+function togglePwd() {
+  var inp = document.getElementById('loginPass');
+  var btn = document.getElementById('eyeBtn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function doLogout() {
+  if (!confirm('Sign out of Admin Panel?')) return;
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('attemptsMsg').textContent = '';
+  failedAttempts = 0;
+}
+
+// ── CHECK SESSION ON LOAD ──
+document.addEventListener('DOMContentLoaded', function() {
+  // Add shake animation style
+  var st = document.createElement('style');
+  st.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}';
+  document.head.appendChild(st);
+
+  // Auto-login if session exists (stays logged in during same browser tab session)
+  if (sessionStorage.getItem(SESSION_KEY) === 'authenticated') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    renderDashboard();
+  } else {
+    document.getElementById('loginUser').focus();
+  }
+
+  // Close modals on backdrop click
+  document.querySelectorAll('.modal-backdrop').forEach(function(b){
+    b.addEventListener('click', function(e){ if(e.target===b) b.classList.remove('open'); });
+  });
+});
+
+
 var MEMBERS = [
   { appID:'MKC-2026-1001', firstName:'Arihant', lastName:'Niwas', gender:'Male', dob:'1972-06-15', occupation:'Business', email:'arihant@email.com', mobile:'9810182423', whatsapp:'Yes', residentialAddress:'Arihant Niwas, Greater Kailash-II', city:'New Delhi', pin:'110048', spouseName:'Sunita Niwas', anniversary:'1998-02-14', interests:'Classical Music, Visual Arts', referredBy:'', paymentMethod:'Cheque', paymentRef:'CHQ-2234', paymentDate:'2026-04-01', amountPaid:29500, receiptFileName:'receipt_arihant.jpg', status:'Active', membershipNo:'303/2', invoiceSent:true, submittedAt:'01/04/2026, 10:30:00', serialNo:'2026-27/M001' },
   { appID:'MKC-2026-1002', firstName:'Priya', lastName:'Sharma', gender:'Female', dob:'1985-03-22', occupation:'Teacher', email:'priya.sharma@gmail.com', mobile:'9876543210', whatsapp:'Yes', residentialAddress:'45, Lajpat Nagar', city:'New Delhi', pin:'110024', spouseName:'Rajesh Sharma', anniversary:'2010-11-05', interests:'Classical Dance, Poetry / Literature', referredBy:'Arihant Niwas', paymentMethod:'NEFT / RTGS / IMPS', paymentRef:'PUNB0019283746', paymentDate:'2026-04-03', amountPaid:29500, receiptFileName:'receipt_priya.png', status:'Active', membershipNo:'304', invoiceSent:false, submittedAt:'03/04/2026, 14:22:00', serialNo:'2026-27/M002' },
@@ -390,10 +522,3 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 
 function statusClass(s) { return s==='Active'?'success':s==='Pending'?'warning':s==='Rejected'?'danger':'info'; }
 
-// ── INIT ──
-document.addEventListener('DOMContentLoaded', function() {
-  renderDashboard();
-  document.querySelectorAll('.modal-backdrop').forEach(function(b){
-    b.addEventListener('click', function(e){ if(e.target===b) b.classList.remove('open'); });
-  });
-});
