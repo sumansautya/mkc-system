@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GOOGLE APPS SCRIPT URL ──
 // Paste your deployed Web App URL here (same URL used in register.js)
-var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec';
 
 // ── LIVE DATA ──
 var MEMBERS = [];           // filled by loadMembers()
@@ -147,32 +147,59 @@ var currentSort = 'newest';
 var selectedInvMember = null;
 var invoiceCounter = 100;
 
-// ── LOAD MEMBERS FROM GOOGLE SHEETS ──
+// ── JSONP HELPER — bypasses CORS for Google Apps Script GET requests ──
+var _jsonpCounter = 0;
+function jsonpGet(url, callback) {
+  var cbName = '_mkc_cb_' + (++_jsonpCounter) + '_' + Date.now();
+  var script = document.createElement('script');
+  var timer  = null;
+
+  window[cbName] = function(data) {
+    clearTimeout(timer);
+    script.remove();
+    delete window[cbName];
+    callback(null, data);
+  };
+
+  timer = setTimeout(function() {
+    script.remove();
+    delete window[cbName];
+    callback(new Error('Request timed out after 15 seconds'), null);
+  }, 15000);
+
+  script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cbName;
+  script.onerror = function() {
+    clearTimeout(timer);
+    script.remove();
+    delete window[cbName];
+    callback(new Error('Script load failed — check the GAS URL is correct'), null);
+  };
+  document.head.appendChild(script);
+}
+
+// ── LOAD MEMBERS FROM GOOGLE SHEETS via JSONP ──
 function loadMembers(callback) {
-  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec') {
-    // Demo mode — no URL set yet
+  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
     MEMBERS = DEMO_MEMBERS.slice();
     dataLoaded = true;
     if (callback) callback();
     return;
   }
   showLoadingState('Loading members from database...');
-  fetch(GAS_URL + '?action=getMembers', { method: 'GET' })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.status === 'ok') {
-        MEMBERS = data.members || [];
-        dataLoaded = true;
-        hideLoadingState();
-        if (callback) callback();
-      } else {
-        showDataError('Could not load data: ' + (data.message || 'Unknown error'));
-      }
-    })
-    .catch(function(err) {
-      showDataError('Network error. Check your internet connection and try again.');
-      console.error(err);
-    });
+  jsonpGet(GAS_URL + '?action=getMembers', function(err, data) {
+    if (err) {
+      showDataError('Network error: ' + err.message + '<br/>Please check that your Google Apps Script URL is correct and deployed as "Anyone" access.');
+      return;
+    }
+    if (data && data.status === 'ok') {
+      MEMBERS = data.members || [];
+      dataLoaded = true;
+      hideLoadingState();
+      if (callback) callback();
+    } else {
+      showDataError('Could not load data: ' + (data && data.message ? data.message : 'Unknown error'));
+    }
+  });
 }
 
 function showLoadingState(msg) {
@@ -402,21 +429,23 @@ function approveMember(appID) {
   invoiceCounter++;
   var newMemberNo = String(300 + invoiceCounter);
 
-  // Update locally immediately
+  // Update locally immediately for instant UI feedback
   m.status = 'Active';
   m.membershipNo = newMemberNo;
   renderMembersTable();
   renderDashboard();
 
-  // Write back to Google Sheets
+  // Write back to Google Sheets via JSONP
   if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
-    fetch(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Active&memberNo=' + newMemberNo)
-      .then(function(r){ return r.json(); })
-      .then(function(d){ console.log('Approve result:', d); })
-      .catch(function(e){ console.error('Approve error:', e); });
+    jsonpGet(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Active&memberNo=' + newMemberNo,
+      function(err, d) {
+        if (err) console.error('Approve write-back error:', err);
+        else console.log('Approve result:', d);
+      }
+    );
   }
 
-  if (confirm('Member approved! Send Tax Invoice email to ' + m.email + ' now?')) {
+  if (confirm('✅ Member approved!\n\nSend Tax Invoice email to ' + m.email + ' now?')) {
     sendInvoiceToMember(m);
   }
 }
@@ -424,15 +453,17 @@ function approveMember(appID) {
 function rejectMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
-  if (!confirm('Reject application for ' + m.firstName + ' ' + m.lastName + '?\nThis action will notify the member.')) return;
+  if (!confirm('Reject application for ' + m.firstName + ' ' + m.lastName + '?\nThis cannot be undone.')) return;
   m.status = 'Rejected';
   renderMembersTable();
   renderDashboard();
 
   if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
-    fetch(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Rejected')
-      .then(function(r){ return r.json(); })
-      .catch(function(e){ console.error('Reject error:', e); });
+    jsonpGet(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Rejected',
+      function(err, d) {
+        if (err) console.error('Reject write-back error:', err);
+      }
+    );
   }
 }
 
@@ -526,22 +557,23 @@ function buildInvoiceHTML(m) {
 function sendInvoiceToMember(m) {
   if (!m) return;
   if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
-    fetch(GAS_URL + '?action=sendInvoice&appID=' + encodeURIComponent(m.appID))
-      .then(function(r){ return r.json(); })
-      .then(function(d){
+    jsonpGet(GAS_URL + '?action=sendInvoice&appID=' + encodeURIComponent(m.appID),
+      function(err, d) {
+        if (err) {
+          alert('Could not send invoice email.\n' + err.message);
+          return;
+        }
         m.invoiceSent = true;
         renderInvoiceList();
-        document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' successfully!';
+        document.getElementById('emailSentMsg').textContent = 'Tax Invoice sent to ' + m.email + ' successfully!';
         openModal('emailSentModal');
-      })
-      .catch(function(e){
-        alert('Could not send invoice email. Please try again.\n' + e);
-      });
+      }
+    );
   } else {
     // Demo mode
     m.invoiceSent = true;
     renderInvoiceList();
-    document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' (demo mode)';
+    document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' (demo mode — set GAS_URL to send real emails)';
     openModal('emailSentModal');
   }
 }
