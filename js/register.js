@@ -19,10 +19,13 @@ function handlePhoto(who, input) {
   if (file.size > 2 * 1024 * 1024) { alert('Photo too large. Maximum 2MB per photo.'); return; }
   var reader = new FileReader();
   reader.onload = function(e) {
-    photoData[who] = { dataUrl: e.target.result, name: file.name };
-    var box = document.getElementById('photoBox-' + who);
+    photoData[who] = {
+      dataUrl: e.target.result,  // full data URL including base64
+      name: file.name,
+      mime: file.type
+    };
+    var box  = document.getElementById('photoBox-' + who);
     var slot = document.getElementById('photoSlot-' + who);
-    // Show preview
     var existing = box.querySelector('img');
     if (existing) existing.remove();
     var img = document.createElement('img');
@@ -103,15 +106,22 @@ function checkFields(arr) {
 // ── CHIPS ──
 function toggleChip(el) { el.classList.toggle('selected'); }
 
-// ── FILE UPLOAD ──
+// ── FILE UPLOAD (Receipt) ──
 function handleUpload(input) {
   var file = input.files[0];
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); return; }
-  uploadedFile = file;
-  document.getElementById('uploadPreview').style.display = 'flex';
-  document.getElementById('uploadName').textContent = file.name;
-  document.getElementById('uploadZone').style.display = 'none';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    // Store both display name and actual base64 content
+    var fullData = e.target.result; // data:mime/type;base64,XXXX
+    var base64   = fullData.split(',')[1];
+    uploadedFile = { name: file.name, base64: base64, mime: file.type, dataUrl: fullData };
+    document.getElementById('uploadPreview').style.display = 'flex';
+    document.getElementById('uploadName').textContent = file.name;
+    document.getElementById('uploadZone').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
 }
 function clearUpload() {
   uploadedFile = null;
@@ -168,9 +178,14 @@ function submitForm() {
     showAlert('Please check both declaration checkboxes before submitting.', 'warning');
     return;
   }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Uploading files & submitting...';
+
   var chips = Array.from(document.querySelectorAll('.chip.selected')).map(function(c){return c.textContent;}).join(', ');
   var appID = 'MKC-' + new Date().getFullYear() + '-' + (Math.floor(Math.random()*9000)+1000);
-  var now = new Date().toLocaleString('en-IN');
+  var now   = new Date().toLocaleString('en-IN');
 
   var data = {
     appID: appID, submittedAt: now,
@@ -185,17 +200,20 @@ function submitForm() {
     baseAmount: 25000, cgst: 2250, sgst: 2250, totalAmount: 29500,
     paymentMethod: v('paymethod'), paymentRef: v('payref'),
     paymentDate: v('paydate'), amountPaid: v('payamt'),
-    payNotes: v('paynotes'), receiptFileName: uploadedFile ? uploadedFile.name : '',
+    payNotes: v('paynotes'),
     status: 'Pending Verification',
-    photoSelfName: photoData.self ? photoData.self.name : '',
-    photoSpouseName: photoData.spouse ? photoData.spouse.name : ''
+    // File names (always sent)
+    receiptFileName:   uploadedFile             ? uploadedFile.name         : '',
+    photoSelfName:     photoData.self           ? photoData.self.name       : '',
+    photoSpouseName:   photoData.spouse         ? photoData.spouse.name     : '',
+    // Base64 file data (actual file content for Google Drive upload)
+    receiptFileData:   uploadedFile             ? uploadedFile.base64       : '',
+    receiptFileMime:   uploadedFile             ? uploadedFile.mime         : '',
+    photoSelfData:     photoData.self           ? photoData.self.dataUrl    : '',
+    photoSpouseData:   photoData.spouse         ? photoData.spouse.dataUrl  : ''
   };
 
-  var btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Submitting...';
-
   if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
-    // Demo mode
     console.log('DEMO — would save:', data);
     setTimeout(function() { showSuccess(appID); }, 800);
     return;
@@ -208,7 +226,8 @@ function submitForm() {
   }).then(function() {
     showSuccess(appID);
   }).catch(function(err) {
-    btn.disabled = false; btn.textContent = '✓ Submit Application';
+    btn.disabled = false;
+    btn.textContent = '✓ Submit Application';
     showAlert('Submission failed. Please check your connection and try again.', 'danger');
   });
 }
