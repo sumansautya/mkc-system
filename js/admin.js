@@ -368,31 +368,81 @@ function viewMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
   _detCount = 0;
-  document.getElementById('modalTitle').textContent = m.firstName + ' ' + m.lastName + ' — ' + appID;
-  document.getElementById('modalBody').innerHTML =
-    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem;">' +
-    '<div class="avatar avatar-lg avatar-navy">' + (m.firstName||'?')[0] + (m.lastName||'?')[0] + '</div>' +
-    '<div><div style="font-size:18px;font-weight:600;color:var(--navy);">' + m.firstName + ' ' + m.lastName + '</div>' +
-    '<div style="font-size:13px;color:var(--text-muted);">' + m.email + ' &nbsp;|&nbsp; ' + m.mobile + '</div>' +
-    '<span class="badge badge-' + statusClass(m.status) + '" style="margin-top:6px;">' + statusLabel(m.status) + '</span>' +
-    (m.membershipNo ? '&nbsp;<span class="badge badge-info">Member No: '+m.membershipNo+'</span>' : '') +
-    '</div></div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">' +
-    detRow('App ID', m.appID)                    + detRow('Date of Birth', m.dob||'—') +
-    detRow('Gender', m.gender||'—')              + detRow('Occupation', m.occupation||'—') +
-    detRow('City / PIN', (m.city||'') + (m.pin?' – '+m.pin:'')) + detRow('WhatsApp', m.whatsapp||'—') +
-    detRow('Spouse', m.spouseName||'—')          + detRow('Anniversary', m.anniversary||'—') +
-    detRow('Interests', m.interests||'—')        + detRow('Referred By', m.referredBy||'—') +
-    detRow('Payment Method', m.paymentMethod||'—') + detRow('Payment Ref', m.paymentRef||'—') +
-    detRow('Payment Date', m.paymentDate||'—')   + detRow('Amount Paid', '₹'+Number(m.amountPaid||0).toLocaleString('en-IN')) +
-    detRow('Receipt File', m.receiptFileName||'(not uploaded)') + detRow('Invoice Sent', m.invoiceSent ? 'Yes ✓' : 'No') +
-    detRow('Submitted At', m.submittedAt||'—')   + detRow('Serial No.', m.serialNo||'—') +
-    '</div>' +
-    (isPending(m.status) ? '<div class="alert alert-warning" style="margin-top:1rem;">⚠ Awaiting verification. Review payment receipt before approving.</div>' : '') +
-    (isActive(m.status)  ? '<div class="alert alert-success" style="margin-top:1rem;">✅ Member is active. You can send the Tax Invoice below.</div>' : '') +
-    (m.receiptFileName   ? '<div style="margin-top:1rem;padding:10px 14px;background:var(--ivory-dark);border-radius:var(--radius);font-size:13px;display:flex;align-items:center;gap:8px;"><span>📎</span><span>'+m.receiptFileName+'</span><span style="color:var(--text-muted);font-size:11px;">(payment receipt uploaded)</span></div>' : '');
 
-  var id = appID.replace(/'/g, "\\'");
+  function driveThumb(link, label, fallbackName) {
+    var inner = '';
+    if (link && link.indexOf('drive.google.com') >= 0) {
+      var fileId = '';
+      var r1 = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      var r2 = link.match(/id=([a-zA-Z0-9_-]+)/);
+      if (r1) fileId = r1[1]; else if (r2) fileId = r2[1];
+      var thumb = fileId ? 'https://drive.google.com/thumbnail?id='+fileId+'&sz=w200' : '';
+      inner = (thumb ? '<a href="'+link+'" target="_blank"><img src="'+thumb+'" style="width:88px;height:108px;object-fit:cover;border-radius:6px;border:2px solid var(--navy);display:block;" onerror="this.style.display=\'none\'"/></a>' : '') +
+              '<a href="'+link+'" target="_blank" style="font-size:10px;color:var(--blue-accent);display:block;margin-top:4px;text-align:center;">🔗 Open</a>';
+    } else {
+      inner = '<div style="width:88px;height:108px;background:var(--ivory-dark);border-radius:6px;border:1px dashed var(--ivory-border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted);text-align:center;padding:4px;">' +
+              (fallbackName ? '📎<br/>'+fallbackName : 'Not<br/>uploaded') + '</div>';
+    }
+    return '<div style="text-align:center;">' +
+      '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:5px;font-weight:600;">'+label+'</div>' +
+      inner + '</div>';
+  }
+
+  function receiptBlock(link, name) {
+    if (!link && !name) return '<div style="font-size:12px;color:var(--text-muted);">No receipt uploaded</div>';
+    var fileId = '';
+    if (link && link.indexOf('drive.google.com') >= 0) {
+      var r1 = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      var r2 = link.match(/id=([a-zA-Z0-9_-]+)/);
+      if (r1) fileId = r1[1]; else if (r2) fileId = r2[1];
+    }
+    var isPdf = name && name.toLowerCase().indexOf('.pdf') >= 0;
+    var thumb = (fileId && !isPdf) ? 'https://drive.google.com/thumbnail?id='+fileId+'&sz=w400' : '';
+    return '<div style="margin-top:4px;">' +
+      (thumb && link ? '<a href="'+link+'" target="_blank"><img src="'+thumb+'" style="width:100%;max-width:320px;border-radius:8px;border:1px solid var(--ivory-border);display:block;margin-bottom:8px;" onerror="this.style.display=\'none\'"/></a>' : '') +
+      (link ? '<a href="'+link+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:var(--gold);padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">🔗 Open '+(isPdf?'PDF Receipt':'Receipt Image')+' in Drive</a>' :
+              '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">📎 '+name+' (Drive link not available)</div>') +
+      '</div>';
+  }
+
+  document.getElementById('modalTitle').textContent = m.firstName+' '+m.lastName+' — '+appID;
+  document.getElementById('modalBody').innerHTML =
+    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:1.25rem;">' +
+    '<div class="avatar avatar-lg avatar-navy">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>' +
+    '<div><div style="font-size:18px;font-weight:600;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div>' +
+    '<div style="font-size:13px;color:var(--text-muted);">'+m.email+' &nbsp;|&nbsp; '+m.mobile+'</div>' +
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">' +
+    '<span class="badge badge-'+statusClass(m.status)+'">'+statusLabel(m.status)+'</span>' +
+    (m.membershipNo?'<span class="badge badge-info">Member No: '+m.membershipNo+'</span>':'') +
+    '</div></div></div>' +
+
+    '<div style="background:var(--ivory);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">' +
+    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📸 Passport Photographs</div>' +
+    '<div style="display:flex;gap:20px;flex-wrap:wrap;">'+
+    driveThumb(m.photoSelfLink,   'Self',   m.photoSelfName   ||'') +
+    driveThumb(m.photoSpouseLink, 'Spouse', m.photoSpouseName ||'') +
+    '</div></div>' +
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:1rem;">' +
+    detRow('App ID',m.appID)                         + detRow('Date of Birth',m.dob||'—') +
+    detRow('Gender',m.gender||'—')                   + detRow('Occupation',m.occupation||'—') +
+    detRow('City / PIN',(m.city||'')+(m.pin?' – '+m.pin:'')) + detRow('WhatsApp',m.whatsapp||'—') +
+    detRow('Spouse',m.spouseName||'—')               + detRow('Anniversary',m.anniversary||'—') +
+    detRow('Interests',m.interests||'—')             + detRow('Referred By',m.referredBy||'—') +
+    detRow('Payment Method',m.paymentMethod||'—')    + detRow('Payment Ref',m.paymentRef||'—') +
+    detRow('Payment Date',m.paymentDate||'—')        + detRow('Amount Paid','₹'+Number(m.amountPaid||0).toLocaleString('en-IN')) +
+    detRow('Invoice Sent',m.invoiceSent?'Yes ✓':'No')+ detRow('Submitted At',m.submittedAt||'—') +
+    '</div>' +
+
+    '<div style="background:var(--ivory);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">' +
+    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">💳 Payment Receipt</div>' +
+    receiptBlock(m.receiptLink, m.receiptFileName) +
+    '</div>' +
+
+    (isPending(m.status)?'<div class="alert alert-warning" style="margin-top:0.5rem;">⚠ Awaiting verification. Review payment receipt before approving.</div>':'') +
+    (isActive(m.status) ?'<div class="alert alert-success" style="margin-top:0.5rem;">✅ Member is active. You can send the Tax Invoice below.</div>':'');
+
+  var id = appID.replace(/'/g,"\\'");
   var footer = '';
   if (isPending(m.status)) {
     footer += '<button class="btn btn-danger" onclick="rejectMember(\''+id+'\');closeModal(\'memberModal\')">❌ Reject</button>';
