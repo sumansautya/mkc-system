@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── GOOGLE APPS SCRIPT URL ──
 // Paste your deployed Web App URL here (same URL used in register.js)
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbyBUtnmezAOThr2vxHfZ6dP3XUbkbHVuhMhqGdD7xnDotCzVKzYySw0KXNlqGs8397Y/exec';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbz3owEvmJOoKvQuP9AUtzJHckdr4UGPXLgrGAfJ74uYgQFEX98NIvA2j2jXUzDt9obO/exec';
 
 // ── LIVE DATA ──
 var MEMBERS = [];           // filled by loadMembers()
