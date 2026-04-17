@@ -203,9 +203,14 @@
 
 <script>
 // ==== CONFIGURATION ====
-var GAS_URL  = localStorage.getItem('mkc_gas_url') || 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec';
+// ==== CONFIGURATION - URL is set directly here ====
+var GAS_URL  = 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec';
 var ADMIN_U  = localStorage.getItem('mkc_admin_u') || 'mkc_admin';
 var ADMIN_P  = localStorage.getItem('mkc_admin_p') || 'Manthan@2026';
+// Override GAS_URL from localStorage only if user explicitly saved a different one in Settings
+var _savedUrl = localStorage.getItem('mkc_gas_url');
+if (_savedUrl && _savedUrl.indexOf('script.google.com') !== -1) { GAS_URL = _savedUrl; }
+// ===================================================
 var SESSION  = 'mkc_session';
 var MAX_ATT  = 5;
 var LOCK_SEC = 30;
@@ -309,7 +314,7 @@ function jsonpGet(url) {
   });
 }
 function loadData(cb) {
-  if (GAS_URL==='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') { if(cb) cb(); return; }
+  if (GAS_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL') { if(cb) cb(); return; }
   jsonpGet(GAS_URL+'?action=getMembers').then(function(r){
     if(r&&r.status==='ok') MEMBERS=r.members||[];
     if(cb) cb();
@@ -318,7 +323,7 @@ function loadData(cb) {
 
 // ---- DASHBOARD ----
 function renderDashboard() {
-  var urlMissing = (GAS_URL === 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec');
+  var urlMissing = (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL');
   var banner = document.getElementById('urlBanner');
   var quick  = document.getElementById('urlQuickSet');
   if (banner) banner.style.display = urlMissing ? 'flex' : 'none';
@@ -363,7 +368,6 @@ function quickSaveUrl() {
   var banner = document.getElementById('urlBanner');
   if (quick)  quick.style.display  = 'none';
   if (banner) banner.style.display = 'none';
-  // Show loading
   document.getElementById('sTot').textContent = '...';
   loadData(renderDashboard);
 }
@@ -371,7 +375,7 @@ function quickSaveUrl() {
 // ---- MEMBERS TABLE ----
 function renderMembers() {
   var tb=document.getElementById('membersTbl');
-  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') {
+  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
     tb.innerHTML='<tr><td colspan="5"><div class="empty"><div style="font-size:32px;margin-bottom:10px;">&#9888;</div>'+
       '<p style="font-weight:600;color:var(--navy);margin-bottom:6px;">Google Apps Script URL not set</p>'+
       '<p style="font-size:13px;margin-bottom:12px;">Enter your GAS URL in Settings to load member data from Google Sheets.</p>'+
@@ -495,7 +499,7 @@ function approveMember(appID) {
   invCnt++;
   m.status='Active'; m.membershipNo=String(300+invCnt);
   renderMembers(); renderDashboard();
-  if(GAS_URL!=='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'){
+  if(GAS_URL!=='YOUR_GOOGLE_APPS_SCRIPT_URL'){
     jsonpGet(GAS_URL+'?action=updateStatus&appID='+encodeURIComponent(appID)+'&status=Active&memberNo='+m.membershipNo).then(function(){});
   }
   if(confirm('Member approved! Send Tax Invoice to '+m.email+'?')) sendInvoiceEmail(m);
@@ -504,7 +508,7 @@ function rejectMember(appID) {
   var m=MEMBERS.find(function(x){return x.appID===appID;}); if(!m) return;
   if(!confirm('Reject application for '+m.firstName+' '+m.lastName+'?')) return;
   m.status='Rejected'; renderMembers(); renderDashboard();
-  if(GAS_URL!=='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'){
+  if(GAS_URL!=='YOUR_GOOGLE_APPS_SCRIPT_URL'){
     jsonpGet(GAS_URL+'?action=updateStatus&appID='+encodeURIComponent(appID)+'&status=Rejected').then(function(){});
   }
 }
@@ -564,7 +568,7 @@ function buildInvoiceHTML(m) {
 }
 function sendInvoiceEmail(m) {
   if(!m) return;
-  if(GAS_URL!=='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'){
+  if(GAS_URL!=='YOUR_GOOGLE_APPS_SCRIPT_URL'){
     jsonpGet(GAS_URL+'?action=sendInvoice&appID='+encodeURIComponent(m.appID)).then(function(r){
       m.invoiceSent=true; renderInvList();
       showOK('Invoice sent to '+m.email+' successfully!');
@@ -600,7 +604,7 @@ function exportCSV() {
 // ---- SETTINGS ----
 function renderSettings() {
   var inp=document.getElementById('gasUrlInput');
-  if(inp) inp.value=GAS_URL==='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'?'':GAS_URL;
+  if(inp) inp.value=GAS_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL'?'':GAS_URL;
 }
 function saveGasUrl() {
   var v=document.getElementById('gasUrlInput').value.trim();
