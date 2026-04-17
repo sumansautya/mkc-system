@@ -465,7 +465,7 @@ function jsonpGet(url) {
 var CHUNK = 6000;
 function uploadChunked(fileObj, appID, label) {
   if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
-  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') return Promise.resolve('demo-link');
+  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') return Promise.resolve('demo-link');
   var b64   = fileObj.dataUrl.split(',')[1];
   var total = Math.ceil(b64.length / CHUNK);
   var fid   = appID+'_'+label+'_'+Date.now();
@@ -521,7 +521,7 @@ function submitForm() {
       photoSelfName:photos.self?photos.self.name:'', photoSelfLink:links.self,
       photoSpouseName:photos.spouse?photos.spouse.name:'', photoSpouseLink:links.spouse
     };
-    if (GAS_URL==='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') { showSuccess(appID); return; }
+    if (GAS_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL') { showSuccess(appID); return; }
     return fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
   }).then(function(){ showSuccess(appID); })
   .catch(function(){ showSuccess(appID); });
