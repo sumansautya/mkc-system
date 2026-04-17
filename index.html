@@ -109,21 +109,39 @@
       border-radius: 10px; background: var(--ivory);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      cursor: pointer; overflow: hidden;
+      overflow: hidden;
       transition: border-color 0.2s, background 0.2s;
       position: relative;
+      cursor: pointer;
     }
-    .photo-box:hover  { border-color: var(--blue-accent); background: #EFF6FF; }
+    .photo-box:hover { border-color: var(--blue-accent); background: #EFF6FF; }
     .photo-box.has-photo { border-style: solid; border-color: var(--navy); background: #fff; }
+
+    /* The file input covers the entire box invisibly — user taps directly on it */
+    .photo-box input[type=file] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 10;
+      font-size: 0;
+    }
+    /* Preview image sits below the input */
     .photo-box img {
-      width: 100%; height: 100%; object-fit: cover;
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
       z-index: 2;
       border-radius: 8px;
+      display: block;
     }
-    /* Hide placeholder text once photo is loaded */
     .photo-box.has-photo .photo-box-placeholder { display: none; }
-    .photo-box-placeholder { text-align: center; padding: 6px; }
+    .photo-box-placeholder {
+      text-align: center; padding: 6px; z-index: 1; position: relative;
+    }
     .photo-box-placeholder .ph-icon { font-size: 22px; margin-bottom: 4px; display: block; }
     .photo-box-placeholder .ph-text { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
     .photo-tag {
@@ -184,7 +202,7 @@
   <div class="reg-header">
     <div class="reg-logo-mark">🎵</div>
     <div class="reg-org">॥ Manthan ॥</div>
-    <div class="reg-sub">Manthan Kala Centre (Regd.)</div>
+    <div class="reg-sub">Manthan Kala Centre (Registered)</div>
     <div class="reg-tagline">A-62, Mayfair Garden, New Delhi – 110016</div>
     <div class="reg-addr">Ph: 011-26850232 &nbsp;|&nbsp; M: 8527922395 &nbsp;|&nbsp; manthantree@gmail.com</div>
   </div>
@@ -233,40 +251,36 @@
 
           <!-- Self -->
           <div class="photo-slot" id="photoSlot-self">
-            <label for="photoInput-self" style="width:100%;cursor:pointer;display:block;">
-              <div class="photo-box" id="photoBox-self" title="Click to upload your passport photo">
-                <div class="photo-box-placeholder">
-                  <span class="ph-icon">🧑</span>
-                  <div class="ph-text">Tap to upload<br/>your photo</div>
-                </div>
+            <div class="photo-box" id="photoBox-self" title="Tap to upload your passport photo">
+              <!-- Invisible file input covers the entire box — direct tap -->
+              <input type="file" id="photoInput-self" accept="image/*" capture="user"/>
+              <div class="photo-box-placeholder">
+                <span class="ph-icon">🧑</span>
+                <div class="ph-text">Tap to upload<br/>your photo</div>
               </div>
-            </label>
-            <input type="file" id="photoInput-self" accept="image/*"
-                   style="display:none;"
-                   onchange="handlePhoto('self',this)"/>
+            </div>
             <div class="photo-tag">&#128100; Self</div>
-            <label for="photoInput-self" class="photo-change-btn" id="photoChangeBtn-self">
+            <button class="photo-change-btn" id="photoChangeBtn-self" type="button"
+                    onclick="document.getElementById('photoInput-self').click()">
               Change photo
-            </label>
+            </button>
           </div>
 
           <!-- Spouse -->
           <div class="photo-slot" id="photoSlot-spouse">
-            <label for="photoInput-spouse" style="width:100%;cursor:pointer;display:block;">
-              <div class="photo-box" id="photoBox-spouse" title="Click to upload spouse passport photo">
-                <div class="photo-box-placeholder">
-                  <span class="ph-icon">🧑</span>
-                  <div class="ph-text">Tap to upload<br/>spouse photo</div>
-                </div>
+            <div class="photo-box" id="photoBox-spouse" title="Tap to upload spouse passport photo">
+              <!-- Invisible file input covers the entire box — direct tap -->
+              <input type="file" id="photoInput-spouse" accept="image/*"/>
+              <div class="photo-box-placeholder">
+                <span class="ph-icon">🧑</span>
+                <div class="ph-text">Tap to upload<br/>spouse photo</div>
               </div>
-            </label>
-            <input type="file" id="photoInput-spouse" accept="image/*"
-                   style="display:none;"
-                   onchange="handlePhoto('spouse',this)"/>
+            </div>
             <div class="photo-tag">&#128100; Spouse</div>
-            <label for="photoInput-spouse" class="photo-change-btn" id="photoChangeBtn-spouse">
+            <button class="photo-change-btn" id="photoChangeBtn-spouse" type="button"
+                    onclick="document.getElementById('photoInput-spouse').click()">
               Change photo
-            </label>
+            </button>
           </div>
 
         </div><!-- end photo-boxes-row -->
