@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // -- GOOGLE APPS SCRIPT URL --
 // Paste your deployed Web App URL here (same URL used in register.js)
-var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec';
 
 // -- LIVE DATA --
 var MEMBERS = [];           // filled by loadMembers()
@@ -486,7 +486,7 @@ function approveMember(appID) {
   renderDashboard();
 
   // Write back to Google Sheets via JSONP
-  if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+  if (GAS_URL !== 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
     jsonpGet(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Active&memberNo=' + newMemberNo,
       function(err, d) {
         if (err) console.error('Approve write-back error:', err);
@@ -508,7 +508,7 @@ function rejectMember(appID) {
   renderMembersTable();
   renderDashboard();
 
-  if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+  if (GAS_URL !== 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
     jsonpGet(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Rejected',
       function(err, d) {
         if (err) console.error('Reject write-back error:', err);
@@ -606,7 +606,7 @@ function buildInvoiceHTML(m) {
 
 function sendInvoiceToMember(m) {
   if (!m) return;
-  if (GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+  if (GAS_URL !== 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
     jsonpGet(GAS_URL + '?action=sendInvoice&appID=' + encodeURIComponent(m.appID),
       function(err, d) {
         if (err) {
