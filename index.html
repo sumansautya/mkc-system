@@ -118,7 +118,11 @@
     .photo-box img {
       width: 100%; height: 100%; object-fit: cover;
       position: absolute; inset: 0;
+      z-index: 2;
+      border-radius: 8px;
     }
+    /* Hide placeholder text once photo is loaded */
+    .photo-box.has-photo .photo-box-placeholder { display: none; }
     .photo-box-placeholder { text-align: center; padding: 6px; }
     .photo-box-placeholder .ph-icon { font-size: 22px; margin-bottom: 4px; display: block; }
     .photo-box-placeholder .ph-text { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
@@ -135,7 +139,6 @@
       display: none; margin-top: 0;
     }
     .photo-slot.has-photo .photo-change-btn { display: block; }
-    .photo-slot.has-photo .ph-text { display: none; }
 
     /* Compact horizontal requirements strip below the boxes */
     .photo-req-strip {
