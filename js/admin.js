@@ -1,13 +1,13 @@
-// ══════════════════════════════════════════════════
-//  MKC Admin Dashboard — js/admin.js
-// ══════════════════════════════════════════════════
+// ==================================================
+//  MKC Admin Dashboard  -  js/admin.js
+// ==================================================
 
-// ── ADMIN CREDENTIALS ──
+// -- ADMIN CREDENTIALS --
 // To change: update USERNAME and PASSWORD below, then re-upload this file to GitHub
 var ADMIN_USERNAME = 'mkc_admin';
 var ADMIN_PASSWORD = 'Manthan@2026';
 
-// ── LOGIN STATE ──
+// -- LOGIN STATE --
 var MAX_ATTEMPTS = 5;
 var LOCKOUT_SECONDS = 30;
 var SESSION_KEY = 'mkc_admin_session';
@@ -28,7 +28,7 @@ function doLogin() {
   }
 
   if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-    // ✅ SUCCESS
+    // [OK] SUCCESS
     failedAttempts = 0;
     sessionStorage.setItem(SESSION_KEY, 'authenticated');
     document.getElementById('loginScreen').style.display = 'none';
@@ -38,7 +38,7 @@ function doLogin() {
     attemptsEl.textContent = '';
     loadMembers(renderDashboard);
   } else {
-    // ❌ FAILED
+    // [X] FAILED
     failedAttempts++;
     var remaining = MAX_ATTEMPTS - failedAttempts;
     if (failedAttempts >= MAX_ATTEMPTS) {
@@ -96,8 +96,8 @@ function startLockout() {
 function togglePwd() {
   var inp = document.getElementById('loginPass');
   var btn = document.getElementById('eyeBtn');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-  else { inp.type = 'password'; btn.textContent = '👁'; }
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '????'; }
+  else { inp.type = 'password'; btn.textContent = '????'; }
 }
 
 function doLogout() {
@@ -112,7 +112,7 @@ function doLogout() {
   failedAttempts = 0;
 }
 
-// ── CHECK SESSION ON LOAD ──
+// -- CHECK SESSION ON LOAD --
 document.addEventListener('DOMContentLoaded', function() {
   // Add shake animation style
   var st = document.createElement('style');
@@ -135,12 +135,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// ── GOOGLE APPS SCRIPT URL ──
+// -- GOOGLE APPS SCRIPT URL --
 // Paste your deployed Web App URL here (same URL used in register.js)
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbzzyYtmDzlW4R4wEPHbA4qixVVmHrAZ8dfWWg8kFif_4ab5u9rcjEnkqIREOb2KlV71/exec
-';
+var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
 
-// ── LIVE DATA ──
+// -- LIVE DATA --
 var MEMBERS = [];           // filled by loadMembers()
 var dataLoaded = false;
 var currentFilter = 'All';
@@ -148,7 +147,7 @@ var currentSort = 'newest';
 var selectedInvMember = null;
 var invoiceCounter = 100;
 
-// ── JSONP HELPER — bypasses CORS for Google Apps Script GET requests ──
+// -- JSONP HELPER  -  bypasses CORS for Google Apps Script GET requests --
 var _jsonpCounter = 0;
 function jsonpGet(url, callback) {
   var cbName = '_mkc_cb_' + (++_jsonpCounter) + '_' + Date.now();
@@ -173,14 +172,14 @@ function jsonpGet(url, callback) {
     clearTimeout(timer);
     script.remove();
     delete window[cbName];
-    callback(new Error('Script load failed — check the GAS URL is correct'), null);
+    callback(new Error('Script load failed  -  check the GAS URL is correct'), null);
   };
   document.head.appendChild(script);
 }
 
-// ── LOAD MEMBERS FROM GOOGLE SHEETS via JSONP ──
+// -- LOAD MEMBERS FROM GOOGLE SHEETS via JSONP --
 function loadMembers(callback) {
-  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
     MEMBERS = DEMO_MEMBERS.slice();
     dataLoaded = true;
     if (callback) callback();
@@ -212,7 +211,7 @@ function showLoadingState(msg) {
         var div = document.createElement('div');
         div.className = 'loading-overlay';
         div.style.cssText = 'text-align:center;padding:3rem;color:var(--text-muted);font-size:14px;';
-        div.innerHTML = '<div style="font-size:32px;margin-bottom:12px;">⏳</div><div>' + msg + '</div>';
+        div.innerHTML = '<div style="font-size:32px;margin-bottom:12px;">???</div><div>' + msg + '</div>';
         p.insertBefore(div, p.firstChild);
       }
     }
@@ -228,19 +227,19 @@ function showDataError(msg) {
     if (p.style.display !== 'none') {
       var div = document.createElement('div');
       div.style.cssText = 'background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:13px;color:#991B1B;display:flex;align-items:center;gap:10px;';
-      div.innerHTML = '<span style="font-size:20px;">⚠️</span><div>' + msg + '<br/><button onclick="location.reload()" style="margin-top:6px;background:none;border:1px solid #FCA5A5;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;color:#991B1B;">Retry</button></div>';
+      div.innerHTML = '<span style="font-size:20px;">[!]???</span><div>' + msg + '<br/><button onclick="location.reload()" style="margin-top:6px;background:none;border:1px solid #FCA5A5;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;color:#991B1B;">Retry</button></div>';
       p.insertBefore(div, p.firstChild);
     }
   });
 }
 
-// ── DEMO DATA (shown when GAS_URL is not set yet) ──
+// -- DEMO DATA (shown when GAS_URL is not set yet) --
 var DEMO_MEMBERS = [
-  { appID:'DEMO-001', firstName:'Demo', lastName:'Member', gender:'Male', dob:'1980-01-01', occupation:'Business', email:'demo@example.com', mobile:'9999999999', whatsapp:'Yes', residentialAddress:'Demo Address', city:'New Delhi', pin:'110001', spouseName:'', anniversary:'', interests:'Classical Music', referredBy:'', paymentMethod:'UPI', paymentRef:'DEMO123', paymentDate:'2026-04-01', amountPaid:29500, receiptFileName:'demo_receipt.jpg', status:'Pending Verification', membershipNo:'', invoiceSent:false, submittedAt:'Demo data — connect Google Sheets to see real members', serialNo:'' }
+  { appID:'DEMO-001', firstName:'Demo', lastName:'Member', gender:'Male', dob:'1980-01-01', occupation:'Business', email:'demo@example.com', mobile:'9999999999', whatsapp:'Yes', residentialAddress:'Demo Address', city:'New Delhi', pin:'110001', spouseName:'', anniversary:'', interests:'Classical Music', referredBy:'', paymentMethod:'UPI', paymentRef:'DEMO123', paymentDate:'2026-04-01', amountPaid:29500, receiptFileName:'demo_receipt.jpg', status:'Pending Verification', membershipNo:'', invoiceSent:false, submittedAt:'Demo data  -  connect Google Sheets to see real members', serialNo:'' }
 ];
 
 
-// ── PAGE SWITCHING ──
+// -- PAGE SWITCHING --
 function showPage(name) {
   document.querySelectorAll('[id^="page-"]').forEach(function(p){ p.style.display='none'; });
   document.getElementById('page-' + name).style.display = 'block';
@@ -259,7 +258,7 @@ function showPage(name) {
   return false;
 }
 
-// ── DASHBOARD ──
+// -- DASHBOARD --
 function renderDashboard() {
   var total   = MEMBERS.length;
   var pending = MEMBERS.filter(function(m){ return isPending(m.status); }).length;
@@ -268,7 +267,7 @@ function renderDashboard() {
   document.getElementById('statTotal').textContent   = total;
   document.getElementById('statPending').textContent = pending;
   document.getElementById('statActive').textContent  = active;
-  document.getElementById('statRevenue').textContent = '₹' + revenue.toLocaleString('en-IN');
+  document.getElementById('statRevenue').textContent = '???' + revenue.toLocaleString('en-IN');
   document.getElementById('pendingBadge').textContent = pending;
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
 
@@ -305,7 +304,7 @@ function renderDashboard() {
   }).join('');
 }
 
-// ── MEMBERS TABLE ──
+// -- MEMBERS TABLE --
 function renderMembersTable() {
   var filtered = MEMBERS.filter(function(m){
     if (currentFilter === 'All') return true;
@@ -320,7 +319,7 @@ function renderMembersTable() {
 
   var tbody = document.getElementById('membersTable');
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🔍</div><p>No members found</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">????</div><p>No members found</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = filtered.map(function(m){
@@ -333,14 +332,14 @@ function renderMembersTable() {
         '<div><div class="td-name">' + m.firstName + ' ' + m.lastName + '</div>' +
         '<div class="td-id">' + m.appID + '</div></div></div></td>' +
       '<td><div style="font-size:13px;">' + m.email + '</div><div class="td-id">' + m.mobile + '</div></td>' +
-      '<td><div style="font-size:13px;">Annual</div><div class="td-id">₹29,500</div></td>' +
-      '<td><div style="font-size:13px;">' + (m.paymentMethod||'—') + '</div><div class="td-id">' + (m.paymentRef||'—') + '</div></td>' +
+      '<td><div style="font-size:13px;">Annual</div><div class="td-id">???29,500</div></td>' +
+      '<td><div style="font-size:13px;">' + (m.paymentMethod||' - ') + '</div><div class="td-id">' + (m.paymentRef||' - ') + '</div></td>' +
       '<td><span class="badge badge-' + statusClass(m.status) + '">' + statusLabel(m.status) + '</span></td>' +
       '<td style="white-space:nowrap;">' +
-        '<button class="action-btn" title="View Details" onclick="viewMember(\'' + id + '\')">👁</button>' +
-        (pending ? ' <button class="action-btn" title="Approve & Activate" onclick="approveMember(\'' + id + '\')" style="font-size:18px;">✅</button>' +
-                   ' <button class="action-btn" title="Reject" onclick="rejectMember(\'' + id + '\')" style="font-size:18px;">❌</button>' : '') +
-        (active  ? ' <button class="action-btn" title="Send Tax Invoice" onclick="openInvoice(\'' + id + '\')" style="font-size:18px;">🧾</button>' : '') +
+        '<button class="action-btn" title="View Details" onclick="viewMember(\'' + id + '\')">????</button>' +
+        (pending ? ' <button class="action-btn" title="Approve & Activate" onclick="approveMember(\'' + id + '\')" style="font-size:18px;">[OK]</button>' +
+                   ' <button class="action-btn" title="Reject" onclick="rejectMember(\'' + id + '\')" style="font-size:18px;">[X]</button>' : '') +
+        (active  ? ' <button class="action-btn" title="Send Tax Invoice" onclick="openInvoice(\'' + id + '\')" style="font-size:18px;">????</button>' : '') +
       '</td></tr>';
   }).join('');
 }
@@ -364,7 +363,7 @@ function globalSearchFn(q) {
   if (tbody) { /* update if members page visible */ }
 }
 
-// ── MEMBER DETAIL MODAL ──
+// -- MEMBER DETAIL MODAL --
 function viewMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
@@ -379,10 +378,10 @@ function viewMember(appID) {
       if (r1) fileId = r1[1]; else if (r2) fileId = r2[1];
       var thumb = fileId ? 'https://drive.google.com/thumbnail?id='+fileId+'&sz=w200' : '';
       inner = (thumb ? '<a href="'+link+'" target="_blank"><img src="'+thumb+'" style="width:88px;height:108px;object-fit:cover;border-radius:6px;border:2px solid var(--navy);display:block;" onerror="this.style.display=\'none\'"/></a>' : '') +
-              '<a href="'+link+'" target="_blank" style="font-size:10px;color:var(--blue-accent);display:block;margin-top:4px;text-align:center;">🔗 Open</a>';
+              '<a href="'+link+'" target="_blank" style="font-size:10px;color:var(--blue-accent);display:block;margin-top:4px;text-align:center;">???? Open</a>';
     } else {
       inner = '<div style="width:88px;height:108px;background:var(--ivory-dark);border-radius:6px;border:1px dashed var(--ivory-border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted);text-align:center;padding:4px;">' +
-              (fallbackName ? '📎<br/>'+fallbackName : 'Not<br/>uploaded') + '</div>';
+              (fallbackName ? '????<br/>'+fallbackName : 'Not<br/>uploaded') + '</div>';
     }
     return '<div style="text-align:center;">' +
       '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:5px;font-weight:600;">'+label+'</div>' +
@@ -401,12 +400,12 @@ function viewMember(appID) {
     var thumb = (fileId && !isPdf) ? 'https://drive.google.com/thumbnail?id='+fileId+'&sz=w400' : '';
     return '<div style="margin-top:4px;">' +
       (thumb && link ? '<a href="'+link+'" target="_blank"><img src="'+thumb+'" style="width:100%;max-width:320px;border-radius:8px;border:1px solid var(--ivory-border);display:block;margin-bottom:8px;" onerror="this.style.display=\'none\'"/></a>' : '') +
-      (link ? '<a href="'+link+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:var(--gold);padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">🔗 Open '+(isPdf?'PDF Receipt':'Receipt Image')+' in Drive</a>' :
-              '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">📎 '+name+' (Drive link not available)</div>') +
+      (link ? '<a href="'+link+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:var(--gold);padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">???? Open '+(isPdf?'PDF Receipt':'Receipt Image')+' in Drive</a>' :
+              '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">???? '+name+' (Drive link not available)</div>') +
       '</div>';
   }
 
-  document.getElementById('modalTitle').textContent = m.firstName+' '+m.lastName+' — '+appID;
+  document.getElementById('modalTitle').textContent = m.firstName+' '+m.lastName+'  -  '+appID;
   document.getElementById('modalBody').innerHTML =
     '<div style="display:flex;align-items:center;gap:16px;margin-bottom:1.25rem;">' +
     '<div class="avatar avatar-lg avatar-navy">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>' +
@@ -418,39 +417,39 @@ function viewMember(appID) {
     '</div></div></div>' +
 
     '<div style="background:var(--ivory);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">' +
-    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📸 Passport Photographs</div>' +
+    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">???? Passport Photographs</div>' +
     '<div style="display:flex;gap:20px;flex-wrap:wrap;">'+
     driveThumb(m.photoSelfLink,   'Self',   m.photoSelfName   ||'') +
     driveThumb(m.photoSpouseLink, 'Spouse', m.photoSpouseName ||'') +
     '</div></div>' +
 
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:1rem;">' +
-    detRow('App ID',m.appID)                         + detRow('Date of Birth',m.dob||'—') +
-    detRow('Gender',m.gender||'—')                   + detRow('Occupation',m.occupation||'—') +
-    detRow('City / PIN',(m.city||'')+(m.pin?' – '+m.pin:'')) + detRow('WhatsApp',m.whatsapp||'—') +
-    detRow('Spouse',m.spouseName||'—')               + detRow('Anniversary',m.anniversary||'—') +
-    detRow('Interests',m.interests||'—')             + detRow('Referred By',m.referredBy||'—') +
-    detRow('Payment Method',m.paymentMethod||'—')    + detRow('Payment Ref',m.paymentRef||'—') +
-    detRow('Payment Date',m.paymentDate||'—')        + detRow('Amount Paid','₹'+Number(m.amountPaid||0).toLocaleString('en-IN')) +
-    detRow('Invoice Sent',m.invoiceSent?'Yes ✓':'No')+ detRow('Submitted At',m.submittedAt||'—') +
+    detRow('App ID',m.appID)                         + detRow('Date of Birth',m.dob||' - ') +
+    detRow('Gender',m.gender||' - ')                   + detRow('Occupation',m.occupation||' - ') +
+    detRow('City / PIN',(m.city||'')+(m.pin?'  -  '+m.pin:'')) + detRow('WhatsApp',m.whatsapp||' - ') +
+    detRow('Spouse',m.spouseName||' - ')               + detRow('Anniversary',m.anniversary||' - ') +
+    detRow('Interests',m.interests||' - ')             + detRow('Referred By',m.referredBy||' - ') +
+    detRow('Payment Method',m.paymentMethod||' - ')    + detRow('Payment Ref',m.paymentRef||' - ') +
+    detRow('Payment Date',m.paymentDate||' - ')        + detRow('Amount Paid','???'+Number(m.amountPaid||0).toLocaleString('en-IN')) +
+    detRow('Invoice Sent',m.invoiceSent?'Yes ???':'No')+ detRow('Submitted At',m.submittedAt||' - ') +
     '</div>' +
 
     '<div style="background:var(--ivory);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">' +
-    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">💳 Payment Receipt</div>' +
+    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">???? Payment Receipt</div>' +
     receiptBlock(m.receiptLink, m.receiptFileName) +
     '</div>' +
 
-    (isPending(m.status)?'<div class="alert alert-warning" style="margin-top:0.5rem;">⚠ Awaiting verification. Review payment receipt before approving.</div>':'') +
-    (isActive(m.status) ?'<div class="alert alert-success" style="margin-top:0.5rem;">✅ Member is active. You can send the Tax Invoice below.</div>':'');
+    (isPending(m.status)?'<div class="alert alert-warning" style="margin-top:0.5rem;">[!] Awaiting verification. Review payment receipt before approving.</div>':'') +
+    (isActive(m.status) ?'<div class="alert alert-success" style="margin-top:0.5rem;">[OK] Member is active. You can send the Tax Invoice below.</div>':'');
 
   var id = appID.replace(/'/g,"\\'");
   var footer = '';
   if (isPending(m.status)) {
-    footer += '<button class="btn btn-danger" onclick="rejectMember(\''+id+'\');closeModal(\'memberModal\')">❌ Reject</button>';
-    footer += '<button class="btn btn-primary" onclick="approveMember(\''+id+'\');closeModal(\'memberModal\')">✅ Approve &amp; Activate</button>';
+    footer += '<button class="btn btn-danger" onclick="rejectMember(\''+id+'\');closeModal(\'memberModal\')">[X] Reject</button>';
+    footer += '<button class="btn btn-primary" onclick="approveMember(\''+id+'\');closeModal(\'memberModal\')">[OK] Approve &amp; Activate</button>';
   }
   if (isActive(m.status)) {
-    footer += '<button class="btn btn-gold" onclick="closeModal(\'memberModal\');openInvoice(\''+id+'\')">🧾 Send Tax Invoice</button>';
+    footer += '<button class="btn btn-gold" onclick="closeModal(\'memberModal\');openInvoice(\''+id+'\')">???? Send Tax Invoice</button>';
   }
   footer += '<button class="btn btn-outline" onclick="closeModal(\'memberModal\')">Close</button>';
   document.getElementById('modalFooter').innerHTML = footer;
@@ -461,7 +460,7 @@ function detRow(label, val, right) {
   var isRight = right;
   return '<div style="padding:8px 0 8px '+(isRight?'1rem':'0')+';border-bottom:1px solid var(--ivory-border);'+(isRight?'border-left:1px solid var(--ivory-border);padding-right:0;':'padding-right:1rem;')+'">' +
     '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:2px;">'+label+'</div>' +
-    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||'—')+'</div></div>';
+    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||' - ')+'</div></div>';
 }
 // Rewrite detRow to alternate left/right via counter
 var _detCount = 0;
@@ -470,10 +469,10 @@ function detRow(label, val) {
   var isRight = _detCount % 2 === 0;
   return '<div style="padding:8px 0 8px '+(isRight?'1rem':'0')+';border-bottom:1px solid var(--ivory-border);'+(isRight?'border-left:1px solid var(--ivory-border);':'padding-right:1rem;')+'">' +
     '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:2px;">'+label+'</div>' +
-    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||'—')+'</div></div>';
+    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||' - ')+'</div></div>';
 }
 
-// ── APPROVE / REJECT ──
+// -- APPROVE / REJECT --
 function approveMember(appID) {
   var m = MEMBERS.find(function(x){ return x.appID===appID; });
   if (!m) return;
@@ -496,7 +495,7 @@ function approveMember(appID) {
     );
   }
 
-  if (confirm('✅ Member approved!\n\nSend Tax Invoice email to ' + m.email + ' now?')) {
+  if (confirm('[OK] Member approved!\n\nSend Tax Invoice email to ' + m.email + ' now?')) {
     sendInvoiceToMember(m);
   }
 }
@@ -518,7 +517,7 @@ function rejectMember(appID) {
   }
 }
 
-// ── INVOICE ──
+// -- INVOICE --
 function renderInvoiceList() {
   var active = MEMBERS.filter(function(m){ return isActive(m.status); });
   _detCount = 0;
@@ -527,7 +526,7 @@ function renderInvoiceList() {
       'onmouseover="this.style.background=\'var(--ivory)\'" onmouseout="this.style.background=\'\';" onclick="selectInvMember(\''+m.appID+'\')">' +
       '<div class="avatar avatar-sm avatar-navy">'+m.firstName[0]+m.lastName[0]+'</div>' +
       '<div><div style="font-size:13px;font-weight:500;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">'+m.appID + (m.invoiceSent?' · ✉ Sent':'')+'</div></div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">'+m.appID + (m.invoiceSent?' ?? ??? Sent':'')+'</div></div>' +
       (m.invoiceSent ? '<span class="badge badge-success" style="margin-left:auto;">Sent</span>' : '<span class="badge badge-warning" style="margin-left:auto;">Pending</span>') +
       '</div>';
   }).join('') || '<div class="empty-state"><p>No active members yet</p></div>';
@@ -543,8 +542,8 @@ function selectInvMember(appID) {
   document.getElementById('invPreviewWrap').innerHTML = buildInvoiceHTML(selectedInvMember);
   document.getElementById('invPreviewWrap').insertAdjacentHTML('beforeend',
     '<div style="margin-top:1rem;display:flex;gap:10px;justify-content:flex-end;">' +
-    '<button class="btn btn-outline" onclick="window.print()">🖨 Print</button>' +
-    '<button class="btn btn-gold" onclick="sendInvoiceEmail()">📧 Send Invoice to Member</button></div>');
+    '<button class="btn btn-outline" onclick="window.print()">???? Print</button>' +
+    '<button class="btn btn-gold" onclick="sendInvoiceEmail()">???? Send Invoice to Member</button></div>');
 }
 
 function openInvoice(appID) {
@@ -561,28 +560,28 @@ function buildInvoiceHTML(m) {
   var dueDate = '15/05/2026';
   return '<div class="invoice-preview">' +
     '<div class="inv-header">' +
-      '<div class="inv-org">॥ मंथन ॥ MANTHAN</div>' +
+      '<div class="inv-org">??? ???????????? ??? MANTHAN</div>' +
       '<div class="inv-org-sub">MANTHAN KALA CENTRE (REGD.)</div>' +
       '<div class="inv-org-addr">A-62, Mayfair Garden, New Delhi-110016</div>' +
       '<div class="inv-org-addr" style="margin-top:4px;">Ph: 011-26850232 | M: 8527922395 | manthantree@gmail.com</div>' +
     '</div>' +
     '<div class="inv-meta">' +
-      '<div class="inv-meta-block"><div class="inv-meta-label">Serial No.</div><div class="inv-meta-val">' + (m.serialNo||'—') + '</div></div>' +
+      '<div class="inv-meta-block"><div class="inv-meta-label">Serial No.</div><div class="inv-meta-val">' + (m.serialNo||' - ') + '</div></div>' +
       '<div class="inv-meta-block"><div class="inv-meta-label">Date</div><div class="inv-meta-val">' + today + '</div></div>' +
       '<div class="inv-meta-block"><div class="inv-meta-label">PAN</div><div class="inv-meta-val">AABTM****E</div></div>' +
       '<div class="inv-meta-block"><div class="inv-meta-label">GSTIN</div><div class="inv-meta-val">07AABTM****D2Z9</div></div>' +
     '</div>' +
     '<div class="inv-bill-to">' +
       '<div class="lbl">Bill To</div>' +
-      '<div style="font-weight:600;color:var(--navy);font-size:14px;">Membership No. ' + (m.membershipNo||'—') + '</div>' +
+      '<div style="font-weight:600;color:var(--navy);font-size:14px;">Membership No. ' + (m.membershipNo||' - ') + '</div>' +
       '<div style="font-size:13px;color:var(--text-mid);margin-top:4px;">' + m.firstName+' '+m.lastName + '</div>' +
       '<div style="font-size:13px;color:var(--text-mid);">' + (m.residentialAddress||'') + '</div>' +
-      '<div style="font-size:13px;color:var(--text-mid);">' + (m.city||'') + (m.pin?' – '+m.pin:'') + '</div>' +
+      '<div style="font-size:13px;color:var(--text-mid);">' + (m.city||'') + (m.pin?'  -  '+m.pin:'') + '</div>' +
       '<div style="font-size:13px;color:var(--text-mid);">' + m.mobile + '</div>' +
     '</div>' +
     '<div class="inv-section-title">TAX INVOICE</div>' +
     '<table class="inv-table">' +
-      '<thead><tr><th style="width:70%;">Particulars</th><th>Amount (₹)</th></tr></thead>' +
+      '<thead><tr><th style="width:70%;">Particulars</th><th>Amount (???)</th></tr></thead>' +
       '<tbody>' +
         '<tr><td>Yearly Subscription for the Year 2026-27<br/><span style="font-size:11px;color:var(--text-muted);">HSN CODE-999599</span></td><td>25,000</td></tr>' +
         '<tr><td>CGST @ 9%</td><td>2,250</td></tr>' +
@@ -594,7 +593,7 @@ function buildInvoiceHTML(m) {
     '<div class="inv-note">Payment should be made before 15th May 2026, after that interest will be payable @ RS. 500 Per month till date of payment received. &nbsp;|&nbsp; Please confirm the detail of NEFT with their name on the Manthan WhatsApp number: 8527922395</div>' +
     '<div class="inv-bank">' +
       '<strong>Bank Account Details:</strong>' +
-      '<div>Punjab National Bank — 05622011010738</div>' +
+      '<div>Punjab National Bank  -  05622011010738</div>' +
       '<div>RTGS/NEFT/IFSC CODE: PUNB0035610 | Branch: New Delhi, Saket 110017</div>' +
     '</div>' +
     '<div class="inv-sign">' +
@@ -624,7 +623,7 @@ function sendInvoiceToMember(m) {
     // Demo mode
     m.invoiceSent = true;
     renderInvoiceList();
-    document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' (demo mode — set GAS_URL to send real emails)';
+    document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' (demo mode  -  set GAS_URL to send real emails)';
     openModal('emailSentModal');
   }
 }
@@ -634,16 +633,16 @@ function sendInvoiceEmail() {
   sendInvoiceToMember(selectedInvMember);
 }
 
-// ── REPORTS ──
+// -- REPORTS --
 function renderReports() {
   var active = MEMBERS.filter(function(m){ return isActive(m.status); });
   var gross = active.length * 29500;
   var base = active.length * 25000;
   var gst = active.length * 2250;
-  document.getElementById('rptTotal').textContent = '₹' + gross.toLocaleString('en-IN');
-  document.getElementById('rptBase').textContent = '₹' + base.toLocaleString('en-IN');
-  document.getElementById('rptCGST').textContent = '₹' + gst.toLocaleString('en-IN');
-  document.getElementById('rptSGST').textContent = '₹' + gst.toLocaleString('en-IN');
+  document.getElementById('rptTotal').textContent = '???' + gross.toLocaleString('en-IN');
+  document.getElementById('rptBase').textContent = '???' + base.toLocaleString('en-IN');
+  document.getElementById('rptCGST').textContent = '???' + gst.toLocaleString('en-IN');
+  document.getElementById('rptSGST').textContent = '???' + gst.toLocaleString('en-IN');
 
   // Interest chart
   var interestMap = {};
@@ -671,7 +670,7 @@ function renderReports() {
   document.getElementById('reportTableBody').innerHTML = MEMBERS.map(function(m){
     return '<tr><td class="td-id">'+m.appID+'</td><td class="td-name">'+m.firstName+' '+m.lastName+'</td>' +
       '<td>'+m.email+'</td><td>'+m.mobile+'</td><td>'+m.city+'</td>' +
-      '<td>Annual</td><td>₹25,000</td><td>₹4,500</td><td>₹29,500</td>' +
+      '<td>Annual</td><td>???25,000</td><td>???4,500</td><td>???29,500</td>' +
       '<td><span class="badge badge-'+statusClass(m.status)+'">'+statusLabel(m.status)+'</span></td>' +
       '<td style="font-size:12px;">'+m.submittedAt+'</td></tr>';
   }).join('');
@@ -689,7 +688,7 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-// ── EMAIL ──
+// -- EMAIL --
 function renderEmailRecipients() {
   var sel = document.getElementById('emailRecipients');
   MEMBERS.filter(function(m){ return m.status==='Active'; }).forEach(function(m){
@@ -701,8 +700,8 @@ function renderEmailRecipients() {
 var EMAIL_TEMPLATES = {
   verify: { subject:'Your Manthan Kala Centre Membership is Activated!', body:'Dear {name},\n\nWe are pleased to inform you that your membership with Manthan Kala Centre (Regd.) has been verified and activated.\n\nMembership No: {memberNo}\nApplication ID: {appID}\n\nPlease find your Tax Invoice attached.\n\nWe look forward to your active participation in our cultural activities.\n\nWarm regards,\nManthan Kala Centre\nA-62, Mayfair Garden, New Delhi-110016\nPh: 011-26850232 | M: 8527922395' },
   welcome: { subject:'Welcome to Manthan Kala Centre!', body:'Dear {name},\n\nA warm welcome to the Manthan Kala Centre family!\n\nWe are a registered cultural organization dedicated to promotion of Indian arts and culture.\n\nYour membership opens doors to exclusive cultural events, workshops, and performances.\n\nWarm regards,\nManthan Kala Centre' },
-  renewal: { subject:'Membership Renewal Reminder — Manthan Kala Centre', body:'Dear {name},\n\nThis is a friendly reminder that your annual membership subscription is due.\n\nPlease make payment of ₹29,500 (incl. GST) before 15th May 2026 to avoid late charges.\n\nBank: Punjab National Bank | A/C: 05622011010738 | IFSC: PUNB0035610\n\nPlease WhatsApp payment confirmation to 8527922395.\n\nWarm regards,\nManthan Kala Centre' },
-  receipt: { subject:'Payment Received — Manthan Kala Centre', body:'Dear {name},\n\nWe have received your payment of ₹29,500 for Annual Membership 2026-27.\n\nYour membership is being processed. You will receive your Tax Invoice shortly.\n\nFor any queries: manthantree@gmail.com\n\nWarm regards,\nManthan Kala Centre' },
+  renewal: { subject:'Membership Renewal Reminder  -  Manthan Kala Centre', body:'Dear {name},\n\nThis is a friendly reminder that your annual membership subscription is due.\n\nPlease make payment of ???29,500 (incl. GST) before 15th May 2026 to avoid late charges.\n\nBank: Punjab National Bank | A/C: 05622011010738 | IFSC: PUNB0035610\n\nPlease WhatsApp payment confirmation to 8527922395.\n\nWarm regards,\nManthan Kala Centre' },
+  receipt: { subject:'Payment Received  -  Manthan Kala Centre', body:'Dear {name},\n\nWe have received your payment of ???29,500 for Annual Membership 2026-27.\n\nYour membership is being processed. You will receive your Tax Invoice shortly.\n\nFor any queries: manthantree@gmail.com\n\nWarm regards,\nManthan Kala Centre' },
 };
 function loadTemplate(key) {
   var t = EMAIL_TEMPLATES[key];
@@ -720,15 +719,15 @@ function previewEmail() {
 }
 function sendEmail() { openModal('emailSentModal'); document.getElementById('emailSentMsg').textContent = 'Email sent to selected recipients!'; }
 
-// ── SETTINGS ──
+// -- SETTINGS --
 function saveSettings() { alert('Settings saved! (In production, this updates your configuration.)'); }
 
-// ── MODAL HELPERS ──
+// -- MODAL HELPERS --
 function openModal(id) { document.getElementById(id).classList.add('open'); _detCount=0; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ── STATUS HELPERS ──
-// Google Sheets stores "Pending Verification", form uses "Pending" — normalise both
+// -- STATUS HELPERS --
+// Google Sheets stores "Pending Verification", form uses "Pending"  -  normalise both
 function isPending(s) {
   s = (s || '').toLowerCase().trim();
   return s === 'pending' || s === 'pending verification';
