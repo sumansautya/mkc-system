@@ -16,56 +16,40 @@ function handlePhoto(who, input) {
   var file = input.files && input.files[0];
   if (!file) return;
   if (file.size > 2 * 1024 * 1024) {
-    alert('Photo too large. Maximum 2MB allowed.'); input.value=''; return;
+    alert('Photo too large. Maximum 2MB allowed.'); input.value = ''; return;
   }
   var reader = new FileReader();
   reader.onload = function(e) {
-    photoData[who] = { dataUrl: e.target.result, name: file.name, mime: file.type };
+    var dataUrl = e.target.result;
+    photoData[who] = { dataUrl: dataUrl, name: file.name, mime: file.type };
+
     var box  = document.getElementById('photoBox-' + who);
     var slot = document.getElementById('photoSlot-' + who);
-    if (!box || !slot) return;
-    // Remove old preview if any
+    if (!box) return;
+
+    // Remove old preview
     var old = box.querySelector('img');
     if (old) old.remove();
-    // Create new preview image
-    var img     = document.createElement('img');
-    img.src     = e.target.result;
-    img.alt     = who + ' photo';
-    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;z-index:2;';
-    box.appendChild(img);
-    box.classList.add('has-photo');
-    slot.classList.add('has-photo');
+
+    // Add preview image
+    var img = new Image();
+    img.onload = function() {
+      box.appendChild(img);
+      box.classList.add('has-photo');
+      if (slot) slot.classList.add('has-photo');
+    };
+    img.onerror = function() { alert('Could not display photo preview.'); };
+    img.src = dataUrl;
   };
-  reader.onerror = function() {
-    alert('Could not read the photo file. Please try again.');
-  };
+  reader.onerror = function() { alert('Could not read photo file. Please try again.'); };
   reader.readAsDataURL(file);
 }
-
-// Attach change listeners via JS as backup (in addition to onchange attribute)
-document.addEventListener('DOMContentLoaded', function() {
-  ['self','spouse'].forEach(function(who) {
-    var inp = document.getElementById('photoInput-' + who);
-    if (inp) {
-      inp.addEventListener('change', function() {
-        handlePhoto(who, this);
-      });
-    }
-  });
-  // Also attach receipt change listener
-  var rec = document.getElementById('receiptFile');
-  if (rec) {
-    rec.addEventListener('change', function() {
-      handleUpload(this);
-    });
-  }
-});
 
 // ── RECEIPT HANDLER ──
 function handleUpload(input) {
   var file = input.files && input.files[0];
   if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); input.value=''; return; }
+  if (file.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); input.value = ''; return; }
   var reader = new FileReader();
   reader.onload = function(e) {
     uploadedFile = { dataUrl: e.target.result, name: file.name, mime: file.type };
@@ -76,9 +60,29 @@ function handleUpload(input) {
     if (zone) zone.style.display = 'none';
     if (name) name.textContent = file.name;
   };
-  reader.onerror = function() { alert('Could not read the file. Please try again.'); };
+  reader.onerror = function() { alert('Could not read file. Please try again.'); };
   reader.readAsDataURL(file);
 }
+
+// Attach all file input listeners after DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Photo inputs — wired via addEventListener (most reliable cross-browser)
+  ['self', 'spouse'].forEach(function(who) {
+    var inp = document.getElementById('photoInput-' + who);
+    if (!inp) return;
+    inp.addEventListener('change', function() {
+      handlePhoto(who, this);
+    });
+  });
+
+  // Receipt input
+  var rec = document.getElementById('receiptFile');
+  if (rec) {
+    rec.addEventListener('change', function() {
+      handleUpload(this);
+    });
+  }
+});
 
 function clearUpload() {
   uploadedFile = null; driveLinks.receipt = '';
