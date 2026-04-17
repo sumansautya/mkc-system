@@ -72,6 +72,27 @@
       <!-- DASHBOARD PAGE -->
       <div id="pg-dashboard">
         <div style="margin-bottom:1.75rem;"><h1 style="font-size:24px;color:var(--navy);">Welcome back, Admin</h1><p id="todayDate" style="color:#7A8BA8;font-size:14px;"></p></div>
+
+        <!-- GAS URL missing banner -->
+        <div id="urlBanner" style="display:none;background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:14px;">
+          <div style="font-size:28px;flex-shrink:0;">&#9888;</div>
+          <div style="flex:1;">
+            <div style="font-weight:600;color:#92400E;font-size:14px;margin-bottom:3px;">Google Apps Script URL not configured</div>
+            <div style="font-size:13px;color:#B45309;">Member data cannot be loaded. Please set your GAS URL in Settings to connect to Google Sheets.</div>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="showPage('settings')">Go to Settings &rarr;</button>
+        </div>
+
+        <!-- Live URL entry shortcut -->
+        <div id="urlQuickSet" style="display:none;background:#fff;border:1.5px solid var(--iborder);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;">
+          <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:8px;">Quick Setup: Enter your Google Apps Script URL</div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="text" id="quickGasUrl" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;padding:9px 12px;border:1.5px solid var(--iborder);border-radius:var(--radius);font-size:13px;outline:none;font-family:'DM Sans',sans-serif;"/>
+            <button class="btn btn-navy" onclick="quickSaveUrl()">Connect</button>
+          </div>
+          <div style="font-size:11px;color:#7A8BA8;margin-top:6px;">Get this URL from: Google Sheet &rarr; Extensions &rarr; Apps Script &rarr; Deploy &rarr; Web App URL</div>
+        </div>
+
         <div class="stats-grid">
           <div class="stat blue"><div class="stat-icon">&#128101;</div><div class="stat-val" id="sTot">0</div><div class="stat-lbl">Total Members</div></div>
           <div class="stat gold"><div class="stat-icon">&#9203;</div><div class="stat-val" id="sPend">0</div><div class="stat-lbl">Pending Verification</div></div>
@@ -297,6 +318,12 @@ function loadData(cb) {
 
 // ---- DASHBOARD ----
 function renderDashboard() {
+  var urlMissing = (GAS_URL === 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec');
+  var banner = document.getElementById('urlBanner');
+  var quick  = document.getElementById('urlQuickSet');
+  if (banner) banner.style.display = urlMissing ? 'flex' : 'none';
+  if (quick)  quick.style.display  = urlMissing ? 'block' : 'none';
+
   var tot  = MEMBERS.length;
   var pend = MEMBERS.filter(function(m){return isPend(m.status);}).length;
   var act  = MEMBERS.filter(function(m){return isAct(m.status);}).length;
@@ -310,12 +337,12 @@ function renderDashboard() {
   document.getElementById('pendAlert').style.display=pend>0?'block':'none';
   if(pend>0) document.getElementById('pendAlertTxt').textContent=pend+' application(s) waiting for review.';
   var recent=MEMBERS.slice().sort(function(a,b){return b.appID.localeCompare(a.appID);}).slice(0,5);
-  document.getElementById('recentList').innerHTML=recent.map(function(m){
+  document.getElementById('recentList').innerHTML = recent.length ? recent.map(function(m){
     return '<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--iborder);">'+
       '<div style="width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>'+
       '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div><div class="td-id">'+m.appID+'</div></div>'+
       '<span class="badge badge-'+sc(m.status)+'">'+sl(m.status)+'</span></div>';
-  }).join('');
+  }).join('') : '<div style="text-align:center;padding:1.5rem;color:#7A8BA8;font-size:13px;">'+(urlMissing?'Set GAS URL above to load member data':'No members yet')+'</div>';
   var cats=[{l:'Active',fn:isAct,c:'var(--green)'},{l:'Pending',fn:isPend,c:'var(--gold)'},{l:'Rejected',fn:isRej,c:'var(--red)'}];
   var mx=Math.max.apply(null,cats.map(function(cat){return MEMBERS.filter(function(m){return cat.fn(m.status);}).length;}))||1;
   document.getElementById('statusChart').innerHTML=cats.map(function(cat){
@@ -324,8 +351,33 @@ function renderDashboard() {
   }).join('');
 }
 
+function quickSaveUrl() {
+  var v = document.getElementById('quickGasUrl').value.trim();
+  if (!v || !v.startsWith('https://script.google.com')) {
+    alert('Please enter a valid Google Apps Script URL.\nIt must start with: https://script.google.com/macros/s/');
+    return;
+  }
+  GAS_URL = v;
+  localStorage.setItem('mkc_gas_url', v);
+  var quick = document.getElementById('urlQuickSet');
+  var banner = document.getElementById('urlBanner');
+  if (quick)  quick.style.display  = 'none';
+  if (banner) banner.style.display = 'none';
+  // Show loading
+  document.getElementById('sTot').textContent = '...';
+  loadData(renderDashboard);
+}
+
 // ---- MEMBERS TABLE ----
 function renderMembers() {
+  var tb=document.getElementById('membersTbl');
+  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') {
+    tb.innerHTML='<tr><td colspan="5"><div class="empty"><div style="font-size:32px;margin-bottom:10px;">&#9888;</div>'+
+      '<p style="font-weight:600;color:var(--navy);margin-bottom:6px;">Google Apps Script URL not set</p>'+
+      '<p style="font-size:13px;margin-bottom:12px;">Enter your GAS URL in Settings to load member data from Google Sheets.</p>'+
+      '<button class="btn btn-navy" onclick="showPage(\'settings\')">Open Settings</button></div></td></tr>';
+    return;
+  }
   var list=MEMBERS.filter(function(m){
     if(curFilter==='Pending') return isPend(m.status);
     if(curFilter==='Active')  return isAct(m.status);
@@ -335,7 +387,6 @@ function renderMembers() {
   if(curSort==='new')  list.sort(function(a,b){return b.appID.localeCompare(a.appID);});
   if(curSort==='old')  list.sort(function(a,b){return a.appID.localeCompare(b.appID);});
   if(curSort==='name') list.sort(function(a,b){return (a.firstName||'').localeCompare(b.firstName||'');});
-  var tb=document.getElementById('membersTbl');
   if(!list.length){tb.innerHTML='<tr><td colspan="5"><div class="empty"><p>No members found</p></div></td></tr>';return;}
   tb.innerHTML=list.map(function(m){
     var id=m.appID.replace(/'/g,"\\'");
