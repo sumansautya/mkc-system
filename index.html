@@ -1,953 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manthan Kala Centre — Membership Registration</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <style>
-    body { background: var(--ivory); min-height: 100vh; }
-    .reg-page { max-width: 780px; margin: 0 auto; padding: 2rem 1rem 4rem; }
-
-    .reg-header {
-      text-align: center; margin-bottom: 2.5rem;
-      padding: 2.5rem 2rem;
-      background: var(--navy);
-      border-radius: var(--radius-xl);
-      position: relative; overflow: hidden;
-    }
-    .reg-header::before {
-      content: ''; position: absolute; top: -60px; right: -60px;
-      width: 200px; height: 200px; border-radius: 50%;
-      border: 40px solid rgba(201,168,76,0.15);
-    }
-    .reg-header::after {
-      content: ''; position: absolute; bottom: -40px; left: -40px;
-      width: 140px; height: 140px; border-radius: 50%;
-      border: 30px solid rgba(255,255,255,0.05);
-    }
-    .reg-logo-mark { font-size: 36px; margin-bottom: 12px; }
-    .reg-org { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--gold); margin-bottom: 4px; }
-    .reg-sub { font-size: 12px; color: rgba(255,255,255,0.55); letter-spacing: 2px; text-transform: uppercase; }
-    .reg-tagline { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 8px; }
-
-    .reg-addr { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 6px; }
-
-    /* stepper row */
-    .stepper-row { display: flex; align-items: flex-start; margin-bottom: 2rem; padding: 0 1rem; }
-    .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
-    .step-circle {
-      width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 600; transition: all 0.3s; flex-shrink: 0;
-    }
-    .step-circle.done    { background: var(--success); color: #fff; }
-    .step-circle.active  { background: var(--navy); color: var(--gold); border: 2px solid var(--gold); box-shadow: 0 0 0 4px rgba(13,32,69,0.1); }
-    .step-circle.pending { background: var(--ivory-dark); color: var(--text-muted); border: 2px solid var(--ivory-border); }
-    .step-lbl { font-size: 11px; color: var(--text-muted); margin-top: 5px; text-align: center; }
-    .step-lbl.active { color: var(--navy); font-weight: 600; }
-    .step-conn { flex: 1; height: 2px; background: var(--ivory-border); margin: 16px 4px 0; }
-    .step-conn.done { background: var(--success); }
-
-    .section-header {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 1.25rem; padding-bottom: 10px;
-      border-bottom: 2px solid var(--ivory-border);
-    }
-    .section-num {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--navy); color: var(--gold);
-      font-size: 13px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .section-title { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--navy); }
-
-    .fee-box {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
-      color: #fff; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
-      margin-top: 1rem;
-    }
-    .fee-row { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; }
-    .fee-row.total { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 6px; padding-top: 10px; font-size: 18px; font-weight: 700; color: var(--gold); }
-
-    .bank-box {
-      background: #EFF6FF; border: 1px solid #BFDBFE;
-      border-radius: var(--radius); padding: 1rem 1.25rem; font-size: 13px; color: var(--navy-mid);
-    }
-    .bank-box strong { color: var(--navy); display: block; margin-bottom: 6px; }
-
-    .step-content { animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
-
-    /* ── PASSPORT PHOTO UPLOAD — mobile-first redesign ── */
-    .photo-section {
-      padding: 0 0 1.25rem;
-      margin-bottom: 1.25rem;
-      border-bottom: 2px solid var(--ivory-border);
-    }
-    .photo-section-label {
-      font-size: 12px; font-weight: 600; color: var(--navy);
-      text-transform: uppercase; letter-spacing: 0.6px;
-      margin-bottom: 12px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    /* Two upload boxes side by side */
-    .photo-boxes-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    .photo-slot {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-    }
-    .photo-box {
-      width: 100%; aspect-ratio: 3/4;
-      max-height: 160px;
-      border: 2px dashed var(--ivory-border);
-      border-radius: 10px; background: var(--ivory);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      overflow: hidden;
-      transition: border-color 0.2s, background 0.2s;
-      position: relative;
-      cursor: pointer;
-    }
-    .photo-box:hover { border-color: var(--blue-accent); background: #EFF6FF; }
-    .photo-box.has-photo { border-style: solid; border-color: var(--navy); background: #fff; }
-
-    /* The file input covers the entire box invisibly — user taps directly on it */
-    .photo-box input[type=file] {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      z-index: 10;
-      font-size: 0;
-    }
-    /* Preview image sits below the input */
-    .photo-box img {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      z-index: 2;
-      border-radius: 8px;
-      display: block;
-    }
-    .photo-box.has-photo .photo-box-placeholder { display: none; }
-    .photo-box-placeholder {
-      text-align: center; padding: 6px; z-index: 1; position: relative;
-    }
-    .photo-box-placeholder .ph-icon { font-size: 22px; margin-bottom: 4px; display: block; }
-    .photo-box-placeholder .ph-text { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
-    .photo-tag {
-      display: inline-flex; align-items: center; gap: 5px;
-      background: var(--navy); color: var(--gold);
-      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
-      text-transform: uppercase;
-      padding: 3px 10px; border-radius: 20px;
-    }
-    .photo-change-btn {
-      font-size: 11px; color: var(--blue-accent); cursor: pointer;
-      background: none; border: none; padding: 0; text-decoration: underline;
-      display: none; margin-top: 0; text-align: center;
-    }
-    .photo-slot.has-photo .photo-change-btn { display: block; }
-
-    /* Compact horizontal requirements strip below the boxes */
-    .photo-req-strip {
-      display: flex; align-items: flex-start; gap: 10px;
-      background: #EFF6FF; border: 1px solid #BFDBFE;
-      border-radius: 8px; padding: 8px 12px;
-      margin-top: 2px;
-    }
-    .photo-req-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-    .photo-req-tags {
-      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
-    }
-    .photo-req-chip {
-      display: inline-block;
-      background: #fff; border: 1px solid #BFDBFE;
-      border-radius: 20px; padding: 2px 9px;
-      font-size: 11px; color: var(--navy-mid);
-      white-space: nowrap;
-    }
-    .photo-req-chip.accent {
-      background: var(--navy); color: var(--gold);
-      border-color: var(--navy); font-weight: 600;
-    }
-
-    .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
-
-    /* receipt upload */
-    .receipt-uploaded { background: var(--success-bg); border: 1.5px solid #A7F3D0; border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--success); margin-top: 10px; }
-
-    /* success screen */
-    .success-card { text-align: center; padding: 3rem 2rem; }
-    .success-ring { width: 80px; height: 80px; border-radius: 50%; background: var(--success-bg); border: 3px solid var(--success); color: var(--success); font-size: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
-    .success-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--navy); margin-bottom: 8px; }
-    .success-id { display: inline-block; background: var(--navy); color: var(--gold); font-size: 22px; font-weight: 700; padding: 10px 28px; border-radius: var(--radius); letter-spacing: 2px; margin: 1rem 0; }
-    .next-box { background: var(--ivory-dark); border-radius: var(--radius-lg); padding: 1.25rem; text-align: left; margin-top: 1.5rem; }
-    .next-box p { font-size: 13px; color: var(--text-mid); padding: 4px 0; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Manthan Kala Centre - Membership Registration</title>
+<link rel="stylesheet" href="css/style.css"/>
+<style>
+body{background:var(--ivory);min-height:100vh;}
+.rpage{max-width:760px;margin:0 auto;padding:2rem 1rem 4rem;}
+.rhdr{text-align:center;margin-bottom:2rem;padding:2rem 1.5rem;background:var(--navy);border-radius:20px;position:relative;overflow:hidden;}
+.rhdr::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;border:40px solid rgba(201,168,76,0.12);}
+.rhdr-icon{font-size:32px;margin-bottom:10px;}
+.rhdr-org{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);margin-bottom:4px;}
+.rhdr-sub{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;}
+.rhdr-addr{font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;}
+/* stepper */
+.stepper{display:flex;align-items:flex-start;margin-bottom:2rem;padding:0 1rem;}
+.s-item{display:flex;flex-direction:column;align-items:center;flex:1;}
+.s-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;transition:all 0.3s;flex-shrink:0;}
+.s-dot.done{background:var(--green);color:#fff;}
+.s-dot.active{background:var(--navy);color:var(--gold);border:2px solid var(--gold);}
+.s-dot.pend{background:var(--ivory2);color:#7A8BA8;border:2px solid var(--iborder);}
+.s-lbl{font-size:10px;color:#7A8BA8;margin-top:5px;text-align:center;}
+.s-lbl.active{color:var(--navy);font-weight:600;}
+.s-line{flex:1;height:2px;background:var(--iborder);margin:16px 4px 0;}
+.s-line.done{background:var(--green);}
+/* section header */
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:10px;border-bottom:2px solid var(--iborder);}
+.sec-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--navy);}
+/* photo upload */
+.photo-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.photo-slot{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.photo-wrap{width:100%;position:relative;border:2px dashed var(--iborder);border-radius:10px;background:var(--ivory2);overflow:hidden;cursor:pointer;}
+.photo-wrap:hover{border-color:var(--blue);}
+.photo-wrap.loaded{border-style:solid;border-color:var(--navy);background:#fff;}
+.photo-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5;font-size:0;}
+.photo-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:3;display:none;}
+.photo-placeholder{padding:1.5rem 1rem;text-align:center;position:relative;z-index:1;}
+.photo-placeholder .ico{font-size:24px;display:block;margin-bottom:6px;}
+.photo-placeholder .txt{font-size:10px;color:#7A8BA8;line-height:1.5;}
+.photo-lbl{background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 12px;border-radius:20px;}
+/* fee box */
+.fee-box{background:var(--navy);color:#fff;border-radius:var(--radius2);padding:1.25rem 1.5rem;margin-top:1rem;}
+.fee-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;}
+.fee-total{border-top:1px solid rgba(255,255,255,0.2);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--gold);}
+/* bank box */
+.bank-box{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--radius);padding:1rem 1.25rem;font-size:13px;color:var(--navy2);}
+.bank-box strong{color:var(--navy);display:block;margin-bottom:6px;}
+/* upload zone */
+.upload-zone{border:2px dashed var(--iborder);border-radius:var(--radius2);padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--ivory2);}
+.upload-zone:hover{border-color:var(--blue);background:#EFF6FF;}
+.upload-preview{background:var(--green-bg);border:1.5px solid #A7F3D0;border-radius:var(--radius);padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;color:var(--green);margin-top:10px;}
+/* btn row */
+.btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;}
+/* step content */
+.step-content{animation:fadeIn 0.3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+/* summary */
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.sum-cell{padding:8px 0;border-bottom:1px solid var(--iborder);}
+.sum-cell:nth-child(odd){padding-right:1rem;}
+.sum-cell:nth-child(even){padding-left:1rem;border-left:1px solid var(--iborder);}
+.sum-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#7A8BA8;margin-bottom:2px;}
+.sum-val{font-size:14px;color:var(--navy);font-weight:500;}
+/* success */
+.success-wrap{text-align:center;padding:2.5rem 1.5rem;}
+.success-ring{width:72px;height:72px;border-radius:50%;background:var(--green-bg);border:3px solid var(--green);color:var(--green);font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;}
+.success-id{display:inline-block;background:var(--navy);color:var(--gold);font-size:20px;font-weight:700;padding:10px 24px;border-radius:var(--radius);letter-spacing:2px;margin:1rem 0;}
+.next-box{background:var(--ivory2);border-radius:var(--radius2);padding:1.25rem;text-align:left;margin-top:1.25rem;}
+.next-box p{font-size:13px;color:#3A4A6B;padding:3px 0;}
+</style>
 </head>
 <body>
-<div class="reg-page">
+<div class="rpage">
 
-  <!-- HEADER -->
-  <div class="reg-header">
-    <div class="reg-logo-mark">🎵</div>
-    <div class="reg-org">॥ Manthan ॥</div>
-    <div class="reg-sub">Manthan Kala Centre (Regd.)</div>
-    <div class="reg-tagline">A-62, Mayfair Garden, New Delhi – 110016</div>
-    <div class="reg-addr">Ph: 011-26850232 &nbsp;|&nbsp; M: 8527922395 &nbsp;|&nbsp; manthantree@gmail.com</div>
-  </div>
+<!-- HEADER -->
+<div class="rhdr">
+  <div class="rhdr-icon">&#127925;</div>
+  <div class="rhdr-org">&#2404;&#2404; Manthan &#2405;&#2405;</div>
+  <div class="rhdr-sub">Manthan Kala Centre (Regd.)</div>
+  <div class="rhdr-addr">A-62, Mayfair Garden, New Delhi-110016 &nbsp;|&nbsp; Ph: 011-26850232 &nbsp;|&nbsp; 8527922395</div>
+</div>
 
-  <!-- STEPPER -->
-  <div class="stepper-row" id="stepper">
-    <div class="step-item">
-      <div class="step-circle active" id="sc1">1</div>
-      <div class="step-lbl active" id="sl1">Personal</div>
-    </div>
-    <div class="step-conn" id="cn1"></div>
-    <div class="step-item">
-      <div class="step-circle pending" id="sc2">2</div>
-      <div class="step-lbl" id="sl2">Family</div>
-    </div>
-    <div class="step-conn" id="cn2"></div>
-    <div class="step-item">
-      <div class="step-circle pending" id="sc3">3</div>
-      <div class="step-lbl" id="sl3">Membership</div>
-    </div>
-    <div class="step-conn" id="cn3"></div>
-    <div class="step-item">
-      <div class="step-circle pending" id="sc4">4</div>
-      <div class="step-lbl" id="sl4">Payment</div>
-    </div>
-    <div class="step-conn" id="cn4"></div>
-    <div class="step-item">
-      <div class="step-circle pending" id="sc5">5</div>
-      <div class="step-lbl" id="sl5">Submit</div>
-    </div>
-  </div>
+<!-- STEPPER -->
+<div class="stepper" id="stepper">
+  <div class="s-item"><div class="s-dot active" id="sd1">1</div><div class="s-lbl active" id="sl1">Personal</div></div>
+  <div class="s-line" id="ln1"></div>
+  <div class="s-item"><div class="s-dot pend" id="sd2">2</div><div class="s-lbl" id="sl2">Family</div></div>
+  <div class="s-line" id="ln2"></div>
+  <div class="s-item"><div class="s-dot pend" id="sd3">3</div><div class="s-lbl" id="sl3">Membership</div></div>
+  <div class="s-line" id="ln3"></div>
+  <div class="s-item"><div class="s-dot pend" id="sd4">4</div><div class="s-lbl" id="sl4">Payment</div></div>
+  <div class="s-line" id="ln4"></div>
+  <div class="s-item"><div class="s-dot pend" id="sd5">5</div><div class="s-lbl" id="sl5">Submit</div></div>
+</div>
 
-  <!-- ═══ STEP 1: PERSONAL INFO ═══ -->
-  <div id="step1" class="step-content">
-    <div class="card">
-      <div class="section-header"><div class="section-num">1</div><div class="section-title">Personal Information</div></div>
-
-      <!-- PASSPORT PHOTOS — compact mobile-first layout -->
-      <div class="photo-section">
-        <div class="photo-section-label">
-          <span>📸</span> Passport Size Photographs
+<!-- STEP 1: PERSONAL -->
+<div id="step1" class="step-content">
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">&#128247;</div><div class="sec-title">Passport Size Photographs</div></div>
+    <div class="photo-row">
+      <div class="photo-slot">
+        <div class="photo-wrap" id="pw-self">
+          <input type="file" class="photo-input" id="pi-self" accept="image/*"/>
+          <img class="photo-preview" id="pp-self" alt="Self photo"/>
+          <div class="photo-placeholder"><span class="ico">&#128100;</span><div class="txt">Tap to upload<br/>your photo</div></div>
         </div>
-
-        <!-- Two upload boxes side by side -->
-        <div class="photo-boxes-row">
-
-          <!-- Self -->
-          <div class="photo-slot" id="photoSlot-self">
-            <div class="photo-box" id="photoBox-self" title="Tap to upload your passport photo">
-              <!-- Invisible file input covers the entire box — direct tap -->
-              <input type="file" id="photoInput-self" accept="image/*" capture="user"/>
-              <div class="photo-box-placeholder">
-                <span class="ph-icon">🧑</span>
-                <div class="ph-text">Tap to upload<br/>your photo</div>
-              </div>
-            </div>
-            <div class="photo-tag">&#128100; Self</div>
-            <button class="photo-change-btn" id="photoChangeBtn-self" type="button"
-                    onclick="document.getElementById('photoInput-self').click()">
-              Change photo
-            </button>
-          </div>
-
-          <!-- Spouse -->
-          <div class="photo-slot" id="photoSlot-spouse">
-            <div class="photo-box" id="photoBox-spouse" title="Tap to upload spouse passport photo">
-              <!-- Invisible file input covers the entire box — direct tap -->
-              <input type="file" id="photoInput-spouse" accept="image/*"/>
-              <div class="photo-box-placeholder">
-                <span class="ph-icon">🧑</span>
-                <div class="ph-text">Tap to upload<br/>spouse photo</div>
-              </div>
-            </div>
-            <div class="photo-tag">&#128100; Spouse</div>
-            <button class="photo-change-btn" id="photoChangeBtn-spouse" type="button"
-                    onclick="document.getElementById('photoInput-spouse').click()">
-              Change photo
-            </button>
-          </div>
-
-        </div><!-- end photo-boxes-row -->
-
-        <!-- Compact requirements strip below the two boxes -->
-        <div class="photo-req-strip">
-          <div class="photo-req-icon">ℹ️</div>
-          <div class="photo-req-tags">
-            <span class="photo-req-chip accent">For Manthan Directory</span>
-            <span class="photo-req-chip">Recent &amp; front-facing</span>
-            <span class="photo-req-chip">Light background</span>
-            <span class="photo-req-chip">JPG / PNG</span>
-            <span class="photo-req-chip">Max 2 MB each</span>
-          </div>
-        </div>
-
-      </div><!-- END PHOTOS -->
-
-      <div class="form-grid">
-        <div class="field" id="f-fname">
-          <label>First Name <span class="req">*</span></label>
-          <input type="text" id="fname" placeholder="e.g. Arihant"/>
-          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
-        </div>
-        <div class="field" id="f-lname">
-          <label>Last Name <span class="req">*</span></label>
-          <input type="text" id="lname" placeholder="e.g. Gupta"/>
-          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
-        </div>
+        <div class="photo-lbl">Self</div>
       </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Date of Birth (Self)</label>
-          <input type="date" id="dob"/>
+      <div class="photo-slot">
+        <div class="photo-wrap" id="pw-spouse">
+          <input type="file" class="photo-input" id="pi-spouse" accept="image/*"/>
+          <img class="photo-preview" id="pp-spouse" alt="Spouse photo"/>
+          <div class="photo-placeholder"><span class="ico">&#128100;</span><div class="txt">Tap to upload<br/>spouse photo</div></div>
         </div>
-        <div class="field" id="f-gender">
-          <label>Gender <span class="req">*</span></label>
-          <select id="gender">
-            <option value="">Select</option>
-            <option>Male</option><option>Female</option><option>Other</option>
-          </select>
-          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Occupation</label>
-        <input type="text" id="occ" placeholder="e.g. Teacher, Business, Retired..."/>
-      </div>
-      <div class="field" id="f-email">
-        <label>Email Address <span class="req">*</span></label>
-        <input type="email" id="email" placeholder="yourname@email.com"/>
-        <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Valid email required</div>
-      </div>
-      <div class="form-grid">
-        <div class="field" id="f-mobile">
-          <label>Mobile (Self) <span class="req">*</span></label>
-          <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10"/>
-          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Valid 10-digit number required</div>
-        </div>
-        <div class="field">
-          <label>Mobile (Spouse)</label>
-          <input type="tel" id="mobile2" placeholder="10-digit number" maxlength="10"/>
-        </div>
-      </div>
-      <label class="flex-center gap-8" style="font-size:13px;color:var(--text-mid);cursor:pointer;">
-        <input type="checkbox" id="whatsapp" checked style="accent-color:var(--navy);"/> 
-        My mobile number is on WhatsApp
-      </label>
-    </div>
-    <div class="card">
-      <div class="section-header"><div class="section-num">📍</div><div class="section-title">Address Details</div></div>
-      <div class="field">
-        <label>Residential Address <span class="req">*</span></label>
-        <textarea id="raddr" placeholder="House / Flat No., Street, Colony, Area..."></textarea>
-      </div>
-      <div class="form-grid-3">
-        <div class="field"><label>City</label><input type="text" id="city" placeholder="New Delhi"/></div>
-        <div class="field"><label>State</label><input type="text" id="state" placeholder="Delhi"/></div>
-        <div class="field"><label>PIN Code</label><input type="text" id="pin" maxlength="6" placeholder="110016"/></div>
-      </div>
-      <div class="field">
-        <label>Office Address <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
-        <textarea id="oaddr" placeholder="Office / work address..."></textarea>
+        <div class="photo-lbl">Spouse</div>
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="goStep(2)">Next: Family Details &rarr;</button>
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:8px 12px;font-size:12px;color:var(--navy2);margin-bottom:1rem;">
+      Recent, clear, front-facing &nbsp;|&nbsp; White/light background &nbsp;|&nbsp; JPG/PNG, max 2MB &nbsp;|&nbsp; Used for Manthan Directory
     </div>
   </div>
 
-  <!-- ═══ STEP 2: FAMILY ═══ -->
-  <div id="step2" class="step-content" style="display:none;">
-    <div class="card">
-      <div class="section-header"><div class="section-num">2</div><div class="section-title">Family Details</div></div>
-      <div class="form-grid">
-        <div class="field"><label>Spouse / Partner Name</label><input type="text" id="spouse" placeholder="Full name"/></div>
-        <div class="field"><label>Date of Birth (Spouse)</label><input type="date" id="sdob"/></div>
-      </div>
-      <div class="field"><label>Wedding Anniversary Date</label><input type="date" id="anniv"/></div>
-      <div class="field"><label>Dependants / Children Names</label><input type="text" id="dep" placeholder="e.g. Riya, Arjun (comma separated)"/></div>
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">Personal Information</div></div>
+    <div class="form-grid">
+      <div class="field" id="f-fname"><label>First Name <span class="req">*</span></label><input type="text" id="fname" placeholder="e.g. Arihant"/><div class="err-msg">Required</div></div>
+      <div class="field" id="f-lname"><label>Last Name <span class="req">*</span></label><input type="text" id="lname" placeholder="e.g. Sharma"/><div class="err-msg">Required</div></div>
     </div>
-    <div class="card">
-      <div class="section-header"><div class="section-num">🎨</div><div class="section-title">Area of Interest in Arts</div></div>
-      <p class="text-muted text-small" style="margin-bottom:10px;">Select all that apply — we'll invite you to relevant events</p>
-      <div class="chip-group">
-        <div class="chip" onclick="toggleChip(this)">Classical Music</div>
-        <div class="chip" onclick="toggleChip(this)">Light Music</div>
-        <div class="chip" onclick="toggleChip(this)">Classical Dance</div>
-        <div class="chip" onclick="toggleChip(this)">Folk Dance</div>
-        <div class="chip" onclick="toggleChip(this)">Theatre / Drama</div>
-        <div class="chip" onclick="toggleChip(this)">Visual Arts</div>
-        <div class="chip" onclick="toggleChip(this)">Poetry / Literature</div>
-        <div class="chip" onclick="toggleChip(this)">Photography</div>
-        <div class="chip" onclick="toggleChip(this)">Handicrafts</div>
-        <div class="chip" onclick="toggleChip(this)">Other</div>
+    <div class="form-grid">
+      <div class="field"><label>Date of Birth</label><input type="date" id="dob"/></div>
+      <div class="field" id="f-gender"><label>Gender <span class="req">*</span></label>
+        <select id="gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
+        <div class="err-msg">Required</div>
       </div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="goStep(1)">&larr; Back</button>
-      <button class="btn btn-primary" onclick="goStep(3)">Next: Membership &rarr;</button>
+    <div class="field"><label>Occupation</label><input type="text" id="occ" placeholder="e.g. Business, Teacher, Retired..."/></div>
+    <div class="field" id="f-email"><label>Email Address <span class="req">*</span></label><input type="email" id="email" placeholder="yourname@email.com"/><div class="err-msg">Valid email required</div></div>
+    <div class="form-grid">
+      <div class="field" id="f-mobile"><label>Mobile (Self) <span class="req">*</span></label><input type="tel" id="mobile" placeholder="10-digit number" maxlength="10"/><div class="err-msg">Valid 10-digit number required</div></div>
+      <div class="field"><label>Mobile (Spouse)</label><input type="tel" id="mobile2" placeholder="10-digit number" maxlength="10"/></div>
     </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#3A4A6B;cursor:pointer;">
+      <input type="checkbox" id="whatsapp" checked style="accent-color:var(--navy);"/> My mobile number is on WhatsApp
+    </label>
   </div>
 
-  <!-- ═══ STEP 3: MEMBERSHIP ═══ -->
-  <div id="step3" class="step-content" style="display:none;">
-    <div class="card">
-      <div class="section-header"><div class="section-num">3</div><div class="section-title">Membership Type</div></div>
-      <div class="mem-type-wrap">
-        <div class="mem-type-card selected">
-          <div class="flex-center gap-12">
-            <span style="font-size:24px;">⭐</span>
-            <div>
-              <div class="mem-type-name">Annual Membership</div>
-              <div class="mem-type-price">₹25,000 <span style="font-size:13px;color:var(--text-muted);font-weight:400;">per year</span></div>
-              <div class="mem-type-tax">+ CGST 9% (₹2,250) + SGST 9% (₹2,250) | HSN Code: 999599</div>
-              <div class="mem-type-total">Total Payable: ₹29,500 per year</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="fee-box mt-2">
-        <div class="fee-row"><span>Yearly Subscription (HSN 999599)</span><span>₹25,000</span></div>
-        <div class="fee-row"><span>CGST @ 9%</span><span>₹2,250</span></div>
-        <div class="fee-row"><span>SGST @ 9%</span><span>₹2,250</span></div>
-        <div class="fee-row total"><span>Total Payable</span><span>₹29,500</span></div>
-      </div>
-      <p class="text-small text-muted mt-1" style="padding:8px 0;">
-        In words: <em>Rupees Twenty-Nine Thousand Five Hundred Only</em>
-      </p>
-      <div class="field mt-2">
-        <label>Referred by (Member Name or ID)</label>
-        <input type="text" id="refby" placeholder="Who introduced you to Manthan Kala Centre? (optional)"/>
-      </div>
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">&#128205;</div><div class="sec-title">Address</div></div>
+    <div class="field"><label>Residential Address</label><textarea id="raddr" placeholder="House/Flat No., Street, Colony, Area..."></textarea></div>
+    <div class="form-grid3">
+      <div class="field"><label>City</label><input type="text" id="city" placeholder="New Delhi"/></div>
+      <div class="field"><label>State</label><input type="text" id="state" placeholder="Delhi"/></div>
+      <div class="field"><label>PIN Code</label><input type="text" id="pin" placeholder="110016" maxlength="6"/></div>
     </div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="goStep(2)">&larr; Back</button>
-      <button class="btn btn-primary" onclick="goStep(4)">Next: Payment &rarr;</button>
+    <div class="field"><label>Office Address <span style="color:#7A8BA8;font-weight:400;">(optional)</span></label><textarea id="oaddr" placeholder="Office/work address..."></textarea></div>
+  </div>
+  <div class="btn-row"><button class="btn btn-navy" onclick="goStep(2)">Next: Family Details &rarr;</button></div>
+</div>
+
+<!-- STEP 2: FAMILY -->
+<div id="step2" class="step-content" style="display:none;">
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">2</div><div class="sec-title">Family Details</div></div>
+    <div class="form-grid">
+      <div class="field"><label>Spouse Name</label><input type="text" id="spouse" placeholder="Full name"/></div>
+      <div class="field"><label>Date of Birth (Spouse)</label><input type="date" id="sdob"/></div>
+    </div>
+    <div class="field"><label>Anniversary Date</label><input type="date" id="anniv"/></div>
+    <div class="field"><label>Dependant / Children Names</label><input type="text" id="dep" placeholder="e.g. Riya, Arjun (comma separated)"/></div>
+  </div>
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">&#127912;</div><div class="sec-title">Area of Interest in Arts</div></div>
+    <p style="font-size:12px;color:#7A8BA8;margin-bottom:8px;">Select all that apply</p>
+    <div class="chips">
+      <div class="chip" onclick="this.classList.toggle('on')">Classical Music</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Light Music</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Classical Dance</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Folk Dance</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Theatre / Drama</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Visual Arts</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Poetry / Literature</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Photography</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Handicrafts</div>
+      <div class="chip" onclick="this.classList.toggle('on')">Other</div>
     </div>
   </div>
-
-  <!-- ═══ STEP 4: PAYMENT ═══ -->
-  <div id="step4" class="step-content" style="display:none;">
-    <div class="card">
-      <div class="section-header"><div class="section-num">4</div><div class="section-title">Payment Details</div></div>
-
-      <div class="bank-box">
-        <strong>Bank Account Details — Manthan Kala Centre</strong>
-        <div class="form-grid" style="margin-top:6px;gap:8px;">
-          <div><span class="text-muted text-small">Bank Name</span><br/><strong>Punjab National Bank</strong></div>
-          <div><span class="text-muted text-small">Account No.</span><br/><strong>05622011010738</strong></div>
-          <div><span class="text-muted text-small">IFSC Code</span><br/><strong>PUNB0035610</strong></div>
-          <div><span class="text-muted text-small">Branch</span><br/><strong>New Delhi, Saket – 110017</strong></div>
-        </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--text-muted);">Also payable via cheque/cash in favour of "MANTHAN KALA CENTRE". Write Name &amp; Membership No. on reverse of cheque.</div>
-        <div style="margin-top:6px;font-size:11px;color:var(--warning);background:var(--warning-bg);padding:6px 10px;border-radius:6px;">
-          ⚠ Payment due before <strong>15th May</strong> of each year. Interest @ ₹500/month applies after due date.
-        </div>
-      </div>
-
-      <div class="field mt-2">
-        <label>Payment Method <span class="req">*</span></label>
-        <select id="paymethod">
-          <option value="">Select method</option>
-          <option>NEFT / RTGS / IMPS</option>
-          <option>UPI / GPay / PhonePe</option>
-          <option>Cheque</option>
-          <option>Cash at Office</option>
-        </select>
-      </div>
-      <div class="form-grid">
-        <div class="field" id="f-payref">
-          <label>Transaction / UTR Reference No. <span class="req">*</span></label>
-          <input type="text" id="payref" placeholder="e.g. PUNB0012345678 or UPI Ref"/>
-          <div class="error-msg" style="color:var(--danger);font-size:11px;display:none;">Required</div>
-        </div>
-        <div class="field">
-          <label>Payment Date <span class="req">*</span></label>
-          <input type="date" id="paydate"/>
-        </div>
-      </div>
-      <div class="field">
-        <label>Amount Paid (₹) <span class="req">*</span></label>
-        <input type="number" id="payamt" value="29500" min="0"/>
-      </div>
-
-      <!-- Receipt upload -->
-      <div class="field">
-        <label>Upload Payment Receipt / Screenshot <span class="req">*</span></label>
-        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('receiptFile').click()">
-          <div class="upload-icon">📎</div>
-          <div class="upload-text">Click to upload or drag &amp; drop</div>
-          <div class="upload-hint">JPG, PNG, PDF — max 5MB</div>
-        </div>
-        <input type="file" id="receiptFile" accept="image/*,.pdf" style="display:none;" onchange="handleUpload(this)"/>
-        <div id="uploadPreview" style="display:none;" class="receipt-uploaded">
-          <span>✅</span> <span id="uploadName"></span>
-          <button onclick="clearUpload()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;color:var(--danger);">✕</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Additional Notes / Message</label>
-        <textarea id="paynotes" placeholder="Any additional information for the office..."></textarea>
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="goStep(3)">&larr; Back</button>
-      <button class="btn btn-primary" onclick="goStep(5)">Review &amp; Submit &rarr;</button>
-    </div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="goStep(1)">&larr; Back</button>
+    <button class="btn btn-navy" onclick="goStep(3)">Next: Membership &rarr;</button>
   </div>
+</div>
 
-  <!-- ═══ STEP 5: REVIEW & SUBMIT ═══ -->
-  <div id="step5" class="step-content" style="display:none;">
-    <div class="card">
-      <div class="section-header"><div class="section-num">5</div><div class="section-title">Review Your Application</div></div>
-      <div id="summaryBody"></div>
-    </div>
-    <div class="card">
-      <label class="flex-center gap-8" style="font-size:13px;cursor:pointer;margin-bottom:10px;">
-        <input type="checkbox" id="agree" style="accent-color:var(--navy);"/>
-        I agree to abide by the rules, byelaws, and norms of Manthan Kala Centre (Regd.)
-      </label>
-      <label class="flex-center gap-8" style="font-size:13px;cursor:pointer;">
-        <input type="checkbox" id="accurate" style="accent-color:var(--navy);"/>
-        The information provided is true and accurate to the best of my knowledge
-      </label>
-    </div>
-    <div id="submitAlert" style="display:none;"></div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="goStep(4)">&larr; Back</button>
-      <button class="btn btn-gold" id="submitBtn" onclick="submitForm()">&#10003; Submit Application</button>
-    </div>
-  </div>
-
-  <!-- ═══ SUCCESS ═══ -->
-  <div id="stepSuccess" style="display:none;">
-    <div class="card success-card">
-      <div class="success-ring">✓</div>
-      <div class="success-title">Application Submitted!</div>
-      <p class="text-muted">Your membership application is under review.</p>
-      <div class="success-id" id="successID">MKC-2026-XXXX</div>
-      <p class="text-small text-muted">Save this Application Number for future reference</p>
-      <div class="next-box">
-        <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">What happens next?</p>
-        <p>📋 Admin will review your details and payment receipt</p>
-        <p>✅ Upon verification, your membership will be activated</p>
-        <p>📧 You will receive a Tax Invoice by email (for official records)</p>
-        <p>📞 For queries: 8527922395 (WhatsApp) or manthantree@gmail.com</p>
-        <p>⚠ Payment should be made before 15th May. Interest @ ₹500/month after due date.</p>
+<!-- STEP 3: MEMBERSHIP -->
+<div id="step3" class="step-content" style="display:none;">
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">3</div><div class="sec-title">Membership Type</div></div>
+    <div style="border:2px solid var(--navy);border-radius:var(--radius2);padding:1.25rem;background:#EFF6FF;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:24px;">&#11088;</span>
+        <div>
+          <div style="font-weight:600;color:var(--navy);font-size:15px;">Annual Membership</div>
+          <div style="font-size:20px;font-weight:700;color:var(--gold);">&#8377;25,000 <span style="font-size:13px;color:#7A8BA8;font-weight:400;">per year</span></div>
+          <div style="font-size:12px;color:#7A8BA8;">+ CGST 9% + SGST 9% &nbsp;|&nbsp; HSN Code: 999599</div>
+        </div>
       </div>
-      <button class="btn btn-outline mt-2" onclick="resetForm()">Register Another Member</button>
     </div>
+    <div class="fee-box">
+      <div class="fee-row"><span>Yearly Subscription (HSN 999599)</span><span>&#8377;25,000</span></div>
+      <div class="fee-row"><span>CGST @ 9%</span><span>&#8377;2,250</span></div>
+      <div class="fee-row"><span>SGST @ 9%</span><span>&#8377;2,250</span></div>
+      <div class="fee-row fee-total"><span>Total Payable</span><span>&#8377;29,500</span></div>
+    </div>
+    <p style="font-size:12px;color:#7A8BA8;padding:8px 0;font-style:italic;">In words: Rupees Twenty-Nine Thousand Five Hundred Only</p>
+    <div class="field" style="margin-top:0.5rem;"><label>Referred by (Member Name or ID)</label><input type="text" id="refby" placeholder="Who introduced you? (optional)"/></div>
   </div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="goStep(2)">&larr; Back</button>
+    <button class="btn btn-navy" onclick="goStep(4)">Next: Payment &rarr;</button>
+  </div>
+</div>
 
-</div><!-- end reg-page -->
+<!-- STEP 4: PAYMENT -->
+<div id="step4" class="step-content" style="display:none;">
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">4</div><div class="sec-title">Payment Details</div></div>
+    <div class="bank-box">
+      <strong>Bank Account Details - Manthan Kala Centre</strong>
+      <div class="form-grid" style="margin-top:6px;gap:8px;">
+        <div><div style="font-size:10px;color:#7A8BA8;">Bank</div><strong>Punjab National Bank</strong></div>
+        <div><div style="font-size:10px;color:#7A8BA8;">Account No.</div><strong>05622011010738</strong></div>
+        <div><div style="font-size:10px;color:#7A8BA8;">IFSC Code</div><strong>PUNB0035610</strong></div>
+        <div><div style="font-size:10px;color:#7A8BA8;">Branch</div><strong>New Delhi, Saket - 110017</strong></div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:#7A8BA8;">Also payable via cheque/cash in favour of "MANTHAN KALA CENTRE". Write Name &amp; Membership No. on reverse of cheque.</div>
+      <div style="margin-top:6px;background:var(--warn-bg);padding:6px 10px;border-radius:6px;font-size:11px;color:var(--warn);">Payment due before 15th May. Interest @ Rs.500/month after due date. WhatsApp NEFT details to 8527922395</div>
+    </div>
+    <div class="field" style="margin-top:1rem;">
+      <label>Payment Method <span class="req">*</span></label>
+      <select id="paymethod"><option value="">Select method</option><option>NEFT / RTGS / IMPS</option><option>UPI / GPay / PhonePe</option><option>Cheque</option><option>Cash at Office</option></select>
+    </div>
+    <div class="form-grid">
+      <div class="field" id="f-payref"><label>Transaction / UTR Reference <span class="req">*</span></label><input type="text" id="payref" placeholder="Transaction reference number"/><div class="err-msg">Required</div></div>
+      <div class="field"><label>Payment Date</label><input type="date" id="paydate"/></div>
+    </div>
+    <div class="field"><label>Amount Paid (Rs.)</label><input type="number" id="payamt" value="29500"/></div>
+    <div class="field">
+      <label>Upload Payment Receipt / Screenshot <span class="req">*</span></label>
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('receiptFile').click()">
+        <div style="font-size:28px;margin-bottom:8px;">&#128206;</div>
+        <div style="font-size:14px;color:#3A4A6B;">Click to upload or drag and drop</div>
+        <div style="font-size:12px;color:#7A8BA8;margin-top:4px;">JPG, PNG or PDF - max 5MB</div>
+      </div>
+      <input type="file" id="receiptFile" accept="image/*,.pdf" style="display:none;"/>
+      <div class="upload-preview" id="uploadPreview">
+        <span>&#10003;</span><span id="uploadName"></span>
+        <button onclick="clearUpload()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;color:var(--red);">&#10005;</button>
+      </div>
+    </div>
+    <div class="field"><label>Notes / Message</label><textarea id="paynotes" placeholder="Any additional message for the office..."></textarea></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="goStep(3)">&larr; Back</button>
+    <button class="btn btn-navy" onclick="goStep(5)">Review &amp; Submit &rarr;</button>
+  </div>
+</div>
+
+<!-- STEP 5: REVIEW -->
+<div id="step5" class="step-content" style="display:none;">
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">5</div><div class="sec-title">Review Your Application</div></div>
+    <div id="sumBody"></div>
+  </div>
+  <div class="card">
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:10px;">
+      <input type="checkbox" id="agree" style="accent-color:var(--navy);"/> I agree to abide by the rules and norms of Manthan Kala Centre (Regd.)
+    </label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+      <input type="checkbox" id="accurate" style="accent-color:var(--navy);"/> The information provided is true and accurate
+    </label>
+  </div>
+  <div id="submitAlert" style="display:none;"></div>
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="goStep(4)">&larr; Back</button>
+    <button class="btn btn-gold" id="submitBtn" onclick="submitForm()">&#10003; Submit Application</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="stepOK" style="display:none;">
+  <div class="card success-wrap">
+    <div class="success-ring">&#10003;</div>
+    <div style="font-family:'Playfair Display',serif;font-size:24px;color:var(--navy);margin-bottom:6px;">Application Submitted!</div>
+    <p style="color:#7A8BA8;font-size:14px;">Your application is under review.</p>
+    <div class="success-id" id="successID">MKC-2026-XXXX</div>
+    <p style="font-size:12px;color:#7A8BA8;">Save this Application ID for reference</p>
+    <div class="next-box">
+      <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">What happens next?</p>
+      <p>Admin will review your details and payment receipt</p>
+      <p>Upon verification your membership will be activated</p>
+      <p>You will receive a Tax Invoice by email</p>
+      <p>Queries: 8527922395 (WhatsApp) | manthantree@gmail.com</p>
+    </div>
+    <button class="btn btn-outline" onclick="location.reload()" style="margin-top:1.5rem;">Register Another Member</button>
+  </div>
+</div>
+
+</div><!-- end rpage -->
 
 <script>
-// MKC Registration Form - register.js
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec';
+// ==== CONFIGURATION - SET THIS URL ====
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec';
+// ======================================
 
-var currentStep  = 1;
-var uploadedFile = null;
-var photoData    = { self: null, spouse: null };
-var driveLinks   = { receipt: '', photoSelf: '', photoSpouse: '' };
-var CHUNK_SIZE   = 6000;
-var _cbCount     = 0;
+var step = 1;
+var receipt = null;
+var photos  = { self: null, spouse: null };
+var links   = { receipt: '', self: '', spouse: '' };
+var cbN = 0;
 
-// ?????? PHOTO PREVIEW ??????
-function showPhotoPreview(who, dataUrl) {
-  var box  = document.getElementById('photoBox-'  + who);
-  var slot = document.getElementById('photoSlot-' + who);
-  if (!box) return;
-  var old = box.querySelector('img');
-  if (old) old.remove();
-  var img = document.createElement('img');
-  img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;border-radius:8px;display:block;';
-  img.src = dataUrl;
-  box.appendChild(img);
-  box.classList.add('has-photo');
-  if (slot) slot.classList.add('has-photo');
-}
+// ---- PHOTO UPLOAD ----
+document.addEventListener('DOMContentLoaded', function() {
+  ['self','spouse'].forEach(function(who) {
+    var inp = document.getElementById('pi-' + who);
+    if (!inp) return;
+    inp.addEventListener('change', function() {
+      var file = this.files && this.files[0];
+      if (!file) return;
+      if (file.size > 2097152) { alert('Photo too large. Max 2MB.'); this.value=''; return; }
+      var rd = new FileReader();
+      rd.onload = function(e) {
+        photos[who] = { dataUrl: e.target.result, name: file.name, mime: file.type };
+        var preview = document.getElementById('pp-' + who);
+        var wrap    = document.getElementById('pw-' + who);
+        var ph      = wrap.querySelector('.photo-placeholder');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        if (ph) ph.style.display = 'none';
+        wrap.classList.add('loaded');
+      };
+      rd.readAsDataURL(file);
+    });
+  });
 
-function handlePhoto(who, input) {
-  var file = input && input.files && input.files[0];
-  if (!file) return;
-  if (file.size > 2097152) { alert('Photo too large. Max 2MB.'); input.value = ''; return; }
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    photoData[who] = { dataUrl: ev.target.result, name: file.name, mime: file.type };
-    showPhotoPreview(who, ev.target.result);
-  };
-  reader.onerror = function() { alert('Could not read photo. Try again.'); };
-  reader.readAsDataURL(file);
-}
+  var rf = document.getElementById('receiptFile');
+  if (rf) {
+    rf.addEventListener('change', function() {
+      var file = this.files && this.files[0];
+      if (!file) return;
+      if (file.size > 5242880) { alert('File too large. Max 5MB.'); this.value=''; return; }
+      var rd = new FileReader();
+      rd.onload = function(e) {
+        receipt = { dataUrl: e.target.result, name: file.name, mime: file.type };
+        document.getElementById('uploadPreview').style.display = 'flex';
+        document.getElementById('uploadName').textContent = file.name;
+        document.getElementById('uploadZone').style.display = 'none';
+      };
+      rd.readAsDataURL(file);
+    });
+  }
 
-// ?????? RECEIPT PREVIEW ??????
-function handleUpload(input) {
-  var file = input && input.files && input.files[0];
-  if (!file) return;
-  if (file.size > 5242880) { alert('File too large. Max 5MB.'); input.value = ''; return; }
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    uploadedFile = { dataUrl: ev.target.result, name: file.name, mime: file.type };
-    var prev = document.getElementById('uploadPreview');
-    var zone = document.getElementById('uploadZone');
-    var nm   = document.getElementById('uploadName');
-    if (prev) prev.style.display = 'flex';
-    if (zone) zone.style.display = 'none';
-    if (nm)   nm.textContent = file.name;
-  };
-  reader.onerror = function() { alert('Could not read file. Try again.'); };
-  reader.readAsDataURL(file);
-}
+  // drag drop
+  var zone = document.getElementById('uploadZone');
+  if (zone) {
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); });
+    zone.addEventListener('drop', function(e){
+      e.preventDefault();
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f && rf) { rf.files = e.dataTransfer.files; rf.dispatchEvent(new Event('change')); }
+    });
+  }
+});
 
 function clearUpload() {
-  uploadedFile = null;
-  driveLinks.receipt = '';
+  receipt = null; links.receipt = '';
   var rf = document.getElementById('receiptFile');
   if (rf) rf.value = '';
-  var prev = document.getElementById('uploadPreview');
-  var zone = document.getElementById('uploadZone');
-  if (prev) prev.style.display = 'none';
-  if (zone) zone.style.display = 'block';
+  document.getElementById('uploadPreview').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'block';
 }
 
-// ?????? STEP NAVIGATION ??????
+// ---- STEPPER ----
 function goStep(n) {
-  if (n > currentStep && !validateStep(currentStep)) return;
-  document.getElementById('step' + currentStep).style.display = 'none';
-  currentStep = n;
-  var el = document.getElementById('step' + n);
-  if (el) el.style.display = 'block';
-  updateStepper();
-  if (n === 5) buildSummary();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function updateStepper() {
+  if (n > step && !validateStep(step)) return;
+  document.getElementById('step' + step).style.display = 'none';
+  step = n;
+  document.getElementById('step' + n).style.display = 'block';
   for (var i = 1; i <= 5; i++) {
-    var sc = document.getElementById('sc' + i);
-    var sl = document.getElementById('sl' + i);
-    if (!sc) continue;
-    if (i < currentStep)       { sc.className = 'step-circle done';    sc.innerHTML = '&#10003;'; }
-    else if (i === currentStep) { sc.className = 'step-circle active';  sc.innerHTML = String(i); }
-    else                        { sc.className = 'step-circle pending'; sc.innerHTML = String(i); }
-    sl.className = 'step-lbl' + (i === currentStep ? ' active' : '');
-    if (i < 5) {
-      var cn = document.getElementById('cn' + i);
-      if (cn) cn.className = 'step-conn' + (i < currentStep ? ' done' : '');
-    }
+    var d = document.getElementById('sd' + i);
+    var l = document.getElementById('sl' + i);
+    if (!d) continue;
+    if (i < step)       { d.className='s-dot done'; d.innerHTML='&#10003;'; }
+    else if (i === step) { d.className='s-dot active'; d.innerHTML=String(i); }
+    else                 { d.className='s-dot pend';   d.innerHTML=String(i); }
+    l.className = 's-lbl' + (i===step?' active':'');
+    if (i < 5) { var ln=document.getElementById('ln'+i); if(ln) ln.className='s-line'+(i<step?' done':''); }
   }
+  if (n === 5) buildSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ?????? VALIDATION ??????
+// ---- VALIDATE ----
 function validateStep(s) {
-  if (s === 1) return checkFields([
-    ['f-fname','fname','text'],['f-lname','lname','text'],
-    ['f-gender','gender','select'],['f-email','email','email'],['f-mobile','mobile','mobile']
-  ]);
+  if (s === 1) return chk([['f-fname','fname','t'],['f-lname','lname','t'],['f-gender','gender','s'],['f-email','email','e'],['f-mobile','mobile','m']]);
   if (s === 4) {
-    var ok = checkFields([['f-payref','payref','text']]);
-    if (!uploadedFile) { alert('Please upload your payment receipt.'); return false; }
-    var pm = document.getElementById('paymethod');
-    if (!pm || !pm.value) { alert('Please select a payment method.'); return false; }
+    var ok = chk([['f-payref','payref','t']]);
+    if (!receipt) { alert('Please upload your payment receipt.'); return false; }
+    if (!gv('paymethod')) { alert('Please select a payment method.'); return false; }
     return ok;
   }
   return true;
 }
-
-function checkFields(arr) {
+function chk(arr) {
   var ok = true;
   arr.forEach(function(c) {
-    var wrap = document.getElementById(c[0]);
-    if (!wrap) return;
-    var inp = document.getElementById(c[1]);
-    var val = inp ? inp.value.trim() : '';
-    var bad;
-    if (c[2] === 'email')  bad = !val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-    else if (c[2] === 'mobile') bad = !val || !/^\d{10}$/.test(val);
-    else bad = !val;
-    wrap.classList.toggle('has-error', bad);
-    var em = wrap.querySelector('.error-msg');
-    if (em) em.style.display = bad ? 'block' : 'none';
+    var w = document.getElementById(c[0]); if(!w) return;
+    var val = (document.getElementById(c[1])||{}).value||''; val=val.trim();
+    var bad = c[2]==='e' ? (!val||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) : c[2]==='m' ? (!val||!/^\d{10}$/.test(val)) : !val;
+    w.classList.toggle('err', bad);
     if (bad) ok = false;
   });
   return ok;
 }
 
-function toggleChip(el) { el.classList.toggle('selected'); }
-
-// ?????? BUILD SUMMARY ??????
+// ---- SUMMARY ----
 function buildSummary() {
-  var chips = Array.from(document.querySelectorAll('.chip.selected')).map(function(c) { return c.textContent; }).join(', ');
+  var chips = Array.from(document.querySelectorAll('.chip.on')).map(function(c){return c.textContent;}).join(', ');
   var rows = [
-    ['Full Name', (v('fname') + ' ' + v('lname')).trim()],
-    ['Gender', v('gender')],
-    ['Date of Birth', v('dob') || '-'],
-    ['Occupation', v('occ') || '-'],
-    ['Email', v('email')],
-    ['Mobile', v('mobile') + (document.getElementById('whatsapp').checked ? ' (WhatsApp)' : '')],
-    ['Spouse Name', v('spouse') || '-'],
-    ['City / PIN', (v('city') || '') + (v('pin') ? ' - ' + v('pin') : '')],
-    ['Payment Method', v('paymethod')],
-    ['Payment Ref', v('payref')],
-    ['Receipt', uploadedFile ? 'Uploaded: ' + uploadedFile.name : '-'],
-    ['Photo (Self)', photoData.self ? 'Uploaded: ' + photoData.self.name : '-'],
-    ['Photo (Spouse)', photoData.spouse ? 'Uploaded: ' + photoData.spouse.name : '-']
+    ['Full Name',(gv('fname')+' '+gv('lname')).trim()],['Gender',gv('gender')],
+    ['Date of Birth',gv('dob')||'-'],['Occupation',gv('occ')||'-'],
+    ['Email',gv('email')],['Mobile',gv('mobile')+(document.getElementById('whatsapp').checked?' (WhatsApp)':'')],
+    ['Spouse',gv('spouse')||'-'],['City/PIN',(gv('city')||'')+(gv('pin')?' - '+gv('pin'):'')],
+    ['Interests',chips||'-'],['Referred By',gv('refby')||'-'],
+    ['Payment Method',gv('paymethod')],['Payment Ref',gv('payref')],
+    ['Amount','Rs.'+gv('payamt')],['Receipt',receipt?'Uploaded: '+receipt.name:'-'],
+    ['Photo (Self)',photos.self?'Uploaded: '+photos.self.name:'-'],
+    ['Photo (Spouse)',photos.spouse?'Uploaded: '+photos.spouse.name:'-']
   ];
-  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">';
-  rows.forEach(function(r, i) {
-    var odd = (i % 2 === 0);
-    html += '<div style="padding:8px 0 8px ' + (odd ? '0' : '1rem') + ';border-bottom:1px solid var(--ivory-border);' + (odd ? 'padding-right:1rem;' : 'border-left:1px solid var(--ivory-border);') + '">';
-    html += '<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:2px;">' + r[0] + '</div>';
-    html += '<div style="font-size:14px;color:var(--navy);font-weight:500;">' + (r[1] || '-') + '</div></div>';
+  var h = '<div class="sum-grid">';
+  rows.forEach(function(r){
+    h += '<div class="sum-cell"><div class="sum-lbl">'+r[0]+'</div><div class="sum-val">'+(r[1]||'-')+'</div></div>';
   });
-  html += '</div>';
-  document.getElementById('summaryBody').innerHTML = html;
+  document.getElementById('sumBody').innerHTML = h + '</div>';
 }
+function gv(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
 
-function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
-
-// ?????? JSONP GET helper ??????
-function jsonpGet(url, timeoutMs) {
-  timeoutMs = timeoutMs || 20000;
+// ---- JSONP HELPER ----
+function jsonpGet(url) {
   return new Promise(function(resolve) {
-    var cbName = '_mkc_' + (++_cbCount) + '_' + Date.now();
-    var script = document.createElement('script');
-    var done   = false;
-    var timer  = setTimeout(function() {
-      if (done) return;
-      done = true;
-      if (script.parentNode) script.parentNode.removeChild(script);
-      delete window[cbName];
-      resolve({ status: 'timeout' });
-    }, timeoutMs);
-    window[cbName] = function(data) {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      if (script.parentNode) script.parentNode.removeChild(script);
-      delete window[cbName];
-      resolve(data);
-    };
-    script.onerror = function() {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      if (script.parentNode) script.parentNode.removeChild(script);
-      delete window[cbName];
-      resolve({ status: 'error' });
-    };
-    script.src = url + '&callback=' + cbName;
-    document.head.appendChild(script);
+    var name = '_mkc'+(++cbN)+'_'+Date.now();
+    var sc   = document.createElement('script');
+    var done = false;
+    var t    = setTimeout(function(){ finish({status:'timeout'}); }, 25000);
+    function finish(d){ if(done) return; done=true; clearTimeout(t); if(sc.parentNode) sc.parentNode.removeChild(sc); delete window[name]; resolve(d); }
+    window[name] = function(d){ finish(d); };
+    sc.onerror   = function(){ finish({status:'error'}); };
+    sc.src = url + '&callback=' + name;
+    document.head.appendChild(sc);
   });
 }
 
-// ?????? CHUNKED FILE UPLOAD ??????
-function uploadFileInChunks(fileObj, appID, label) {
+// ---- CHUNKED UPLOAD ----
+var CHUNK = 6000;
+function uploadChunked(fileObj, appID, label) {
   if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
-  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') return Promise.resolve('');
-
+  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') return Promise.resolve('demo-link');
   var b64   = fileObj.dataUrl.split(',')[1];
-  var mime  = fileObj.mime  || 'image/jpeg';
-  var fname = fileObj.name  || 'file';
-  var total = Math.ceil(b64.length / CHUNK_SIZE);
-  var fileID = appID + '_' + label + '_' + Date.now();
-
-  var promise = Promise.resolve();
-  for (var i = 0; i < total; i++) {
-    (function(idx) {
-      promise = promise.then(function() {
-        var chunk = b64.substring(idx * CHUNK_SIZE, (idx + 1) * CHUNK_SIZE);
-        var url = SCRIPT_URL
-          + '?action=uploadChunk'
-          + '&fileID='      + encodeURIComponent(fileID)
-          + '&appID='       + encodeURIComponent(appID)
-          + '&label='       + encodeURIComponent(label)
-          + '&fileName='    + encodeURIComponent(fname)
-          + '&mimeType='    + encodeURIComponent(mime)
-          + '&chunkIdx='    + idx
-          + '&totalChunks=' + total
-          + '&chunk='       + encodeURIComponent(chunk);
-        return jsonpGet(url, 25000);
+  var total = Math.ceil(b64.length / CHUNK);
+  var fid   = appID+'_'+label+'_'+Date.now();
+  var p     = Promise.resolve();
+  for (var i=0; i<total; i++) {
+    (function(idx){
+      p = p.then(function(){
+        var chunk = b64.substring(idx*CHUNK,(idx+1)*CHUNK);
+        return jsonpGet(GAS_URL+'?action=uploadChunk&fileID='+encodeURIComponent(fid)+'&appID='+encodeURIComponent(appID)+'&label='+encodeURIComponent(label)+'&fileName='+encodeURIComponent(fileObj.name)+'&mimeType='+encodeURIComponent(fileObj.mime)+'&chunkIdx='+idx+'&totalChunks='+total+'&chunk='+encodeURIComponent(chunk));
       });
     })(i);
   }
-
-  return promise.then(function() {
-    var url = SCRIPT_URL
-      + '?action=assembleFile'
-      + '&fileID='      + encodeURIComponent(fileID)
-      + '&appID='       + encodeURIComponent(appID)
-      + '&label='       + encodeURIComponent(label)
-      + '&fileName='    + encodeURIComponent(fname)
-      + '&mimeType='    + encodeURIComponent(mime)
-      + '&totalChunks=' + total;
-    return jsonpGet(url, 30000);
-  }).then(function(resp) {
-    if (resp && resp.status === 'ok' && resp.link) return resp.link;
-    return '';
-  });
+  return p.then(function(){
+    return jsonpGet(GAS_URL+'?action=assembleFile&fileID='+encodeURIComponent(fid)+'&appID='+encodeURIComponent(appID)+'&label='+encodeURIComponent(label)+'&fileName='+encodeURIComponent(fileObj.name)+'&mimeType='+encodeURIComponent(fileObj.mime)+'&totalChunks='+total);
+  }).then(function(r){ return (r&&r.status==='ok'&&r.link)?r.link:''; });
 }
 
-// ?????? SUBMIT ??????
+// ---- SUBMIT ----
 function submitForm() {
-  if (!document.getElementById('agree').checked || !document.getElementById('accurate').checked) {
-    showAlert('Please check both declaration checkboxes before submitting.', 'warning');
-    return;
+  if (!document.getElementById('agree').checked||!document.getElementById('accurate').checked) {
+    showAlert('Please check both declaration checkboxes.','warn'); return;
   }
-
   var btn = document.getElementById('submitBtn');
-  btn.disabled    = true;
-  btn.textContent = 'Uploading receipt...';
-
-  var chips = Array.from(document.querySelectorAll('.chip.selected')).map(function(c) { return c.textContent; }).join(', ');
-  var appID = 'MKC-' + new Date().getFullYear() + '-' + (Math.floor(Math.random() * 9000) + 1000);
+  btn.disabled=true; btn.textContent='Uploading...';
+  var chips = Array.from(document.querySelectorAll('.chip.on')).map(function(c){return c.textContent;}).join(', ');
+  var appID = 'MKC-'+new Date().getFullYear()+'-'+(Math.floor(Math.random()*9000)+1000);
   var now   = new Date().toLocaleString('en-IN');
 
-  uploadFileInChunks(uploadedFile, appID, 'receipt')
-  .then(function(lnk) {
-    driveLinks.receipt = lnk;
-    btn.textContent = 'Uploading self photo...';
-    return uploadFileInChunks(photoData.self, appID, 'photo_self');
-  })
-  .then(function(lnk) {
-    driveLinks.photoSelf = lnk;
-    btn.textContent = 'Uploading spouse photo...';
-    return uploadFileInChunks(photoData.spouse, appID, 'photo_spouse');
-  })
-  .then(function(lnk) {
-    driveLinks.photoSpouse = lnk;
-    btn.textContent = 'Saving registration...';
-
+  btn.textContent='Uploading receipt...';
+  uploadChunked(receipt, appID, 'receipt')
+  .then(function(lnk){
+    links.receipt=lnk; btn.textContent='Uploading self photo...';
+    return uploadChunked(photos.self, appID, 'photo_self');
+  }).then(function(lnk){
+    links.self=lnk; btn.textContent='Uploading spouse photo...';
+    return uploadChunked(photos.spouse, appID, 'photo_spouse');
+  }).then(function(lnk){
+    links.spouse=lnk; btn.textContent='Saving registration...';
     var data = {
-      action:      'saveRegistration',
-      appID:       appID,
-      submittedAt: now,
-      firstName:   v('fname'),    lastName:    v('lname'),
-      gender:      v('gender'),   dob:         v('dob'),
-      occupation:  v('occ'),      email:       v('email'),
-      mobile:      v('mobile'),   mobileSpouse: v('mobile2'),
-      whatsapp:    document.getElementById('whatsapp').checked ? 'Yes' : 'No',
-      residentialAddress: v('raddr'),
-      city:        v('city'),     state:       v('state'),
-      pin:         v('pin'),      officeAddress: v('oaddr'),
-      spouseName:  v('spouse'),   spouseDob:   v('sdob'),
-      anniversary: v('anniv'),    dependants:  v('dep'),
-      interests:   chips,         referredBy:  v('refby'),
-      membershipType: 'Annual',
-      baseAmount:  25000, cgst: 2250, sgst: 2250, totalAmount: 29500,
-      paymentMethod: v('paymethod'), paymentRef: v('payref'),
-      paymentDate: v('paydate'),  amountPaid:  v('payamt'),
-      payNotes:    v('paynotes'),
-      status:      'Pending Verification',
-      receiptFileName:  uploadedFile       ? uploadedFile.name       : '',
-      photoSelfName:    photoData.self     ? photoData.self.name     : '',
-      photoSpouseName:  photoData.spouse   ? photoData.spouse.name   : '',
-      receiptLink:      driveLinks.receipt     || '',
-      photoSelfLink:    driveLinks.photoSelf   || '',
-      photoSpouseLink:  driveLinks.photoSpouse || ''
+      action:'saveRegistration', appID:appID, submittedAt:now,
+      firstName:gv('fname'), lastName:gv('lname'), gender:gv('gender'),
+      dob:gv('dob'), occupation:gv('occ'), email:gv('email'),
+      mobile:gv('mobile'), mobileSpouse:gv('mobile2'),
+      whatsapp:document.getElementById('whatsapp').checked?'Yes':'No',
+      residentialAddress:gv('raddr'), city:gv('city'), state:gv('state'), pin:gv('pin'),
+      officeAddress:gv('oaddr'), spouseName:gv('spouse'), spouseDob:gv('sdob'),
+      anniversary:gv('anniv'), dependants:gv('dep'), interests:chips, referredBy:gv('refby'),
+      membershipType:'Annual', baseAmount:25000, cgst:2250, sgst:2250, totalAmount:29500,
+      paymentMethod:gv('paymethod'), paymentRef:gv('payref'),
+      paymentDate:gv('paydate'), amountPaid:gv('payamt'), payNotes:gv('paynotes'),
+      status:'Pending Verification',
+      receiptFileName:receipt?receipt.name:'', receiptLink:links.receipt,
+      photoSelfName:photos.self?photos.self.name:'', photoSelfLink:links.self,
+      photoSpouseName:photos.spouse?photos.spouse.name:'', photoSpouseLink:links.spouse
     };
-
-    if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
-      console.log('DEMO mode:', data);
-      showSuccess(appID);
-      return Promise.resolve();
-    }
-
-    return fetch(SCRIPT_URL, {
-      method:  'POST',
-      mode:    'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(data)
-    });
-  })
-  .then(function() { showSuccess(appID); })
-  .catch(function(err) {
-    console.log('Submit completed (no-cors):', err);
-    showSuccess(appID);
-  });
+    if (GAS_URL==='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') { showSuccess(appID); return; }
+    return fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  }).then(function(){ showSuccess(appID); })
+  .catch(function(){ showSuccess(appID); });
 }
 
-function showAlert(msg, type) {
-  var el = document.getElementById('submitAlert');
-  if (!el) return;
-  el.style.display = 'block';
-  el.className     = 'alert alert-' + type;
-  el.textContent   = msg;
+function showAlert(msg,type){
+  var el=document.getElementById('submitAlert');
+  el.style.display='block'; el.className='alert alert-'+type; el.textContent=msg;
 }
-
-function showSuccess(appID) {
-  var s5 = document.getElementById('step5');
-  var st = document.getElementById('stepper');
-  var ss = document.getElementById('stepSuccess');
-  var si = document.getElementById('successID');
-  if (s5) s5.style.display  = 'none';
-  if (st) st.style.display  = 'none';
-  if (ss) ss.style.display  = 'block';
-  if (si) si.textContent    = appID;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function showSuccess(id){
+  document.getElementById('step5').style.display='none';
+  document.getElementById('stepper').style.display='none';
+  document.getElementById('stepOK').style.display='block';
+  document.getElementById('successID').textContent=id;
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function resetForm() { location.reload(); }
-
-// ?????? WIRE ALL INPUTS after DOM ready ??????
-document.addEventListener('DOMContentLoaded', function() {
-
-  // Photo inputs
-  ['self', 'spouse'].forEach(function(who) {
-    var inp = document.getElementById('photoInput-' + who);
-    if (inp) {
-      inp.addEventListener('change', function() {
-        handlePhoto(who, this);
-      });
-    }
-  });
-
-  // Receipt input
-  var rec = document.getElementById('receiptFile');
-  if (rec) {
-    rec.addEventListener('change', function() {
-      handleUpload(this);
-    });
-  }
-
-  // Drag and drop on receipt zone
-  var zone = document.getElementById('uploadZone');
-  if (zone) {
-    zone.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      zone.classList.add('drag-over');
-    });
-    zone.addEventListener('dragleave', function() {
-      zone.classList.remove('drag-over');
-    });
-    zone.addEventListener('drop', function(e) {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (f && rec) {
-        rec.files = e.dataTransfer.files;
-        handleUpload(rec);
-      }
-    });
-  }
-});
-
 </script>
 </body>
 </html>
