@@ -559,8 +559,8 @@
 
 <script>
 // MKC Registration Form - register.js
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2R9WL7mCyHiYpEG32wGveIFTIZwmKuvpVXccnBHKwXLjN-_VLME05RcclV7tKplvC/exec
-';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec';
+
 var currentStep  = 1;
 var uploadedFile = null;
 var photoData    = { self: null, spouse: null };
@@ -760,8 +760,7 @@ function jsonpGet(url, timeoutMs) {
 // ?????? CHUNKED FILE UPLOAD ??????
 function uploadFileInChunks(fileObj, appID, label) {
   if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
-  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycby2R9WL7mCyHiYpEG32wGveIFTIZwmKuvpVXccnBHKwXLjN-_VLME05RcclV7tKplvC/exec
-') return Promise.resolve('');
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') return Promise.resolve('');
 
   var b64   = fileObj.dataUrl.split(',')[1];
   var mime  = fileObj.mime  || 'image/jpeg';
@@ -864,8 +863,7 @@ function submitForm() {
       photoSpouseLink:  driveLinks.photoSpouse || ''
     };
 
-    if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycby2R9WL7mCyHiYpEG32wGveIFTIZwmKuvpVXccnBHKwXLjN-_VLME05RcclV7tKplvC/exec
-') {
+    if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
       console.log('DEMO mode:', data);
       showSuccess(appID);
       return Promise.resolve();
