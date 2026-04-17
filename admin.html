@@ -1,1245 +1,599 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MKC Admin Dashboard</title>
-  <link rel="stylesheet" href="css/style.css"/>
-  <style>
-    .chart-bar-wrap { display: flex; flex-direction: column; gap: 8px; }
-    .chart-bar-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
-    .chart-bar-label { width: 90px; color: var(--text-mid); flex-shrink: 0; }
-    .chart-bar-bg { flex: 1; height: 12px; background: var(--ivory-dark); border-radius: 6px; overflow: hidden; }
-    .chart-bar-fill { height: 100%; border-radius: 6px; background: var(--navy); transition: width 1s ease; }
-    .chart-bar-val { width: 40px; text-align: right; color: var(--text-muted); font-size: 12px; }
-    .action-btn { background: none; border: none; font-size: 15px; cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: background 0.15s; }
-    .action-btn:hover { background: var(--ivory-dark); }
-    .filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
-    .quick-filter { padding: 5px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1.5px solid var(--ivory-border); background: #fff; color: var(--text-mid); transition: all 0.2s; }
-    .quick-filter:hover, .quick-filter.active { background: var(--navy); color: #fff; border-color: var(--navy); }
-    .member-avatar-wrap { display: flex; align-items: center; gap: 10px; }
-    .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
-    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
-    .topbar-notif { position: relative; cursor: pointer; }
-    .notif-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid #fff; }
-    select.inline-select { border: 1px solid var(--ivory-border); border-radius: 6px; padding: 4px 8px; font-size: 12px; color: var(--text-mid); background: #fff; outline: none; cursor: pointer; }
-
-    /* ── LOGIN SCREEN ── */
-    #loginScreen {
-      position: fixed; inset: 0; z-index: 9999;
-      background: var(--navy);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column;
-    }
-    #loginScreen::before {
-      content: ''; position: absolute;
-      top: -80px; right: -80px;
-      width: 320px; height: 320px; border-radius: 50%;
-      border: 60px solid rgba(201,168,76,0.08);
-      pointer-events: none;
-    }
-    #loginScreen::after {
-      content: ''; position: absolute;
-      bottom: -60px; left: -60px;
-      width: 220px; height: 220px; border-radius: 50%;
-      border: 40px solid rgba(255,255,255,0.04);
-      pointer-events: none;
-    }
-    .login-card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 2.5rem 2.25rem;
-      width: 100%; max-width: 400px;
-      position: relative; z-index: 1;
-      backdrop-filter: blur(4px);
-    }
-    .login-logo { text-align: center; margin-bottom: 1.75rem; }
-    .login-logo .logo-mark {
-      width: 54px; height: 54px; border-radius: 14px;
-      background: var(--gold); display: flex; align-items: center;
-      justify-content: center; font-size: 26px;
-      margin: 0 auto 12px;
-    }
-    .login-logo .org { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
-    .login-logo .sub { font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 3px; }
-    .login-logo .panel-tag { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 6px; }
-    .login-field { margin-bottom: 1rem; }
-    .login-field label { display: block; font-size: 12px; color: rgba(255,255,255,0.55); margin-bottom: 6px; letter-spacing: 0.3px; }
-    .login-field input {
-      width: 100%; padding: 11px 14px;
-      background: rgba(255,255,255,0.07);
-      border: 1.5px solid rgba(255,255,255,0.12);
-      border-radius: 10px; font-size: 14px;
-      color: #fff; outline: none;
-      font-family: 'DM Sans', sans-serif;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .login-field input::placeholder { color: rgba(255,255,255,0.25); }
-    .login-field input:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
-    }
-    .login-btn {
-      width: 100%; padding: 12px;
-      background: var(--gold); color: var(--navy);
-      border: none; border-radius: 10px;
-      font-size: 15px; font-weight: 700;
-      cursor: pointer; margin-top: 0.5rem;
-      font-family: 'DM Sans', sans-serif;
-      transition: background 0.2s, transform 0.1s;
-      letter-spacing: 0.3px;
-    }
-    .login-btn:hover { background: var(--gold-light); }
-    .login-btn:active { transform: scale(0.98); }
-    .login-error {
-      background: rgba(185,28,28,0.2);
-      border: 1px solid rgba(185,28,28,0.4);
-      border-radius: 8px; padding: 9px 14px;
-      font-size: 13px; color: #FCA5A5;
-      margin-bottom: 1rem; display: none;
-      text-align: center;
-    }
-    .login-attempts {
-      text-align: center; font-size: 12px;
-      color: rgba(255,255,255,0.3); margin-top: 1rem;
-    }
-    .login-locked {
-      background: rgba(185,28,28,0.15);
-      border: 1px solid rgba(185,28,28,0.3);
-      border-radius: 8px; padding: 12px 14px;
-      font-size: 13px; color: #FCA5A5; text-align: center;
-      display: none;
-    }
-    .show-pwd-btn {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer;
-      color: rgba(255,255,255,0.35); font-size: 16px; padding: 2px;
-    }
-    .show-pwd-btn:hover { color: rgba(255,255,255,0.7); }
-    .pwd-wrap { position: relative; }
-
-    /* hide dashboard until logged in */
-    #appShell { display: none; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MKC Admin Panel</title>
+<link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 
-<!-- ══════════ LOGIN SCREEN ══════════ -->
+<!-- ===== LOGIN SCREEN ===== -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
-      <div class="logo-mark">🎵</div>
-      <div class="org">॥ Manthan ॥</div>
-      <div class="sub">Manthan Kala Centre (Regd.)</div>
-      <div class="panel-tag">Admin Panel — Restricted Access</div>
+      <div style="width:54px;height:54px;border-radius:14px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px;">&#127925;</div>
+      <div class="login-org">&#2404;&#2404; Manthan &#2405;&#2405;</div>
+      <div class="login-sub">Manthan Kala Centre (Regd.)</div>
+      <div class="login-tag">Admin Panel - Restricted Access</div>
     </div>
-
-    <div class="login-error" id="loginError">Incorrect username or password. Please try again.</div>
-    <div class="login-locked" id="loginLocked">🔒 Too many failed attempts. Please wait <span id="lockTimer">30</span> seconds.</div>
-
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="loginUser" placeholder="Enter admin username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"/>
-    </div>
-    <div class="login-field">
-      <label>Password</label>
+    <div class="login-err" id="loginErr">Incorrect username or password.</div>
+    <div class="login-lock" id="loginLock">Too many attempts. Wait <span id="lockSecs">30</span> seconds.</div>
+    <div class="lf"><label>Username</label><input type="text" id="loginUser" placeholder="Admin username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="lf"><label>Password</label>
       <div class="pwd-wrap">
-        <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
-        <button class="show-pwd-btn" type="button" onclick="togglePwd()" title="Show/hide password" id="eyeBtn">👁</button>
+        <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button class="eye-btn" onclick="toggleEye()" id="eyeBtn">&#128065;</button>
       </div>
     </div>
-
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In to Admin Panel</button>
-    <div class="login-attempts" id="attemptsMsg"></div>
+    <div id="attemptsMsg" style="text-align:center;font-size:12px;color:rgba(255,255,255,0.3);margin-top:1rem;"></div>
   </div>
-  <div style="position:absolute;bottom:1.5rem;font-size:11px;color:rgba(255,255,255,0.2);text-align:center;">
-    Manthan Kala Centre &nbsp;|&nbsp; A-62, Mayfair Garden, New Delhi-110016
-  </div>
+  <div style="position:absolute;bottom:1.5rem;font-size:11px;color:rgba(255,255,255,0.2);">Manthan Kala Centre | A-62, Mayfair Garden, New Delhi-110016</div>
 </div>
 
-<!-- ══════════ DASHBOARD (hidden until login) ══════════ -->
+<!-- ===== DASHBOARD ===== -->
 <div id="appShell">
 <div class="page-shell">
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-mark">🎵</div>
+      <div class="logo-mark">&#127925;</div>
       <div class="org-name">Manthan Kala Centre</div>
       <div class="org-sub">Admin Panel</div>
     </div>
     <div class="sidebar-nav">
-      <div class="nav-section-label">Main</div>
-      <a class="nav-item active" href="#" onclick="showPage('dashboard')">
-        <span class="nav-icon">📊</span><span>Dashboard</span>
-      </a>
-      <a class="nav-item" href="#" onclick="showPage('members')">
-        <span class="nav-icon">👥</span><span>Members</span>
-        <span class="nav-badge" id="pendingBadge">3</span>
-      </a>
-      <a class="nav-item" href="#" onclick="showPage('invoices')">
-        <span class="nav-icon">🧾</span><span>Invoices</span>
-      </a>
-      <a class="nav-item" href="#" onclick="showPage('reports')">
-        <span class="nav-icon">📈</span><span>Reports</span>
-      </a>
-      <div class="nav-section-label" style="margin-top:0.5rem;">Actions</div>
-      <a class="nav-item" href="index.html" target="_blank">
-        <span class="nav-icon">➕</span><span>New Registration</span>
-      </a>
-      <a class="nav-item" href="#" onclick="showPage('email')">
-        <span class="nav-icon">📧</span><span>Send Emails</span>
-      </a>
-      <a class="nav-item" href="#" onclick="showPage('settings')">
-        <span class="nav-icon">⚙️</span><span>Settings</span>
-      </a>
+      <div class="nav-label">Main</div>
+      <a class="nav-item active" href="#" onclick="return showPage('dashboard')"><span class="nav-icon">&#128202;</span><span>Dashboard</span></a>
+      <a class="nav-item" href="#" onclick="return showPage('members')"><span class="nav-icon">&#128101;</span><span>Members</span><span class="nav-badge" id="pendBadge">0</span></a>
+      <a class="nav-item" href="#" onclick="return showPage('invoices')"><span class="nav-icon">&#129534;</span><span>Invoices</span></a>
+      <a class="nav-item" href="#" onclick="return showPage('reports')"><span class="nav-icon">&#128200;</span><span>Reports</span></a>
+      <div class="nav-label" style="margin-top:0.5rem;">Actions</div>
+      <a class="nav-item" href="index.html" target="_blank"><span class="nav-icon">&#10133;</span><span>New Registration</span></a>
+      <a class="nav-item" href="#" onclick="return showPage('settings')"><span class="nav-icon">&#9881;</span><span>Settings</span></a>
     </div>
-    <div class="sidebar-footer">
-      v1.0 &nbsp;|&nbsp; MKC Admin
-    </div>
+    <div class="sidebar-foot">v2.0 | MKC Admin</div>
   </nav>
 
   <!-- MAIN -->
   <div class="main">
-    <!-- TOP BAR -->
     <div class="topbar">
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
       <div class="topbar-right">
-        <div class="search-bar">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search members..." id="globalSearch" oninput="globalSearchFn(this.value)"/>
-        </div>
-        <div class="topbar-notif" title="Pending approvals">
-          <span style="font-size:20px;">🔔</span>
-          <div class="notif-dot"></div>
-        </div>
-        <div class="topbar-avatar" title="Admin" id="adminAvatar">AD</div>
-        <button class="btn btn-sm btn-outline" onclick="doLogout()" title="Sign out" style="font-size:12px;padding:5px 12px;">⬅ Logout</button>
+        <input type="text" id="gSearch" placeholder="Search members..." onkeyup="doSearch(this.value)" style="border:1.5px solid var(--iborder);border-radius:var(--radius);padding:7px 14px;font-size:14px;outline:none;width:240px;font-family:'DM Sans',sans-serif;"/>
+        <div class="avatar-sm" id="adminAv">AD</div>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()">Logout</button>
       </div>
     </div>
 
     <div class="content">
 
-      <!-- ══════════ DASHBOARD PAGE ══════════ -->
-      <div id="page-dashboard">
-        <div class="page-header">
-          <h1>Welcome back, Admin</h1>
-          <p id="todayDate"></p>
-        </div>
-
+      <!-- DASHBOARD PAGE -->
+      <div id="pg-dashboard">
+        <div style="margin-bottom:1.75rem;"><h1 style="font-size:24px;color:var(--navy);">Welcome back, Admin</h1><p id="todayDate" style="color:#7A8BA8;font-size:14px;"></p></div>
         <div class="stats-grid">
-          <div class="stat-card blue">
-            <div class="stat-icon">👥</div>
-            <div class="stat-value" id="statTotal">0</div>
-            <div class="stat-label">Total Members</div>
-            <div class="stat-change">↑ All time</div>
-          </div>
-          <div class="stat-card gold">
-            <div class="stat-icon">⏳</div>
-            <div class="stat-value" id="statPending">0</div>
-            <div class="stat-label">Pending Verification</div>
-            <div class="stat-change" style="color:var(--warning);">Needs attention</div>
-          </div>
-          <div class="stat-card green">
-            <div class="stat-icon">✅</div>
-            <div class="stat-value" id="statActive">0</div>
-            <div class="stat-label">Active Members</div>
-            <div class="stat-change">Verified &amp; Active</div>
-          </div>
-          <div class="stat-card red">
-            <div class="stat-icon">💰</div>
-            <div class="stat-value" id="statRevenue">₹0</div>
-            <div class="stat-label">Total Revenue</div>
-            <div class="stat-change" style="color:var(--gold);">Incl. GST</div>
-          </div>
+          <div class="stat blue"><div class="stat-icon">&#128101;</div><div class="stat-val" id="sTot">0</div><div class="stat-lbl">Total Members</div></div>
+          <div class="stat gold"><div class="stat-icon">&#9203;</div><div class="stat-val" id="sPend">0</div><div class="stat-lbl">Pending Verification</div></div>
+          <div class="stat green"><div class="stat-icon">&#9989;</div><div class="stat-val" id="sAct">0</div><div class="stat-lbl">Active Members</div></div>
+          <div class="stat red"><div class="stat-icon">&#128176;</div><div class="stat-val" id="sRev">Rs.0</div><div class="stat-lbl">Total Revenue</div></div>
         </div>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
-          <!-- Recent applications -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Recent Applications</div>
-              <button class="btn btn-sm btn-outline" onclick="showPage('members')">View All</button>
-            </div>
-            <div id="recentList"></div>
-          </div>
-          <!-- Revenue by month -->
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">Membership by Status</div>
-            </div>
-            <div class="chart-bar-wrap" id="statusChart"></div>
-          </div>
+          <div class="card"><div class="card-hdr"><div class="card-title">Recent Applications</div><button class="btn btn-sm btn-outline" onclick="showPage('members')">View All</button></div><div id="recentList"></div></div>
+          <div class="card"><div class="card-hdr"><div class="card-title">Status Overview</div></div><div class="bar-wrap" id="statusChart"></div></div>
         </div>
-
-        <!-- Pending approvals alert -->
-        <div class="card" id="pendingAlert" style="display:none;">
-          <div class="alert alert-warning" style="margin:0;">
-            <span style="font-size:18px;">⚠️</span>
-            <div>
-              <strong>Applications pending verification</strong><br/>
-              <span id="pendingAlertText"></span>
-              <button class="btn btn-sm btn-outline" onclick="showPage('members');filterStatus('Pending')" style="margin-left:10px;">Review Now</button>
-            </div>
-          </div>
+        <div id="pendAlert" style="display:none;margin-top:1rem;">
+          <div class="alert alert-warn">&#9888; <div><strong>Applications pending verification!</strong> <span id="pendAlertTxt"></span> <button class="btn btn-sm btn-outline" onclick="showPage('members')" style="margin-left:8px;">Review Now</button></div></div>
         </div>
       </div>
 
-      <!-- ══════════ MEMBERS PAGE ══════════ -->
-      <div id="page-members" style="display:none;">
-        <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-          <div><h1>Members</h1><p>Manage and verify all member applications</p></div>
-          <a class="btn btn-primary" href="index.html" target="_blank">+ New Registration</a>
+      <!-- MEMBERS PAGE -->
+      <div id="pg-members" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <div><h1 style="font-size:24px;color:var(--navy);">Members</h1><p style="color:#7A8BA8;font-size:14px;">Manage and verify all member applications</p></div>
+          <a class="btn btn-navy" href="index.html" target="_blank">+ New Registration</a>
         </div>
         <div class="card">
           <div class="filter-row">
-            <div class="quick-filter active" onclick="filterStatus('All',this)">All</div>
-            <div class="quick-filter" onclick="filterStatus('Pending',this)">Pending</div>
-            <div class="quick-filter" onclick="filterStatus('Active',this)">Active</div>
-            <div class="quick-filter" onclick="filterStatus('Rejected',this)">Rejected</div>
-            <div class="ml-auto">
-              <select class="inline-select" onchange="sortMembers(this.value)">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="name">Name A–Z</option>
-              </select>
-            </div>
+            <div class="qf on" onclick="filterBy('All',this)">All</div>
+            <div class="qf" onclick="filterBy('Pending',this)">Pending</div>
+            <div class="qf" onclick="filterBy('Active',this)">Active</div>
+            <div class="qf" onclick="filterBy('Rejected',this)">Rejected</div>
+            <div style="margin-left:auto;"><select class="isel" onchange="sortBy(this.value)"><option value="new">Newest First</option><option value="old">Oldest First</option><option value="name">Name A-Z</option></select></div>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Member / App ID</th>
-                  <th>Contact</th>
-                  <th>Membership</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="membersTable"></tbody>
-            </table>
-          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>Member / App ID</th><th>Contact</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody id="membersTbl"></tbody></table></div>
         </div>
       </div>
 
-      <!-- ══════════ INVOICES PAGE ══════════ -->
-      <div id="page-invoices" style="display:none;">
-        <div class="page-header"><h1>Tax Invoices</h1><p>Generate and send GST invoices to members</p></div>
-        <div style="display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start;">
-          <!-- Member selector -->
+      <!-- INVOICES PAGE -->
+      <div id="pg-invoices" style="display:none;">
+        <div style="margin-bottom:1rem;"><h1 style="font-size:24px;color:var(--navy);">Tax Invoices</h1><p style="color:#7A8BA8;font-size:14px;">Generate and send GST invoices to members</p></div>
+        <div style="display:grid;grid-template-columns:320px 1fr;gap:1.25rem;align-items:start;">
           <div class="card">
-            <div class="card-header"><div class="card-title">Select Member</div></div>
-            <div class="search-bar" style="width:100%;margin-bottom:1rem;">
-              <span class="search-icon">🔍</span>
-              <input type="text" id="invSearch" placeholder="Search active members..." oninput="filterInvMembers(this.value)"/>
-            </div>
-            <div id="invMemberList" style="max-height:350px;overflow-y:auto;"></div>
+            <div class="card-hdr"><div class="card-title">Active Members</div></div>
+            <input type="text" id="invSearch" placeholder="Search..." oninput="filterInvList(this.value)" style="width:100%;border:1.5px solid var(--iborder);border-radius:var(--radius);padding:7px 12px;font-size:13px;outline:none;margin-bottom:10px;font-family:'DM Sans',sans-serif;"/>
+            <div id="invList" style="max-height:360px;overflow-y:auto;"></div>
           </div>
-          <!-- Invoice preview -->
-          <div id="invPreviewWrap">
-            <div class="empty-state card">
-              <div class="empty-icon">🧾</div>
-              <p>Select a member from the left to preview and send invoice</p>
-            </div>
-          </div>
+          <div id="invPreview"><div class="empty card"><div style="font-size:40px;margin-bottom:12px;">&#129534;</div><p>Select a member to preview invoice</p></div></div>
         </div>
       </div>
 
-      <!-- ══════════ REPORTS PAGE ══════════ -->
-      <div id="page-reports" style="display:none;">
-        <div class="page-header"><h1>Reports</h1><p>Financial and membership analytics</p></div>
+      <!-- REPORTS PAGE -->
+      <div id="pg-reports" style="display:none;">
+        <div style="margin-bottom:1rem;"><h1 style="font-size:24px;color:var(--navy);">Reports</h1></div>
         <div class="stats-grid" style="margin-bottom:1.5rem;">
-          <div class="stat-card blue"><div class="stat-value" id="rptTotal">₹0</div><div class="stat-label">Gross Revenue</div></div>
-          <div class="stat-card gold"><div class="stat-value" id="rptCGST">₹0</div><div class="stat-label">CGST Collected</div></div>
-          <div class="stat-card green"><div class="stat-value" id="rptSGST">₹0</div><div class="stat-label">SGST Collected</div></div>
-          <div class="stat-card blue"><div class="stat-value" id="rptBase">₹0</div><div class="stat-label">Base Revenue</div></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
-          <div class="card">
-            <div class="card-header"><div class="card-title">Members by Interest</div></div>
-            <div class="chart-bar-wrap" id="interestChart"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">Payment Method Distribution</div></div>
-            <div class="chart-bar-wrap" id="paymentChart"></div>
-          </div>
+          <div class="stat blue"><div class="stat-val" id="rGross">Rs.0</div><div class="stat-lbl">Gross Revenue</div></div>
+          <div class="stat gold"><div class="stat-val" id="rCGST">Rs.0</div><div class="stat-lbl">CGST Collected</div></div>
+          <div class="stat green"><div class="stat-val" id="rSGST">Rs.0</div><div class="stat-lbl">SGST Collected</div></div>
+          <div class="stat blue"><div class="stat-val" id="rBase">Rs.0</div><div class="stat-lbl">Base Revenue</div></div>
         </div>
         <div class="card">
-          <div class="card-header">
-            <div class="card-title">Full Member Register</div>
-            <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
-          </div>
-          <div class="table-wrap"><table id="reportTable"><thead><tr><th>App ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>City</th><th>Membership</th><th>Base</th><th>GST</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody id="reportTableBody"></tbody></table></div>
+          <div class="card-hdr"><div class="card-title">Full Member Register</div><button class="btn btn-outline btn-sm" onclick="exportCSV()">Export CSV</button></div>
+          <div class="tbl-wrap"><table id="rptTbl"><thead><tr><th>App ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>City</th><th>Payment Method</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="rptBody"></tbody></table></div>
         </div>
       </div>
 
-      <!-- ══════════ EMAIL PAGE ══════════ -->
-      <div id="page-email" style="display:none;">
-        <div class="page-header"><h1>Send Emails</h1><p>Communicate with members</p></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
-          <div class="card">
-            <div class="card-header"><div class="card-title">Compose Email</div></div>
-            <div class="field"><label>Template</label>
-              <select id="emailTemplate" onchange="loadTemplate(this.value)">
-                <option value="">— Select a template —</option>
-                <option value="verify">Membership Verified + Invoice</option>
-                <option value="welcome">Welcome Letter</option>
-                <option value="renewal">Renewal Reminder</option>
-                <option value="receipt">Payment Received Acknowledgement</option>
-                <option value="custom">Custom Message</option>
-              </select>
-            </div>
-            <div class="field"><label>Recipients</label>
-              <select id="emailRecipients" multiple style="height:100px;">
-                <option value="all_active">All Active Members</option>
-                <option value="all_pending">All Pending Members</option>
-              </select>
-              <div class="field-hint">Hold Ctrl/Cmd to select multiple</div>
-            </div>
-            <div class="field"><label>Subject</label><input type="text" id="emailSubject" placeholder="Email subject line"/></div>
-            <div class="field"><label>Body</label><textarea id="emailBody" style="min-height:200px;" placeholder="Email body..."></textarea></div>
-            <div class="btn-row" style="justify-content:flex-start;">
-              <button class="btn btn-primary" onclick="sendEmail()">Send Email</button>
-              <button class="btn btn-outline" onclick="previewEmail()">Preview</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div class="card-title">Email Preview</div></div>
-            <div id="emailPreview" style="background:var(--ivory);border-radius:var(--radius);padding:1.25rem;min-height:300px;font-size:14px;color:var(--text-mid);">
-              Select a template to preview the email.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══════════ SETTINGS PAGE ══════════ -->
-      <div id="page-settings" style="display:none;">
-        <div class="page-header"><h1>Settings</h1><p>Configure the system</p></div>
+      <!-- SETTINGS PAGE -->
+      <div id="pg-settings" style="display:none;">
+        <div style="margin-bottom:1rem;"><h1 style="font-size:24px;color:var(--navy);">Settings</h1></div>
         <div class="card">
-          <div class="card-header"><div class="card-title">Organization Details</div></div>
+          <div class="card-hdr"><div class="card-title">Google Apps Script URL</div></div>
+          <p style="font-size:13px;color:#7A8BA8;margin-bottom:1rem;">Paste your deployed Web App URL here. This is required for loading member data.</p>
+          <div class="field"><label>Web App URL</label><input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec"/></div>
+          <button class="btn btn-navy" onclick="saveGasUrl()">Save URL</button>
+          <div id="urlSaved" style="display:none;color:var(--green);font-size:13px;margin-top:8px;">URL saved. Refresh the page to reload data.</div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Admin Credentials</div></div>
           <div class="form-grid">
-            <div class="field"><label>Organization Name</label><input type="text" value="Manthan Kala Centre (Regd.)"/></div>
-            <div class="field"><label>Registration No.</label><input type="text" value="REGD."/></div>
-            <div class="field"><label>PAN Number</label><input type="text" placeholder="AABTM****"/></div>
-            <div class="field"><label>GSTIN</label><input type="text" placeholder="07AABTM****/></div>
-            <div class="field"><label>HSN Code</label><input type="text" value="999599"/></div>
-            <div class="field"><label>Annual Fee (₹)</label><input type="number" value="25000"/></div>
+            <div class="field"><label>Username</label><input type="text" id="newUser" placeholder="New username"/></div>
+            <div class="field"><label>New Password</label><input type="password" id="newPass" placeholder="New password"/></div>
           </div>
-          <div class="field"><label>Address</label><textarea>A-62, Mayfair Garden, New Delhi-110016</textarea></div>
-          <div class="form-grid">
-            <div class="field"><label>Phone</label><input type="text" value="011-26850232"/></div>
-            <div class="field"><label>Mobile / WhatsApp</label><input type="text" value="8527922395"/></div>
-            <div class="field"><label>Email</label><input type="email" value="manthantree@gmail.com"/></div>
-            <div class="field"><label>Bank Account No.</label><input type="text" value="05622011010738"/></div>
-            <div class="field"><label>Bank &amp; Branch</label><input type="text" value="Punjab National Bank – Saket, New Delhi"/></div>
-            <div class="field"><label>IFSC Code</label><input type="text" value="PUNB0035610"/></div>
-          </div>
-          <div class="field"><label>Google Apps Script URL</label><input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"/></div>
-          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+          <button class="btn btn-navy" onclick="saveCredentials()">Update Credentials</button>
+          <div id="credSaved" style="display:none;color:var(--green);font-size:13px;margin-top:8px;">Credentials updated.</div>
         </div>
       </div>
 
-    </div><!-- end content -->
-  </div><!-- end main -->
-</div><!-- end page-shell -->
+    </div><!-- content -->
+  </div><!-- main -->
+</div><!-- page-shell -->
+</div><!-- appShell -->
 
 <!-- MEMBER DETAIL MODAL -->
-<div class="modal-backdrop" id="memberModal">
-  <div class="modal" style="max-width:760px;">
-    <div class="modal-header">
-      <div class="modal-title" id="modalTitle">Member Details</div>
-      <button class="modal-close" onclick="closeModal('memberModal')">×</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer" id="modalFooter"></div>
+<div class="modal-bg" id="memberModal">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title" id="mTitle">Member Details</div><button class="modal-close" onclick="closeModal('memberModal')">&#215;</button></div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-foot" id="mFoot"></div>
   </div>
 </div>
 
-<!-- INVOICE MODAL -->
-<div class="modal-backdrop" id="invoiceModal">
-  <div class="modal" style="max-width:700px;">
-    <div class="modal-header">
-      <div class="modal-title">Tax Invoice Preview</div>
-      <button class="modal-close" onclick="closeModal('invoiceModal')">×</button>
-    </div>
-    <div class="modal-body" id="invoiceBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="window.print()">🖨 Print</button>
-      <button class="btn btn-gold" id="sendInvBtn">📧 Send Invoice to Member</button>
-      <button class="btn btn-outline" onclick="closeModal('invoiceModal')">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- EMAIL SENT MODAL -->
-<div class="modal-backdrop" id="emailSentModal">
-  <div class="modal" style="max-width:420px;">
+<!-- SUCCESS MODAL -->
+<div class="modal-bg" id="okModal">
+  <div class="modal" style="max-width:400px;">
     <div class="modal-body" style="text-align:center;padding:2.5rem;">
-      <div style="font-size:48px;margin-bottom:1rem;">✅</div>
-      <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:8px;">Email Sent!</h2>
-      <p style="color:var(--text-muted);font-size:14px;" id="emailSentMsg">Invoice sent successfully.</p>
-      <button class="btn btn-primary mt-2" onclick="closeModal('emailSentModal')">Done</button>
+      <div style="font-size:48px;margin-bottom:1rem;">&#9989;</div>
+      <h2 style="font-family:'Playfair Display',serif;color:var(--navy);margin-bottom:8px;">Done!</h2>
+      <p style="color:#7A8BA8;font-size:14px;" id="okMsg">Action completed.</p>
+      <button class="btn btn-navy" onclick="closeModal('okModal')" style="margin-top:1.5rem;">OK</button>
     </div>
   </div>
 </div>
 
 <script>
-// ==================================================
-//  MKC Admin Dashboard  -  js/admin.js
-// ==================================================
+// ==== CONFIGURATION ====
+var GAS_URL  = localStorage.getItem('mkc_gas_url') || 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec';
+var ADMIN_U  = localStorage.getItem('mkc_admin_u') || 'mkc_admin';
+var ADMIN_P  = localStorage.getItem('mkc_admin_p') || 'Manthan@2026';
+var SESSION  = 'mkc_session';
+var MAX_ATT  = 5;
+var LOCK_SEC = 30;
+// =======================
 
-// -- ADMIN CREDENTIALS --
-// To change: update USERNAME and PASSWORD below, then re-upload this file to GitHub
-var ADMIN_USERNAME = 'mkc_admin';
-var ADMIN_PASSWORD = 'Manthan@2026';
+var MEMBERS = [];
+var curFilter = 'All';
+var curSort   = 'new';
+var selInvMem = null;
+var fails = 0;
+var locked = false;
+var lockTimer = null;
+var cbN = 0;
 
-// -- LOGIN STATE --
-var MAX_ATTEMPTS = 5;
-var LOCKOUT_SECONDS = 30;
-var SESSION_KEY = 'mkc_admin_session';
-var failedAttempts = 0;
-var lockoutTimer = null;
-var isLocked = false;
-
+// ---- LOGIN ----
 function doLogin() {
-  if (isLocked) return;
-  var user = document.getElementById('loginUser').value.trim();
-  var pass = document.getElementById('loginPass').value;
-  var errorEl = document.getElementById('loginError');
-  var attemptsEl = document.getElementById('attemptsMsg');
-
-  if (!user || !pass) {
-    showLoginError('Please enter both username and password.');
-    return;
-  }
-
-  if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-    // [OK] SUCCESS
-    failedAttempts = 0;
-    sessionStorage.setItem(SESSION_KEY, 'authenticated');
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appShell').style.display = 'block';
-    document.getElementById('adminAvatar').textContent = user.substring(0,2).toUpperCase();
-    errorEl.style.display = 'none';
-    attemptsEl.textContent = '';
-    loadMembers(renderDashboard);
+  if (locked) return;
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  var errEl = document.getElementById('loginErr');
+  var attEl = document.getElementById('attemptsMsg');
+  if (!u || !p) { errEl.textContent='Enter both username and password.'; errEl.style.display='block'; return; }
+  if (u === ADMIN_U && p === ADMIN_P) {
+    fails=0; sessionStorage.setItem(SESSION,'1');
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appShell').style.display='block';
+    document.getElementById('adminAv').textContent=u.substring(0,2).toUpperCase();
+    errEl.style.display='none'; attEl.textContent='';
+    loadData(renderDashboard);
   } else {
-    // [X] FAILED
-    failedAttempts++;
-    var remaining = MAX_ATTEMPTS - failedAttempts;
-    if (failedAttempts >= MAX_ATTEMPTS) {
-      startLockout();
-    } else {
-      showLoginError('Incorrect username or password. Please try again.');
-      attemptsEl.textContent = remaining + ' attempt' + (remaining === 1 ? '' : 's') + ' remaining before lockout.';
-    }
-    // Shake the card
-    var card = document.querySelector('.login-card');
-    card.style.animation = 'none';
-    card.offsetHeight;
-    card.style.animation = 'shake 0.4s ease';
+    fails++;
+    var left = MAX_ATT - fails;
+    if (fails >= MAX_ATT) { startLock(); }
+    else { errEl.textContent='Incorrect username or password.'; errEl.style.display='block'; attEl.textContent=left+' attempt(s) remaining.'; }
+    shake();
   }
 }
-
-function showLoginError(msg) {
-  var el = document.getElementById('loginError');
-  el.textContent = msg;
-  el.style.display = 'block';
+function startLock() {
+  locked=true;
+  var btn=document.getElementById('loginBtn');
+  var lockEl=document.getElementById('loginLock');
+  document.getElementById('loginErr').style.display='none';
+  document.getElementById('attemptsMsg').textContent='';
+  lockEl.style.display='block'; btn.disabled=true; btn.style.opacity='0.4';
+  var s=LOCK_SEC;
+  document.getElementById('lockSecs').textContent=s;
+  lockTimer=setInterval(function(){
+    s--; document.getElementById('lockSecs').textContent=s;
+    if(s<=0){ clearInterval(lockTimer); locked=false; fails=0; lockEl.style.display='none'; btn.disabled=false; btn.style.opacity='1'; document.getElementById('loginPass').value=''; document.getElementById('loginUser').focus(); }
+  },1000);
 }
-
-function startLockout() {
-  isLocked = true;
-  var btn = document.getElementById('loginBtn');
-  var lockedEl = document.getElementById('loginLocked');
-  var errorEl = document.getElementById('loginError');
-  var attemptsEl = document.getElementById('attemptsMsg');
-  errorEl.style.display = 'none';
-  lockedEl.style.display = 'block';
-  btn.disabled = true;
-  btn.style.opacity = '0.4';
-  btn.style.cursor = 'not-allowed';
-  attemptsEl.textContent = '';
-
-  var secs = LOCKOUT_SECONDS;
-  document.getElementById('lockTimer').textContent = secs;
-  lockoutTimer = setInterval(function() {
-    secs--;
-    document.getElementById('lockTimer').textContent = secs;
-    if (secs <= 0) {
-      clearInterval(lockoutTimer);
-      isLocked = false;
-      failedAttempts = 0;
-      lockedEl.style.display = 'none';
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-      document.getElementById('loginPass').value = '';
-      document.getElementById('loginUser').focus();
-    }
-  }, 1000);
+function toggleEye() {
+  var inp=document.getElementById('loginPass');
+  var btn=document.getElementById('eyeBtn');
+  if(inp.type==='password'){inp.type='text';btn.innerHTML='&#128584;';}
+  else{inp.type='password';btn.innerHTML='&#128065;';}
 }
-
-function togglePwd() {
-  var inp = document.getElementById('loginPass');
-  var btn = document.getElementById('eyeBtn');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '????'; }
-  else { inp.type = 'password'; btn.textContent = '????'; }
+function shake() {
+  var card=document.querySelector('.login-card');
+  card.style.animation='none'; void card.offsetHeight;
+  card.style.animation='shake 0.4s ease';
 }
-
 function doLogout() {
-  if (!confirm('Sign out of Admin Panel?')) return;
-  sessionStorage.removeItem(SESSION_KEY);
-  document.getElementById('appShell').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('loginPass').value = '';
-  document.getElementById('loginUser').value = '';
-  document.getElementById('loginError').style.display = 'none';
-  document.getElementById('attemptsMsg').textContent = '';
-  failedAttempts = 0;
+  if(!confirm('Sign out?')) return;
+  sessionStorage.removeItem(SESSION);
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginUser').value='';
 }
 
-// -- CHECK SESSION ON LOAD --
-document.addEventListener('DOMContentLoaded', function() {
-  // Add shake animation style
-  var st = document.createElement('style');
-  st.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}';
-  document.head.appendChild(st);
-
-  // Auto-login if session exists
-  if (sessionStorage.getItem(SESSION_KEY) === 'authenticated') {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('appShell').style.display = 'block';
-    loadMembers(renderDashboard);
-  } else {
-    document.getElementById('loginUser').focus();
-  }
-
-  // Close modals on backdrop click
-  document.querySelectorAll('.modal-backdrop').forEach(function(b){
-    b.addEventListener('click', function(e){ if(e.target===b) b.classList.remove('open'); });
-  });
-});
-
-
-// -- GOOGLE APPS SCRIPT URL --
-// Paste your deployed Web App URL here (same URL used in register.js)
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec';
-
-// -- LIVE DATA --
-var MEMBERS = [];           // filled by loadMembers()
-var dataLoaded = false;
-var currentFilter = 'All';
-var currentSort = 'newest';
-var selectedInvMember = null;
-var invoiceCounter = 100;
-
-// -- JSONP HELPER  -  bypasses CORS for Google Apps Script GET requests --
-var _jsonpCounter = 0;
-function jsonpGet(url, callback) {
-  var cbName = '_mkc_cb_' + (++_jsonpCounter) + '_' + Date.now();
-  var script = document.createElement('script');
-  var timer  = null;
-
-  window[cbName] = function(data) {
-    clearTimeout(timer);
-    script.remove();
-    delete window[cbName];
-    callback(null, data);
-  };
-
-  timer = setTimeout(function() {
-    script.remove();
-    delete window[cbName];
-    callback(new Error('Request timed out after 15 seconds'), null);
-  }, 15000);
-
-  script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cbName;
-  script.onerror = function() {
-    clearTimeout(timer);
-    script.remove();
-    delete window[cbName];
-    callback(new Error('Script load failed  -  check the GAS URL is correct'), null);
-  };
-  document.head.appendChild(script);
-}
-
-// -- LOAD MEMBERS FROM GOOGLE SHEETS via JSONP --
-function loadMembers(callback) {
-  if (GAS_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
-    MEMBERS = DEMO_MEMBERS.slice();
-    dataLoaded = true;
-    if (callback) callback();
-    return;
-  }
-  showLoadingState('Loading members from database...');
-  jsonpGet(GAS_URL + '?action=getMembers', function(err, data) {
-    if (err) {
-      showDataError('Network error: ' + err.message + '<br/>Please check that your Google Apps Script URL is correct and deployed as "Anyone" access.');
-      return;
-    }
-    if (data && data.status === 'ok') {
-      MEMBERS = data.members || [];
-      dataLoaded = true;
-      hideLoadingState();
-      if (callback) callback();
-    } else {
-      showDataError('Could not load data: ' + (data && data.message ? data.message : 'Unknown error'));
-    }
-  });
-}
-
-function showLoadingState(msg) {
-  var pages = document.querySelectorAll('[id^="page-"]');
-  pages.forEach(function(p) {
-    if (p.style.display !== 'none') {
-      var ex = p.querySelector('.loading-overlay');
-      if (!ex) {
-        var div = document.createElement('div');
-        div.className = 'loading-overlay';
-        div.style.cssText = 'text-align:center;padding:3rem;color:var(--text-muted);font-size:14px;';
-        div.innerHTML = '<div style="font-size:32px;margin-bottom:12px;">???</div><div>' + msg + '</div>';
-        p.insertBefore(div, p.firstChild);
-      }
-    }
-  });
-}
-function hideLoadingState() {
-  document.querySelectorAll('.loading-overlay').forEach(function(el){ el.remove(); });
-}
-function showDataError(msg) {
-  hideLoadingState();
-  var pages = document.querySelectorAll('[id^="page-"]');
-  pages.forEach(function(p) {
-    if (p.style.display !== 'none') {
-      var div = document.createElement('div');
-      div.style.cssText = 'background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1rem;font-size:13px;color:#991B1B;display:flex;align-items:center;gap:10px;';
-      div.innerHTML = '<span style="font-size:20px;">[!]???</span><div>' + msg + '<br/><button onclick="location.reload()" style="margin-top:6px;background:none;border:1px solid #FCA5A5;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:12px;color:#991B1B;">Retry</button></div>';
-      p.insertBefore(div, p.firstChild);
-    }
-  });
-}
-
-// -- DEMO DATA (shown when GAS_URL is not set yet) --
-var DEMO_MEMBERS = [
-  { appID:'DEMO-001', firstName:'Demo', lastName:'Member', gender:'Male', dob:'1980-01-01', occupation:'Business', email:'demo@example.com', mobile:'9999999999', whatsapp:'Yes', residentialAddress:'Demo Address', city:'New Delhi', pin:'110001', spouseName:'', anniversary:'', interests:'Classical Music', referredBy:'', paymentMethod:'UPI', paymentRef:'DEMO123', paymentDate:'2026-04-01', amountPaid:29500, receiptFileName:'demo_receipt.jpg', status:'Pending Verification', membershipNo:'', invoiceSent:false, submittedAt:'Demo data  -  connect Google Sheets to see real members', serialNo:'' }
-];
-
-
-// -- PAGE SWITCHING --
+// ---- PAGE SWITCHING ----
 function showPage(name) {
-  document.querySelectorAll('[id^="page-"]').forEach(function(p){ p.style.display='none'; });
-  document.getElementById('page-' + name).style.display = 'block';
-  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
-  var titles = { dashboard:'Dashboard', members:'Members', invoices:'Tax Invoices', reports:'Reports', email:'Send Emails', settings:'Settings' };
-  document.getElementById('topbarTitle').textContent = titles[name] || name;
-
-  // Always reload live data then render
-  loadMembers(function() {
-    if (name === 'dashboard') renderDashboard();
-    if (name === 'members')   renderMembersTable();
-    if (name === 'invoices')  renderInvoiceList();
-    if (name === 'reports')   renderReports();
-    if (name === 'email')     renderEmailRecipients();
+  document.querySelectorAll('[id^="pg-"]').forEach(function(p){p.style.display='none';});
+  document.getElementById('pg-'+name).style.display='block';
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var titles={dashboard:'Dashboard',members:'Members',invoices:'Tax Invoices',reports:'Reports',settings:'Settings'};
+  document.getElementById('pageTitle').textContent=titles[name]||name;
+  loadData(function(){
+    if(name==='dashboard') renderDashboard();
+    if(name==='members')   renderMembers();
+    if(name==='invoices')  renderInvList();
+    if(name==='reports')   renderReports();
+    if(name==='settings')  renderSettings();
   });
   return false;
 }
 
-// -- DASHBOARD --
+// ---- LOAD DATA ----
+function jsonpGet(url) {
+  return new Promise(function(resolve){
+    var name='_mkc'+(++cbN)+'_'+Date.now();
+    var sc=document.createElement('script');
+    var done=false;
+    var t=setTimeout(function(){finish({status:'timeout'});},20000);
+    function finish(d){if(done)return;done=true;clearTimeout(t);if(sc.parentNode)sc.parentNode.removeChild(sc);delete window[name];resolve(d);}
+    window[name]=function(d){finish(d);};
+    sc.onerror=function(){finish({status:'error'});};
+    sc.src=url+'&callback='+name;
+    document.head.appendChild(sc);
+  });
+}
+function loadData(cb) {
+  if (GAS_URL==='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec') { if(cb) cb(); return; }
+  jsonpGet(GAS_URL+'?action=getMembers').then(function(r){
+    if(r&&r.status==='ok') MEMBERS=r.members||[];
+    if(cb) cb();
+  }).catch(function(){ if(cb) cb(); });
+}
+
+// ---- DASHBOARD ----
 function renderDashboard() {
-  var total   = MEMBERS.length;
-  var pending = MEMBERS.filter(function(m){ return isPending(m.status); }).length;
-  var active  = MEMBERS.filter(function(m){ return isActive(m.status); }).length;
-  var revenue = active * 29500;
-  document.getElementById('statTotal').textContent   = total;
-  document.getElementById('statPending').textContent = pending;
-  document.getElementById('statActive').textContent  = active;
-  document.getElementById('statRevenue').textContent = '???' + revenue.toLocaleString('en-IN');
-  document.getElementById('pendingBadge').textContent = pending;
-  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-  if (pending > 0) {
-    document.getElementById('pendingAlert').style.display = 'block';
-    document.getElementById('pendingAlertText').textContent = pending + ' application(s) are waiting for your review.';
-  } else {
-    document.getElementById('pendingAlert').style.display = 'none';
-  }
-
-  // Recent list
-  var recent = MEMBERS.slice().sort(function(a,b){ return b.appID.localeCompare(a.appID); }).slice(0,4);
-  document.getElementById('recentList').innerHTML = recent.map(function(m){
-    return '<div class="flex-center gap-12" style="padding:10px 0;border-bottom:1px solid var(--ivory-border);">' +
-      '<div class="avatar avatar-sm ' + (isActive(m.status)?'avatar-navy':'avatar-blue') + '">' + (m.firstName||'?')[0] + (m.lastName||'?')[0] + '</div>' +
-      '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--navy);">' + m.firstName + ' ' + m.lastName + '</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">' + m.appID + '</div></div>' +
-      '<span class="badge badge-' + statusClass(m.status) + '">' + statusLabel(m.status) + '</span></div>';
+  var tot  = MEMBERS.length;
+  var pend = MEMBERS.filter(function(m){return isPend(m.status);}).length;
+  var act  = MEMBERS.filter(function(m){return isAct(m.status);}).length;
+  var rev  = act * 29500;
+  document.getElementById('sTot').textContent=tot;
+  document.getElementById('sPend').textContent=pend;
+  document.getElementById('sAct').textContent=act;
+  document.getElementById('sRev').textContent='Rs.'+rev.toLocaleString('en-IN');
+  document.getElementById('pendBadge').textContent=pend;
+  document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('pendAlert').style.display=pend>0?'block':'none';
+  if(pend>0) document.getElementById('pendAlertTxt').textContent=pend+' application(s) waiting for review.';
+  var recent=MEMBERS.slice().sort(function(a,b){return b.appID.localeCompare(a.appID);}).slice(0,5);
+  document.getElementById('recentList').innerHTML=recent.map(function(m){
+    return '<div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--iborder);">'+
+      '<div style="width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>'+
+      '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div><div class="td-id">'+m.appID+'</div></div>'+
+      '<span class="badge badge-'+sc(m.status)+'">'+sl(m.status)+'</span></div>';
   }).join('');
-
-  // Status chart
-  var statusGroups = [
-    { label:'Active',               fn: isActive,   color:'var(--success)' },
-    { label:'Pending Verification', fn: isPending,   color:'var(--gold)'    },
-    { label:'Rejected',             fn: isRejected,  color:'var(--danger)'  }
-  ];
-  var max = Math.max.apply(null, statusGroups.map(function(sg){ return MEMBERS.filter(function(m){ return sg.fn(m.status); }).length; })) || 1;
-  document.getElementById('statusChart').innerHTML = statusGroups.map(function(sg){
-    var cnt = MEMBERS.filter(function(m){ return sg.fn(m.status); }).length;
-    var pct = Math.round((cnt/max)*100);
-    return '<div class="chart-bar-row"><div class="chart-bar-label" style="width:110px;font-size:11px;">' + sg.label + '</div>' +
-      '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:'+pct+'%;background:'+sg.color+'"></div></div>' +
-      '<div class="chart-bar-val">' + cnt + '</div></div>';
+  var cats=[{l:'Active',fn:isAct,c:'var(--green)'},{l:'Pending',fn:isPend,c:'var(--gold)'},{l:'Rejected',fn:isRej,c:'var(--red)'}];
+  var mx=Math.max.apply(null,cats.map(function(cat){return MEMBERS.filter(function(m){return cat.fn(m.status);}).length;}))||1;
+  document.getElementById('statusChart').innerHTML=cats.map(function(cat){
+    var cnt=MEMBERS.filter(function(m){return cat.fn(m.status);}).length;
+    return '<div class="bar-row"><div class="bar-lbl">'+cat.l+'</div><div class="bar-bg"><div class="bar-fill" style="width:'+Math.round(cnt/mx*100)+'%;background:'+cat.c+'"></div></div><div class="bar-val">'+cnt+'</div></div>';
   }).join('');
 }
 
-// -- MEMBERS TABLE --
-function renderMembersTable() {
-  var filtered = MEMBERS.filter(function(m){
-    if (currentFilter === 'All') return true;
-    if (currentFilter === 'Pending') return isPending(m.status);
-    if (currentFilter === 'Active')  return isActive(m.status);
-    if (currentFilter === 'Rejected') return isRejected(m.status);
+// ---- MEMBERS TABLE ----
+function renderMembers() {
+  var list=MEMBERS.filter(function(m){
+    if(curFilter==='Pending') return isPend(m.status);
+    if(curFilter==='Active')  return isAct(m.status);
+    if(curFilter==='Rejected')return isRej(m.status);
     return true;
   });
-  if (currentSort === 'newest') filtered.sort(function(a,b){ return b.appID.localeCompare(a.appID); });
-  else if (currentSort === 'oldest') filtered.sort(function(a,b){ return a.appID.localeCompare(b.appID); });
-  else if (currentSort === 'name') filtered.sort(function(a,b){ return (a.firstName||'').localeCompare(b.firstName||''); });
-
-  var tbody = document.getElementById('membersTable');
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">????</div><p>No members found</p></div></td></tr>';
-    return;
-  }
-  tbody.innerHTML = filtered.map(function(m){
-    var id = m.appID.replace(/'/g, "\\'");
-    var pending  = isPending(m.status);
-    var active   = isActive(m.status);
-    return '<tr>' +
-      '<td><div class="member-avatar-wrap">' +
-        '<div class="avatar avatar-sm avatar-navy">' + (m.firstName||'?')[0] + (m.lastName||'?')[0] + '</div>' +
-        '<div><div class="td-name">' + m.firstName + ' ' + m.lastName + '</div>' +
-        '<div class="td-id">' + m.appID + '</div></div></div></td>' +
-      '<td><div style="font-size:13px;">' + m.email + '</div><div class="td-id">' + m.mobile + '</div></td>' +
-      '<td><div style="font-size:13px;">Annual</div><div class="td-id">???29,500</div></td>' +
-      '<td><div style="font-size:13px;">' + (m.paymentMethod||' - ') + '</div><div class="td-id">' + (m.paymentRef||' - ') + '</div></td>' +
-      '<td><span class="badge badge-' + statusClass(m.status) + '">' + statusLabel(m.status) + '</span></td>' +
-      '<td style="white-space:nowrap;">' +
-        '<button class="action-btn" title="View Details" onclick="viewMember(\'' + id + '\')">????</button>' +
-        (pending ? ' <button class="action-btn" title="Approve & Activate" onclick="approveMember(\'' + id + '\')" style="font-size:18px;">[OK]</button>' +
-                   ' <button class="action-btn" title="Reject" onclick="rejectMember(\'' + id + '\')" style="font-size:18px;">[X]</button>' : '') +
-        (active  ? ' <button class="action-btn" title="Send Tax Invoice" onclick="openInvoice(\'' + id + '\')" style="font-size:18px;">????</button>' : '') +
+  if(curSort==='new')  list.sort(function(a,b){return b.appID.localeCompare(a.appID);});
+  if(curSort==='old')  list.sort(function(a,b){return a.appID.localeCompare(b.appID);});
+  if(curSort==='name') list.sort(function(a,b){return (a.firstName||'').localeCompare(b.firstName||'');});
+  var tb=document.getElementById('membersTbl');
+  if(!list.length){tb.innerHTML='<tr><td colspan="5"><div class="empty"><p>No members found</p></div></td></tr>';return;}
+  tb.innerHTML=list.map(function(m){
+    var id=m.appID.replace(/'/g,"\\'");
+    return '<tr>'+
+      '<td><div style="display:flex;align-items:center;gap:10px;">'+
+      '<div style="width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>'+
+      '<div><div class="td-name">'+m.firstName+' '+m.lastName+'</div><div class="td-id">'+m.appID+'</div></div></div></td>'+
+      '<td><div style="font-size:13px;">'+m.email+'</div><div class="td-id">'+m.mobile+'</div></td>'+
+      '<td><div style="font-size:13px;">'+(m.paymentMethod||'-')+'</div><div class="td-id">'+(m.paymentRef||'-')+'</div></td>'+
+      '<td><span class="badge badge-'+sc(m.status)+'">'+sl(m.status)+'</span></td>'+
+      '<td style="white-space:nowrap;">'+
+        '<button class="act-btn" title="View Details" onclick="viewMember(\''+id+'\')">&#128065;</button>'+
+        (isPend(m.status)?'<button class="act-btn" title="Approve" onclick="approveMember(\''+id+'\')" style="font-size:18px;">&#9989;</button><button class="act-btn" title="Reject" onclick="rejectMember(\''+id+'\')" style="font-size:18px;">&#10060;</button>':'')+
+        (isAct(m.status)?'<button class="act-btn" title="Send Invoice" onclick="openInvoice(\''+id+'\')" style="font-size:18px;">&#129534;</button>':'')+
       '</td></tr>';
   }).join('');
 }
-
-function filterStatus(status, el) {
-  currentFilter = status;
-  document.querySelectorAll('.quick-filter').forEach(function(f){ f.classList.remove('active'); });
-  if (el) el.classList.add('active');
-  renderMembersTable();
+function filterBy(f,el){curFilter=f;document.querySelectorAll('.qf').forEach(function(q){q.classList.remove('on');});el.classList.add('on');renderMembers();}
+function sortBy(v){curSort=v;renderMembers();}
+function doSearch(q){
+  if(!q){renderMembers();return;}
+  q=q.toLowerCase();
+  var tb=document.getElementById('membersTbl');
+  if(!tb) return;
+  var list=MEMBERS.filter(function(m){return (m.firstName+' '+m.lastName+' '+m.email+' '+m.mobile+' '+m.appID).toLowerCase().includes(q);});
+  if(!list.length){tb.innerHTML='<tr><td colspan="5"><div class="empty"><p>No results</p></div></td></tr>';return;}
+  tb.innerHTML=list.map(function(m){
+    var id=m.appID.replace(/'/g,"\\'");
+    return '<tr><td><div class="td-name">'+m.firstName+' '+m.lastName+'</div><div class="td-id">'+m.appID+'</div></td>'+
+      '<td>'+m.email+'<br/><span class="td-id">'+m.mobile+'</span></td>'+
+      '<td>'+(m.paymentRef||'-')+'</td>'+
+      '<td><span class="badge badge-'+sc(m.status)+'">'+sl(m.status)+'</span></td>'+
+      '<td><button class="act-btn" onclick="viewMember(\''+id+'\')">&#128065;</button></td></tr>';
+  }).join('');
 }
 
-function sortMembers(val) { currentSort = val; renderMembersTable(); }
-
-function globalSearchFn(q) {
-  if (!q) { renderMembersTable(); return; }
-  q = q.toLowerCase();
-  var filtered = MEMBERS.filter(function(m){
-    return (m.firstName+' '+m.lastName+' '+m.email+' '+m.mobile+' '+m.appID).toLowerCase().includes(q);
-  });
-  var tbody = document.getElementById('membersTable');
-  if (tbody) { /* update if members page visible */ }
-}
-
-// -- MEMBER DETAIL MODAL --
+// ---- VIEW MEMBER ----
 function viewMember(appID) {
-  var m = MEMBERS.find(function(x){ return x.appID===appID; });
-  if (!m) return;
-  _detCount = 0;
-
-  function driveThumb(link, label, fallbackName) {
-    var inner = '';
-    if (link && link.indexOf('drive.google.com') >= 0) {
-      var fileId = '';
-      var r1 = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      var r2 = link.match(/id=([a-zA-Z0-9_-]+)/);
-      if (r1) fileId = r1[1]; else if (r2) fileId = r2[1];
-      var thumb = fileId ? 'https://drive.google.com/thumbnail?id='+fileId+'&sz=w200' : '';
-      inner = (thumb ? '<a href="'+link+'" target="_blank"><img src="'+thumb+'" style="width:88px;height:108px;object-fit:cover;border-radius:6px;border:2px solid var(--navy);display:block;" onerror="this.style.display=\'none\'"/></a>' : '') +
-              '<a href="'+link+'" target="_blank" style="font-size:10px;color:var(--blue-accent);display:block;margin-top:4px;text-align:center;">???? Open</a>';
-    } else {
-      inner = '<div style="width:88px;height:108px;background:var(--ivory-dark);border-radius:6px;border:1px dashed var(--ivory-border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-muted);text-align:center;padding:4px;">' +
-              (fallbackName ? '????<br/>'+fallbackName : 'Not<br/>uploaded') + '</div>';
-    }
-    return '<div style="text-align:center;">' +
-      '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:5px;font-weight:600;">'+label+'</div>' +
-      inner + '</div>';
-  }
-
-  function receiptBlock(link, name) {
-    if (!link && !name) return '<div style="font-size:12px;color:var(--text-muted);">No receipt uploaded</div>';
-    var fileId = '';
-    if (link && link.indexOf('drive.google.com') >= 0) {
-      var r1 = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      var r2 = link.match(/id=([a-zA-Z0-9_-]+)/);
-      if (r1) fileId = r1[1]; else if (r2) fileId = r2[1];
-    }
-    var isPdf = name && name.toLowerCase().indexOf('.pdf') >= 0;
-    var thumb = (fileId && !isPdf) ? 'https://drive.google.com/thumbnail?id='+fileId+'&sz=w400' : '';
-    return '<div style="margin-top:4px;">' +
-      (thumb && link ? '<a href="'+link+'" target="_blank"><img src="'+thumb+'" style="width:100%;max-width:320px;border-radius:8px;border:1px solid var(--ivory-border);display:block;margin-bottom:8px;" onerror="this.style.display=\'none\'"/></a>' : '') +
-      (link ? '<a href="'+link+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:var(--gold);padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">???? Open '+(isPdf?'PDF Receipt':'Receipt Image')+' in Drive</a>' :
-              '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">???? '+name+' (Drive link not available)</div>') +
-      '</div>';
-  }
-
-  document.getElementById('modalTitle').textContent = m.firstName+' '+m.lastName+'  -  '+appID;
-  document.getElementById('modalBody').innerHTML =
-    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:1.25rem;">' +
-    '<div class="avatar avatar-lg avatar-navy">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>' +
-    '<div><div style="font-size:18px;font-weight:600;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div>' +
-    '<div style="font-size:13px;color:var(--text-muted);">'+m.email+' &nbsp;|&nbsp; '+m.mobile+'</div>' +
-    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">' +
-    '<span class="badge badge-'+statusClass(m.status)+'">'+statusLabel(m.status)+'</span>' +
-    (m.membershipNo?'<span class="badge badge-info">Member No: '+m.membershipNo+'</span>':'') +
-    '</div></div></div>' +
-
-    '<div style="background:var(--ivory);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">' +
-    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">???? Passport Photographs</div>' +
-    '<div style="display:flex;gap:20px;flex-wrap:wrap;">'+
-    driveThumb(m.photoSelfLink,   'Self',   m.photoSelfName   ||'') +
-    driveThumb(m.photoSpouseLink, 'Spouse', m.photoSpouseName ||'') +
-    '</div></div>' +
-
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:1rem;">' +
-    detRow('App ID',m.appID)                         + detRow('Date of Birth',m.dob||' - ') +
-    detRow('Gender',m.gender||' - ')                   + detRow('Occupation',m.occupation||' - ') +
-    detRow('City / PIN',(m.city||'')+(m.pin?'  -  '+m.pin:'')) + detRow('WhatsApp',m.whatsapp||' - ') +
-    detRow('Spouse',m.spouseName||' - ')               + detRow('Anniversary',m.anniversary||' - ') +
-    detRow('Interests',m.interests||' - ')             + detRow('Referred By',m.referredBy||' - ') +
-    detRow('Payment Method',m.paymentMethod||' - ')    + detRow('Payment Ref',m.paymentRef||' - ') +
-    detRow('Payment Date',m.paymentDate||' - ')        + detRow('Amount Paid','???'+Number(m.amountPaid||0).toLocaleString('en-IN')) +
-    detRow('Invoice Sent',m.invoiceSent?'Yes ???':'No')+ detRow('Submitted At',m.submittedAt||' - ') +
-    '</div>' +
-
-    '<div style="background:var(--ivory);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">' +
-    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">???? Payment Receipt</div>' +
-    receiptBlock(m.receiptLink, m.receiptFileName) +
-    '</div>' +
-
-    (isPending(m.status)?'<div class="alert alert-warning" style="margin-top:0.5rem;">[!] Awaiting verification. Review payment receipt before approving.</div>':'') +
-    (isActive(m.status) ?'<div class="alert alert-success" style="margin-top:0.5rem;">[OK] Member is active. You can send the Tax Invoice below.</div>':'');
-
-  var id = appID.replace(/'/g,"\\'");
-  var footer = '';
-  if (isPending(m.status)) {
-    footer += '<button class="btn btn-danger" onclick="rejectMember(\''+id+'\');closeModal(\'memberModal\')">[X] Reject</button>';
-    footer += '<button class="btn btn-primary" onclick="approveMember(\''+id+'\');closeModal(\'memberModal\')">[OK] Approve &amp; Activate</button>';
-  }
-  if (isActive(m.status)) {
-    footer += '<button class="btn btn-gold" onclick="closeModal(\'memberModal\');openInvoice(\''+id+'\')">???? Send Tax Invoice</button>';
-  }
-  footer += '<button class="btn btn-outline" onclick="closeModal(\'memberModal\')">Close</button>';
-  document.getElementById('modalFooter').innerHTML = footer;
+  var m=MEMBERS.find(function(x){return x.appID===appID;}); if(!m) return;
+  document.getElementById('mTitle').textContent=m.firstName+' '+m.lastName+' - '+appID;
+  var selfThumb  = m.photoSelfLink  ? thumb(m.photoSelfLink,  'Self Photo')   : '<div class="ph-placeholder">Self<br/>Not uploaded</div>';
+  var spouseThumb= m.photoSpouseLink? thumb(m.photoSpouseLink,'Spouse Photo')  : '<div class="ph-placeholder">Spouse<br/>Not uploaded</div>';
+  var rcptBlock  = rcpt(m.receiptLink, m.receiptFileName);
+  document.getElementById('mBody').innerHTML=
+    '<div style="display:flex;align-items:center;gap:16px;margin-bottom:1.5rem;">'+
+    '<div style="width:56px;height:56px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>'+
+    '<div><div style="font-size:18px;font-weight:600;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div>'+
+    '<div style="font-size:13px;color:#7A8BA8;">'+m.email+' | '+m.mobile+'</div>'+
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;"><span class="badge badge-'+sc(m.status)+'">'+sl(m.status)+'</span>'+
+    (m.membershipNo?'<span class="badge badge-blue">Member No: '+m.membershipNo+'</span>':'')+
+    '</div></div></div>'+
+    '<div style="background:var(--ivory2);border-radius:var(--radius);padding:12px 14px;margin-bottom:1rem;">'+
+    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Passport Photographs</div>'+
+    '<div style="display:flex;gap:20px;flex-wrap:wrap;">'+selfThumb+spouseThumb+'</div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:1rem;">'+
+    dr('App ID',m.appID)+dr('Date of Birth',m.dob||'-')+
+    dr('Gender',m.gender||'-')+dr('Occupation',m.occupation||'-')+
+    dr('City / PIN',(m.city||'')+(m.pin?' - '+m.pin:''))+dr('WhatsApp',m.whatsapp||'-')+
+    dr('Spouse',m.spouseName||'-')+dr('Anniversary',m.anniversary||'-')+
+    dr('Interests',m.interests||'-')+dr('Referred By',m.referredBy||'-')+
+    dr('Payment Method',m.paymentMethod||'-')+dr('Payment Ref',m.paymentRef||'-')+
+    dr('Payment Date',m.paymentDate||'-')+dr('Amount Paid','Rs.'+Number(m.amountPaid||0).toLocaleString('en-IN'))+
+    dr('Invoice Sent',m.invoiceSent?'Yes':'No')+dr('Submitted At',m.submittedAt||'-')+
+    '</div>'+
+    '<div style="background:var(--ivory2);border-radius:var(--radius);padding:12px 14px;">'+
+    '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Payment Receipt</div>'+
+    rcptBlock+'</div>'+
+    (isPend(m.status)?'<div class="alert alert-warn" style="margin-top:1rem;">Awaiting verification. Review payment receipt before approving.</div>':'')+
+    (isAct(m.status)?'<div class="alert alert-green" style="margin-top:1rem;">Member is active. You can send the Tax Invoice below.</div>':'');
+  var id=appID.replace(/'/g,"\\'");
+  var foot='';
+  if(isPend(m.status)){foot+='<button class="btn btn-red" onclick="rejectMember(\''+id+'\');closeModal(\'memberModal\')">Reject</button><button class="btn btn-navy" onclick="approveMember(\''+id+'\');closeModal(\'memberModal\')">Approve &amp; Activate</button>';}
+  if(isAct(m.status)){foot+='<button class="btn btn-gold" onclick="closeModal(\'memberModal\');openInvoice(\''+id+'\')">Send Tax Invoice</button>';}
+  foot+='<button class="btn btn-outline" onclick="closeModal(\'memberModal\')">Close</button>';
+  document.getElementById('mFoot').innerHTML=foot;
   openModal('memberModal');
 }
-
-function detRow(label, val, right) {
-  var isRight = right;
-  return '<div style="padding:8px 0 8px '+(isRight?'1rem':'0')+';border-bottom:1px solid var(--ivory-border);'+(isRight?'border-left:1px solid var(--ivory-border);padding-right:0;':'padding-right:1rem;')+'">' +
-    '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:2px;">'+label+'</div>' +
-    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||' - ')+'</div></div>';
+function dr(lbl,val){
+  return '<div style="padding:8px 0;border-bottom:1px solid var(--iborder);padding-right:1rem;">'+
+    '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#7A8BA8;margin-bottom:2px;">'+lbl+'</div>'+
+    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||'-')+'</div></div>';
 }
-// Rewrite detRow to alternate left/right via counter
-var _detCount = 0;
-function detRow(label, val) {
-  _detCount++;
-  var isRight = _detCount % 2 === 0;
-  return '<div style="padding:8px 0 8px '+(isRight?'1rem':'0')+';border-bottom:1px solid var(--ivory-border);'+(isRight?'border-left:1px solid var(--ivory-border);':'padding-right:1rem;')+'">' +
-    '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:2px;">'+label+'</div>' +
-    '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||' - ')+'</div></div>';
+function thumb(link, lbl) {
+  var fid=''; var m1=link.match(/\/d\/([a-zA-Z0-9_-]+)/); var m2=link.match(/id=([a-zA-Z0-9_-]+)/);
+  if(m1) fid=m1[1]; else if(m2) fid=m2[1];
+  var thumbUrl=fid?'https://drive.google.com/thumbnail?id='+fid+'&sz=w200':'';
+  return '<div style="text-align:center;">'+
+    '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#7A8BA8;margin-bottom:5px;font-weight:600;">'+lbl+'</div>'+
+    (thumbUrl?'<a href="'+link+'" target="_blank"><img src="'+thumbUrl+'" class="ph-thumb" onerror="this.parentNode.innerHTML=\'<div class=ph-placeholder>View file</div>\';"/></a>':'<div class="ph-placeholder">'+lbl+'</div>')+
+    '<div style="margin-top:4px;"><a href="'+link+'" target="_blank" style="font-size:10px;color:var(--blue);">Open in Drive</a></div>'+
+    '</div>';
+}
+function rcpt(link, name) {
+  if (!link && !name) return '<div style="font-size:12px;color:#7A8BA8;">Not uploaded</div>';
+  var fid=''; if(link){var m1=link.match(/\/d\/([a-zA-Z0-9_-]+)/); if(m1) fid=m1[1];}
+  var isPdf=name&&name.toLowerCase().indexOf('.pdf')>=0;
+  var tUrl=fid&&!isPdf?'https://drive.google.com/thumbnail?id='+fid+'&sz=w400':'';
+  return (tUrl&&link?'<a href="'+link+'" target="_blank"><img src="'+tUrl+'" class="rcpt-img" onerror="this.style.display=\'none\';"/></a>':'')+
+    (link?'<a href="'+link+'" target="_blank" class="drive-btn">Open Receipt in Drive</a>':'<div style="font-size:12px;color:#7A8BA8;">'+(name||'File not available')+'</div>');
 }
 
-// -- APPROVE / REJECT --
+// ---- APPROVE / REJECT ----
+var invCnt=100;
 function approveMember(appID) {
-  var m = MEMBERS.find(function(x){ return x.appID===appID; });
-  if (!m) return;
-  invoiceCounter++;
-  var newMemberNo = String(300 + invoiceCounter);
-
-  // Update locally immediately for instant UI feedback
-  m.status = 'Active';
-  m.membershipNo = newMemberNo;
-  renderMembersTable();
-  renderDashboard();
-
-  // Write back to Google Sheets via JSONP
-  if (GAS_URL !== 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
-    jsonpGet(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Active&memberNo=' + newMemberNo,
-      function(err, d) {
-        if (err) console.error('Approve write-back error:', err);
-        else console.log('Approve result:', d);
-      }
-    );
+  var m=MEMBERS.find(function(x){return x.appID===appID;}); if(!m) return;
+  invCnt++;
+  m.status='Active'; m.membershipNo=String(300+invCnt);
+  renderMembers(); renderDashboard();
+  if(GAS_URL!=='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'){
+    jsonpGet(GAS_URL+'?action=updateStatus&appID='+encodeURIComponent(appID)+'&status=Active&memberNo='+m.membershipNo).then(function(){});
   }
-
-  if (confirm('[OK] Member approved!\n\nSend Tax Invoice email to ' + m.email + ' now?')) {
-    sendInvoiceToMember(m);
-  }
+  if(confirm('Member approved! Send Tax Invoice to '+m.email+'?')) sendInvoiceEmail(m);
 }
-
 function rejectMember(appID) {
-  var m = MEMBERS.find(function(x){ return x.appID===appID; });
-  if (!m) return;
-  if (!confirm('Reject application for ' + m.firstName + ' ' + m.lastName + '?\nThis cannot be undone.')) return;
-  m.status = 'Rejected';
-  renderMembersTable();
-  renderDashboard();
-
-  if (GAS_URL !== 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
-    jsonpGet(GAS_URL + '?action=updateStatus&appID=' + encodeURIComponent(appID) + '&status=Rejected',
-      function(err, d) {
-        if (err) console.error('Reject write-back error:', err);
-      }
-    );
+  var m=MEMBERS.find(function(x){return x.appID===appID;}); if(!m) return;
+  if(!confirm('Reject application for '+m.firstName+' '+m.lastName+'?')) return;
+  m.status='Rejected'; renderMembers(); renderDashboard();
+  if(GAS_URL!=='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'){
+    jsonpGet(GAS_URL+'?action=updateStatus&appID='+encodeURIComponent(appID)+'&status=Rejected').then(function(){});
   }
 }
 
-// -- INVOICE --
-function renderInvoiceList() {
-  var active = MEMBERS.filter(function(m){ return isActive(m.status); });
-  _detCount = 0;
-  document.getElementById('invMemberList').innerHTML = active.map(function(m){
-    return '<div class="flex-center gap-10" style="padding:10px 12px;border-radius:8px;cursor:pointer;transition:background 0.15s;margin-bottom:4px;" ' +
-      'onmouseover="this.style.background=\'var(--ivory)\'" onmouseout="this.style.background=\'\';" onclick="selectInvMember(\''+m.appID+'\')">' +
-      '<div class="avatar avatar-sm avatar-navy">'+m.firstName[0]+m.lastName[0]+'</div>' +
-      '<div><div style="font-size:13px;font-weight:500;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div>' +
-      '<div style="font-size:11px;color:var(--text-muted);">'+m.appID + (m.invoiceSent?' ?? ??? Sent':'')+'</div></div>' +
-      (m.invoiceSent ? '<span class="badge badge-success" style="margin-left:auto;">Sent</span>' : '<span class="badge badge-warning" style="margin-left:auto;">Pending</span>') +
+// ---- INVOICE ----
+function renderInvList() {
+  var active=MEMBERS.filter(function(m){return isAct(m.status);});
+  document.getElementById('invList').innerHTML=active.map(function(m){
+    return '<div onclick="selInvMember(\''+m.appID+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer;margin-bottom:4px;transition:background 0.15s;" onmouseover="this.style.background=\'var(--ivory2)\'" onmouseout="this.style.background=\'\';">'+
+      '<div style="width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">'+(m.firstName||'?')[0]+(m.lastName||'?')[0]+'</div>'+
+      '<div style="flex:1;"><div style="font-size:13px;font-weight:500;color:var(--navy);">'+m.firstName+' '+m.lastName+'</div><div class="td-id">'+m.appID+'</div></div>'+
+      (m.invoiceSent?'<span class="badge badge-green">Sent</span>':'<span class="badge badge-warn">Pending</span>')+
       '</div>';
-  }).join('') || '<div class="empty-state"><p>No active members yet</p></div>';
+  }).join('')||'<div class="empty"><p>No active members</p></div>';
 }
-
-function filterInvMembers(q) {
-  var items = document.querySelectorAll('#invMemberList > div');
-  items.forEach(function(el){ el.style.display = el.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none'; });
+function filterInvList(q){
+  document.querySelectorAll('#invList>div').forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';});
 }
-
-function selectInvMember(appID) {
-  selectedInvMember = MEMBERS.find(function(m){ return m.appID===appID; });
-  document.getElementById('invPreviewWrap').innerHTML = buildInvoiceHTML(selectedInvMember);
-  document.getElementById('invPreviewWrap').insertAdjacentHTML('beforeend',
-    '<div style="margin-top:1rem;display:flex;gap:10px;justify-content:flex-end;">' +
-    '<button class="btn btn-outline" onclick="window.print()">???? Print</button>' +
-    '<button class="btn btn-gold" onclick="sendInvoiceEmail()">???? Send Invoice to Member</button></div>');
+function selInvMember(appID) {
+  selInvMem=MEMBERS.find(function(m){return m.appID===appID;});
+  if(!selInvMem) return;
+  document.getElementById('invPreview').innerHTML=
+    buildInvoiceHTML(selInvMem)+
+    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:1rem;">'+
+    '<button class="btn btn-outline" onclick="window.print()">Print</button>'+
+    '<button class="btn btn-gold" onclick="sendInvoiceEmail(selInvMem)">Send Invoice to Member</button></div>';
 }
-
-function openInvoice(appID) {
-  var m = MEMBERS.find(function(x){ return x.appID===appID; });
-  if (!m) return;
-  selectedInvMember = m;
-  document.getElementById('invoiceBody').innerHTML = buildInvoiceHTML(m);
-  document.getElementById('sendInvBtn').onclick = function(){ sendInvoiceEmail(); closeModal('invoiceModal'); };
-  openModal('invoiceModal');
-}
-
+function openInvoice(appID){selInvMember(appID); showPage('invoices');}
 function buildInvoiceHTML(m) {
-  var today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
-  var dueDate = '15/05/2026';
-  return '<div class="invoice-preview">' +
-    '<div class="inv-header">' +
-      '<div class="inv-org">??? ???????????? ??? MANTHAN</div>' +
-      '<div class="inv-org-sub">MANTHAN KALA CENTRE (REGD.)</div>' +
-      '<div class="inv-org-addr">A-62, Mayfair Garden, New Delhi-110016</div>' +
-      '<div class="inv-org-addr" style="margin-top:4px;">Ph: 011-26850232 | M: 8527922395 | manthantree@gmail.com</div>' +
-    '</div>' +
-    '<div class="inv-meta">' +
-      '<div class="inv-meta-block"><div class="inv-meta-label">Serial No.</div><div class="inv-meta-val">' + (m.serialNo||' - ') + '</div></div>' +
-      '<div class="inv-meta-block"><div class="inv-meta-label">Date</div><div class="inv-meta-val">' + today + '</div></div>' +
-      '<div class="inv-meta-block"><div class="inv-meta-label">PAN</div><div class="inv-meta-val">AABTM****E</div></div>' +
-      '<div class="inv-meta-block"><div class="inv-meta-label">GSTIN</div><div class="inv-meta-val">07AABTM****D2Z9</div></div>' +
-    '</div>' +
-    '<div class="inv-bill-to">' +
-      '<div class="lbl">Bill To</div>' +
-      '<div style="font-weight:600;color:var(--navy);font-size:14px;">Membership No. ' + (m.membershipNo||' - ') + '</div>' +
-      '<div style="font-size:13px;color:var(--text-mid);margin-top:4px;">' + m.firstName+' '+m.lastName + '</div>' +
-      '<div style="font-size:13px;color:var(--text-mid);">' + (m.residentialAddress||'') + '</div>' +
-      '<div style="font-size:13px;color:var(--text-mid);">' + (m.city||'') + (m.pin?'  -  '+m.pin:'') + '</div>' +
-      '<div style="font-size:13px;color:var(--text-mid);">' + m.mobile + '</div>' +
-    '</div>' +
-    '<div class="inv-section-title">TAX INVOICE</div>' +
-    '<table class="inv-table">' +
-      '<thead><tr><th style="width:70%;">Particulars</th><th>Amount (???)</th></tr></thead>' +
-      '<tbody>' +
-        '<tr><td>Yearly Subscription for the Year 2026-27<br/><span style="font-size:11px;color:var(--text-muted);">HSN CODE-999599</span></td><td>25,000</td></tr>' +
-        '<tr><td>CGST @ 9%</td><td>2,250</td></tr>' +
-        '<tr><td>SGST @ 9%</td><td>2,250</td></tr>' +
-        '<tr class="total-row"><td>Total</td><td>29,500</td></tr>' +
-      '</tbody>' +
-    '</table>' +
-    '<div class="inv-words">Rupees Twenty-Nine Thousand Five Hundred Only</div>' +
-    '<div class="inv-note">Payment should be made before 15th May 2026, after that interest will be payable @ RS. 500 Per month till date of payment received. &nbsp;|&nbsp; Please confirm the detail of NEFT with their name on the Manthan WhatsApp number: 8527922395</div>' +
-    '<div class="inv-bank">' +
-      '<strong>Bank Account Details:</strong>' +
-      '<div>Punjab National Bank  -  05622011010738</div>' +
-      '<div>RTGS/NEFT/IFSC CODE: PUNB0035610 | Branch: New Delhi, Saket 110017</div>' +
-    '</div>' +
-    '<div class="inv-sign">' +
-      '<div></div>' +
-      '<div class="inv-sign-line">For Manthan Kala Centre<br/><br/>(Authorised Signatory)</div>' +
-    '</div>' +
-    '<div class="inv-footer">Ph.: 011-26850232 | M: 8527922395 | Email: manthantree@gmail.com</div>' +
-  '</div>';
+  var today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'});
+  return '<div style="background:#fff;border:1px solid #ddd;max-width:640px;">'+
+    '<div style="background:#8B1A1A;padding:18px 20px;text-align:center;">'+
+    '<div style="font-size:20px;font-weight:900;color:#C9A84C;font-family:Georgia,serif;letter-spacing:3px;">&#2404;&#2404; MANTHAN &#2405;&#2405;</div>'+
+    '<div style="font-size:12px;font-weight:700;color:#C9A84C;margin-top:3px;letter-spacing:1px;">MANTHAN KALA CENTRE (REGD.)</div>'+
+    '<div style="font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;">A-62, Mayfair Gardens, New Delhi-110016 | manthantree@gmail.com | 8527922395</div></div>'+
+    '<div style="display:flex;justify-content:space-between;padding:10px 16px;background:#f8f8f8;border-bottom:1px solid #eee;font-size:12px;">'+
+    '<div><span style="color:#888;">S.No. </span><strong>'+(m.serialNo||'-')+'</strong></div>'+
+    '<div><span style="color:#888;">Date </span><strong>'+today+'</strong></div>'+
+    '<div><span style="color:#888;">PAN </span><strong>AABTM****E</strong> &nbsp; <span style="color:#888;">GSTIN </span><strong>07AABTM****D2Z9</strong></div></div>'+
+    '<div style="padding:10px 16px;border-bottom:1px solid #eee;font-size:12px;">'+
+    '<div style="font-size:10px;color:#888;margin-bottom:3px;">BILL TO</div>'+
+    '<div style="font-weight:700;font-size:13px;">Membership No. '+(m.membershipNo||'-')+'</div>'+
+    '<div>'+m.firstName+' '+m.lastName+'</div><div>'+(m.residentialAddress||'')+'</div>'+
+    '<div>'+(m.city||'')+(m.pin?' - '+m.pin:'')+'</div><div>'+m.mobile+'</div></div>'+
+    '<div style="text-align:center;font-weight:700;font-size:12px;letter-spacing:2px;padding:8px;background:#f0f0f0;border-bottom:1px solid #ddd;">TAX INVOICE</div>'+
+    '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#333;"><th style="padding:8px 14px;text-align:left;color:#fff;font-size:12px;width:70%;">Particulars</th><th style="padding:8px 14px;text-align:right;color:#fff;font-size:12px;">Amount</th></tr></thead>'+
+    '<tbody><tr><td style="padding:8px 14px;font-size:12px;border-bottom:1px solid #eee;">Yearly Subscription for the Year 2026-27<br/><span style="font-size:10px;color:#888;">HSN Code: 999599</span></td><td style="padding:8px 14px;text-align:right;font-size:12px;border-bottom:1px solid #eee;">&#8377;25,000</td></tr>'+
+    '<tr><td style="padding:8px 14px;font-size:12px;border-bottom:1px solid #eee;">CGST @ 9%</td><td style="padding:8px 14px;text-align:right;font-size:12px;border-bottom:1px solid #eee;">&#8377;2,250</td></tr>'+
+    '<tr><td style="padding:8px 14px;font-size:12px;border-bottom:1px solid #eee;">SGST @ 9%</td><td style="padding:8px 14px;text-align:right;font-size:12px;border-bottom:1px solid #eee;">&#8377;2,250</td></tr>'+
+    '<tr style="background:#f8f8f8;"><td style="padding:9px 14px;font-weight:700;font-size:14px;border-top:2px solid #333;">Total</td><td style="padding:9px 14px;text-align:right;font-weight:700;font-size:14px;border-top:2px solid #333;">&#8377;29,500</td></tr></tbody></table>'+
+    '<div style="padding:8px 14px;background:#fffdf5;font-size:11px;color:#555;font-style:italic;border-bottom:1px solid #eee;">Rupees Twenty-Nine Thousand Five Hundred Only</div>'+
+    '<div style="padding:10px 14px;font-size:11px;color:#444;border-bottom:1px solid #eee;">You are requested to kindly forward the cheque/cash in favour of <strong>"MANTHAN KALA CENTRE"</strong>. Please write your Name &amp; Membership Number on the reverse of the cheque.</div>'+
+    '<div style="padding:10px 14px;background:#FEF3C7;font-size:11px;color:#92400E;">NOTE: Payment should be made before 15th May 2026, after that interest @ Rs.500/month. WhatsApp NEFT confirmation to 8527922395</div>'+
+    '<div style="padding:10px 14px;font-size:11.5px;color:#444;border-top:1px solid #eee;"><strong>Bank Account Details:</strong><br/>Punjab National Bank - 05622011010738 | RTGS/NEFT IFSC: PUNB0035610 | Branch: New Delhi, Saket 110017</div>'+
+    '<div style="display:flex;justify-content:space-between;padding:12px 14px 14px;"><div></div><div style="text-align:center;border-top:1px solid #555;padding-top:4px;font-size:10px;color:#666;width:140px;">For Manthan Kala Centre<br/>(Authorised Signatory)</div></div>'+
+    '<div style="background:#8B1A1A;color:rgba(255,255,255,0.6);text-align:center;padding:8px;font-size:11px;">Ph.: 011-26850232 | M: 8527922395 | Email: manthantree@gmail.com</div></div>';
 }
-
-function sendInvoiceToMember(m) {
-  if (!m) return;
-  if (GAS_URL !== 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
-    jsonpGet(GAS_URL + '?action=sendInvoice&appID=' + encodeURIComponent(m.appID),
-      function(err, d) {
-        if (err) {
-          alert('Could not send invoice email.\n' + err.message);
-          return;
-        }
-        m.invoiceSent = true;
-        renderInvoiceList();
-        document.getElementById('emailSentMsg').textContent = 'Tax Invoice sent to ' + m.email + ' successfully!';
-        openModal('emailSentModal');
-      }
-    );
+function sendInvoiceEmail(m) {
+  if(!m) return;
+  if(GAS_URL!=='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'){
+    jsonpGet(GAS_URL+'?action=sendInvoice&appID='+encodeURIComponent(m.appID)).then(function(r){
+      m.invoiceSent=true; renderInvList();
+      showOK('Invoice sent to '+m.email+' successfully!');
+    });
   } else {
-    // Demo mode
-    m.invoiceSent = true;
-    renderInvoiceList();
-    document.getElementById('emailSentMsg').textContent = 'Invoice sent to ' + m.email + ' (demo mode  -  set GAS_URL to send real emails)';
-    openModal('emailSentModal');
+    m.invoiceSent=true; renderInvList();
+    showOK('Invoice sent to '+m.email+' (demo mode)');
   }
 }
 
-function sendInvoiceEmail() {
-  if (!selectedInvMember) return;
-  sendInvoiceToMember(selectedInvMember);
-}
-
-// -- REPORTS --
+// ---- REPORTS ----
 function renderReports() {
-  var active = MEMBERS.filter(function(m){ return isActive(m.status); });
-  var gross = active.length * 29500;
-  var base = active.length * 25000;
-  var gst = active.length * 2250;
-  document.getElementById('rptTotal').textContent = '???' + gross.toLocaleString('en-IN');
-  document.getElementById('rptBase').textContent = '???' + base.toLocaleString('en-IN');
-  document.getElementById('rptCGST').textContent = '???' + gst.toLocaleString('en-IN');
-  document.getElementById('rptSGST').textContent = '???' + gst.toLocaleString('en-IN');
-
-  // Interest chart
-  var interestMap = {};
-  MEMBERS.forEach(function(m){ (m.interests||'').split(',').forEach(function(i){ var t=i.trim(); if(t){ interestMap[t]=(interestMap[t]||0)+1; } }); });
-  var interestArr = Object.keys(interestMap).map(function(k){ return {k:k,v:interestMap[k]}; }).sort(function(a,b){ return b.v-a.v; }).slice(0,6);
-  var imax = interestArr.length ? interestArr[0].v : 1;
-  document.getElementById('interestChart').innerHTML = interestArr.map(function(item){
-    return '<div class="chart-bar-row"><div class="chart-bar-label" style="width:130px;font-size:11px;">'+item.k+'</div>' +
-      '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:'+Math.round((item.v/imax)*100)+'%;background:var(--blue-accent);"></div></div>' +
-      '<div class="chart-bar-val">'+item.v+'</div></div>';
-  }).join('');
-
-  // Payment method chart
-  var payMap = {};
-  MEMBERS.forEach(function(m){ var p=m.paymentMethod||'Unknown'; payMap[p]=(payMap[p]||0)+1; });
-  var payArr = Object.keys(payMap).map(function(k){ return {k:k,v:payMap[k]}; }).sort(function(a,b){ return b.v-a.v; });
-  var pmax = payArr.length ? payArr[0].v : 1;
-  document.getElementById('paymentChart').innerHTML = payArr.map(function(item){
-    return '<div class="chart-bar-row"><div class="chart-bar-label" style="width:130px;font-size:11px;">'+item.k+'</div>' +
-      '<div class="chart-bar-bg"><div class="chart-bar-fill" style="width:'+Math.round((item.v/pmax)*100)+'%;background:var(--gold);"></div></div>' +
-      '<div class="chart-bar-val">'+item.v+'</div></div>';
-  }).join('');
-
-  // Full table
-  document.getElementById('reportTableBody').innerHTML = MEMBERS.map(function(m){
-    return '<tr><td class="td-id">'+m.appID+'</td><td class="td-name">'+m.firstName+' '+m.lastName+'</td>' +
-      '<td>'+m.email+'</td><td>'+m.mobile+'</td><td>'+m.city+'</td>' +
-      '<td>Annual</td><td>???25,000</td><td>???4,500</td><td>???29,500</td>' +
-      '<td><span class="badge badge-'+statusClass(m.status)+'">'+statusLabel(m.status)+'</span></td>' +
-      '<td style="font-size:12px;">'+m.submittedAt+'</td></tr>';
+  var act=MEMBERS.filter(function(m){return isAct(m.status);}).length;
+  document.getElementById('rGross').textContent='Rs.'+(act*29500).toLocaleString('en-IN');
+  document.getElementById('rCGST').textContent='Rs.'+(act*2250).toLocaleString('en-IN');
+  document.getElementById('rSGST').textContent='Rs.'+(act*2250).toLocaleString('en-IN');
+  document.getElementById('rBase').textContent='Rs.'+(act*25000).toLocaleString('en-IN');
+  document.getElementById('rptBody').innerHTML=MEMBERS.map(function(m){
+    return '<tr><td class="td-id">'+m.appID+'</td><td class="td-name">'+m.firstName+' '+m.lastName+'</td>'+
+      '<td>'+m.email+'</td><td>'+m.mobile+'</td><td>'+m.city+'</td>'+
+      '<td>'+(m.paymentMethod||'-')+'</td><td>Rs.'+Number(m.amountPaid||0).toLocaleString('en-IN')+'</td>'+
+      '<td><span class="badge badge-'+sc(m.status)+'">'+sl(m.status)+'</span></td>'+
+      '<td style="font-size:11px;">'+m.submittedAt+'</td></tr>';
   }).join('');
 }
-
 function exportCSV() {
-  var headers = ['App ID','First Name','Last Name','Email','Mobile','City','PIN','Membership','Base Amount','CGST','SGST','Total','Payment Method','Payment Ref','Status','Date'];
-  var rows = MEMBERS.map(function(m){
-    return [m.appID, m.firstName, m.lastName, m.email, m.mobile, m.city, m.pin, 'Annual', 25000, 2250, 2250, 29500, m.paymentMethod, m.paymentRef, m.status, m.submittedAt];
-  });
-  var csv = [headers].concat(rows).map(function(r){ return r.map(function(c){ return '"'+String(c||'').replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
-  var blob = new Blob([csv], {type:'text/csv'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a'); a.href=url; a.download='MKC_Members.csv'; a.click();
-  URL.revokeObjectURL(url);
+  var hdrs=['App ID','Name','Email','Mobile','City','Payment Method','Amount','Status','Date'];
+  var rows=MEMBERS.map(function(m){return [m.appID,m.firstName+' '+m.lastName,m.email,m.mobile,m.city,m.paymentMethod,m.amountPaid||0,sl(m.status),m.submittedAt];});
+  var csv=[hdrs].concat(rows).map(function(r){return r.map(function(c){return '"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='MKC_Members.csv'; a.click();
 }
 
-// -- EMAIL --
-function renderEmailRecipients() {
-  var sel = document.getElementById('emailRecipients');
-  MEMBERS.filter(function(m){ return m.status==='Active'; }).forEach(function(m){
-    var opt = new Option(m.firstName+' '+m.lastName+' <'+m.email+'>', m.appID);
-    sel.appendChild(opt);
-  });
+// ---- SETTINGS ----
+function renderSettings() {
+  var inp=document.getElementById('gasUrlInput');
+  if(inp) inp.value=GAS_URL==='https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec'?'':GAS_URL;
+}
+function saveGasUrl() {
+  var v=document.getElementById('gasUrlInput').value.trim();
+  if(!v||!v.startsWith('https://script.google.com')){ alert('Please enter a valid Google Apps Script URL.'); return; }
+  GAS_URL=v; localStorage.setItem('mkc_gas_url',v);
+  document.getElementById('urlSaved').style.display='block';
+}
+function saveCredentials() {
+  var u=document.getElementById('newUser').value.trim();
+  var p=document.getElementById('newPass').value;
+  if(!u||!p){ alert('Enter both username and password.'); return; }
+  ADMIN_U=u; ADMIN_P=p;
+  localStorage.setItem('mkc_admin_u',u); localStorage.setItem('mkc_admin_p',p);
+  document.getElementById('credSaved').style.display='block';
 }
 
-var EMAIL_TEMPLATES = {
-  verify: { subject:'Your Manthan Kala Centre Membership is Activated!', body:'Dear {name},\n\nWe are pleased to inform you that your membership with Manthan Kala Centre (Regd.) has been verified and activated.\n\nMembership No: {memberNo}\nApplication ID: {appID}\n\nPlease find your Tax Invoice attached.\n\nWe look forward to your active participation in our cultural activities.\n\nWarm regards,\nManthan Kala Centre\nA-62, Mayfair Garden, New Delhi-110016\nPh: 011-26850232 | M: 8527922395' },
-  welcome: { subject:'Welcome to Manthan Kala Centre!', body:'Dear {name},\n\nA warm welcome to the Manthan Kala Centre family!\n\nWe are a registered cultural organization dedicated to promotion of Indian arts and culture.\n\nYour membership opens doors to exclusive cultural events, workshops, and performances.\n\nWarm regards,\nManthan Kala Centre' },
-  renewal: { subject:'Membership Renewal Reminder  -  Manthan Kala Centre', body:'Dear {name},\n\nThis is a friendly reminder that your annual membership subscription is due.\n\nPlease make payment of ???29,500 (incl. GST) before 15th May 2026 to avoid late charges.\n\nBank: Punjab National Bank | A/C: 05622011010738 | IFSC: PUNB0035610\n\nPlease WhatsApp payment confirmation to 8527922395.\n\nWarm regards,\nManthan Kala Centre' },
-  receipt: { subject:'Payment Received  -  Manthan Kala Centre', body:'Dear {name},\n\nWe have received your payment of ???29,500 for Annual Membership 2026-27.\n\nYour membership is being processed. You will receive your Tax Invoice shortly.\n\nFor any queries: manthantree@gmail.com\n\nWarm regards,\nManthan Kala Centre' },
-};
-function loadTemplate(key) {
-  var t = EMAIL_TEMPLATES[key];
-  if (!t) return;
-  document.getElementById('emailSubject').value = t.subject;
-  document.getElementById('emailBody').value = t.body;
-  previewEmail();
-}
-function previewEmail() {
-  var subj = document.getElementById('emailSubject').value;
-  var body = document.getElementById('emailBody').value.replace(/\n/g,'<br/>');
-  document.getElementById('emailPreview').innerHTML =
-    '<div style="background:var(--navy);color:var(--gold);padding:10px 14px;border-radius:6px 6px 0 0;font-size:13px;font-weight:600;margin:-1.25rem -1.25rem 1rem;">' + subj + '</div>' +
-    '<div style="font-size:13.5px;line-height:1.8;color:var(--text-mid);">' + body + '</div>';
-}
-function sendEmail() { openModal('emailSentModal'); document.getElementById('emailSentMsg').textContent = 'Email sent to selected recipients!'; }
+// ---- MODAL HELPERS ----
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showOK(msg){document.getElementById('okMsg').textContent=msg;openModal('okModal');}
 
-// -- SETTINGS --
-function saveSettings() { alert('Settings saved! (In production, this updates your configuration.)'); }
+// ---- STATUS HELPERS ----
+function isPend(s){s=String(s||'').toLowerCase().trim();return s==='pending'||s==='pending verification';}
+function isAct(s){return String(s||'').toLowerCase().trim()==='active';}
+function isRej(s){return String(s||'').toLowerCase().trim()==='rejected';}
+function sc(s){return isAct(s)?'green':isPend(s)?'warn':isRej(s)?'red':'blue';}
+function sl(s){return isAct(s)?'Active':isPend(s)?'Pending Verification':isRej(s)?'Rejected':s;}
 
-// -- MODAL HELPERS --
-function openModal(id) { document.getElementById(id).classList.add('open'); _detCount=0; }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// -- STATUS HELPERS --
-// Google Sheets stores "Pending Verification", form uses "Pending"  -  normalise both
-function isPending(s) {
-  s = (s || '').toLowerCase().trim();
-  return s === 'pending' || s === 'pending verification';
-}
-function isActive(s)   { return (s || '').toLowerCase().trim() === 'active'; }
-function isRejected(s) { return (s || '').toLowerCase().trim() === 'rejected'; }
-
-function statusClass(s) {
-  if (isActive(s))   return 'success';
-  if (isPending(s))  return 'warning';
-  if (isRejected(s)) return 'danger';
-  return 'info';
-}
-
-// Normalise status for consistent display
-function statusLabel(s) {
-  if (isActive(s))   return 'Active';
-  if (isPending(s))  return 'Pending Verification';
-  if (isRejected(s)) return 'Rejected';
-  return s || 'Unknown';
-}
-
-
+// ---- INIT ----
+(function(){
+  var style=document.createElement('style');
+  style.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}';
+  document.head.appendChild(style);
+  // Close modal on bg click
+  document.querySelectorAll('.modal-bg').forEach(function(b){b.addEventListener('click',function(e){if(e.target===b)b.classList.remove('open');});});
+  // Check session
+  if(sessionStorage.getItem(SESSION)==='1'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appShell').style.display='block';
+    loadData(renderDashboard);
+  } else {
+    document.getElementById('loginUser').focus();
+  }
+})();
 </script>
-</div><!-- end appShell -->
 </body>
 </html>
