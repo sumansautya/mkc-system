@@ -200,7 +200,7 @@ function jsonpGet(url, timeoutMs) {
 // ?????? CHUNKED FILE UPLOAD ??????
 function uploadFileInChunks(fileObj, appID, label) {
   if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
-  if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') return Promise.resolve('');
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') return Promise.resolve('');
 
   var b64   = fileObj.dataUrl.split(',')[1];
   var mime  = fileObj.mime  || 'image/jpeg';
@@ -303,7 +303,7 @@ function submitForm() {
       photoSpouseLink:  driveLinks.photoSpouse || ''
     };
 
-    if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+    if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec') {
       console.log('DEMO mode:', data);
       showSuccess(appID);
       return Promise.resolve();
