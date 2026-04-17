@@ -134,9 +134,9 @@
       padding: 3px 10px; border-radius: 20px;
     }
     .photo-change-btn {
-      font-size: 10px; color: var(--blue-accent); cursor: pointer;
+      font-size: 11px; color: var(--blue-accent); cursor: pointer;
       background: none; border: none; padding: 0; text-decoration: underline;
-      display: none; margin-top: 0;
+      display: none; margin-top: 0; text-align: center;
     }
     .photo-slot.has-photo .photo-change-btn { display: block; }
 
@@ -184,7 +184,7 @@
   <div class="reg-header">
     <div class="reg-logo-mark">🎵</div>
     <div class="reg-org">॥ Manthan ॥</div>
-    <div class="reg-sub">Manthan Kala Centre (Registered)</div>
+    <div class="reg-sub">Manthan Kala Centre (Regd.)</div>
     <div class="reg-tagline">A-62, Mayfair Garden, New Delhi – 110016</div>
     <div class="reg-addr">Ph: 011-26850232 &nbsp;|&nbsp; M: 8527922395 &nbsp;|&nbsp; manthantree@gmail.com</div>
   </div>
@@ -233,40 +233,40 @@
 
           <!-- Self -->
           <div class="photo-slot" id="photoSlot-self">
-            <div class="photo-box" id="photoBox-self"
-                 onclick="document.getElementById('photoInput-self').click()"
-                 title="Upload your passport photo">
-              <div class="photo-box-placeholder">
-                <span class="ph-icon">🧑</span>
-                <div class="ph-text">Tap to upload<br/>your photo</div>
+            <label for="photoInput-self" style="width:100%;cursor:pointer;display:block;">
+              <div class="photo-box" id="photoBox-self" title="Click to upload your passport photo">
+                <div class="photo-box-placeholder">
+                  <span class="ph-icon">🧑</span>
+                  <div class="ph-text">Tap to upload<br/>your photo</div>
+                </div>
               </div>
-            </div>
+            </label>
             <input type="file" id="photoInput-self" accept="image/*"
-                   style="display:none;" onchange="handlePhoto('self',this)"/>
+                   style="display:none;"
+                   onchange="handlePhoto('self',this)"/>
             <div class="photo-tag">&#128100; Self</div>
-            <button class="photo-change-btn"
-                    onclick="document.getElementById('photoInput-self').click()">
+            <label for="photoInput-self" class="photo-change-btn" id="photoChangeBtn-self">
               Change photo
-            </button>
+            </label>
           </div>
 
           <!-- Spouse -->
           <div class="photo-slot" id="photoSlot-spouse">
-            <div class="photo-box" id="photoBox-spouse"
-                 onclick="document.getElementById('photoInput-spouse').click()"
-                 title="Upload spouse passport photo">
-              <div class="photo-box-placeholder">
-                <span class="ph-icon">🧑</span>
-                <div class="ph-text">Tap to upload<br/>spouse photo</div>
+            <label for="photoInput-spouse" style="width:100%;cursor:pointer;display:block;">
+              <div class="photo-box" id="photoBox-spouse" title="Click to upload spouse passport photo">
+                <div class="photo-box-placeholder">
+                  <span class="ph-icon">🧑</span>
+                  <div class="ph-text">Tap to upload<br/>spouse photo</div>
+                </div>
               </div>
-            </div>
+            </label>
             <input type="file" id="photoInput-spouse" accept="image/*"
-                   style="display:none;" onchange="handlePhoto('spouse',this)"/>
+                   style="display:none;"
+                   onchange="handlePhoto('spouse',this)"/>
             <div class="photo-tag">&#128100; Spouse</div>
-            <button class="photo-change-btn"
-                    onclick="document.getElementById('photoInput-spouse').click()">
+            <label for="photoInput-spouse" class="photo-change-btn" id="photoChangeBtn-spouse">
               Change photo
-            </button>
+            </label>
           </div>
 
         </div><!-- end photo-boxes-row -->
