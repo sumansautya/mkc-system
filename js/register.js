@@ -1,6 +1,5 @@
 // MKC Registration Form - register.js
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzyYtmDzlW4R4wEPHbA4qixVVmHrAZ8dfWWg8kFif_4ab5u9rcjEnkqIREOb2KlV71/exec
-';
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdCnfn5rom6ya96g97zsS3ODtzlpolVAuyKqIZVuEh7GavQRuLiZk6KMCrPxf3cVfH/exec';
 
 var currentStep  = 1;
 var uploadedFile = null;
