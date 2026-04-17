@@ -13,37 +13,70 @@ var driveLinks   = { receipt: '', photoSelf: '', photoSpouse: '' };
 
 // ── PHOTO HANDLER ──
 function handlePhoto(who, input) {
-  var file = input.files[0];
+  var file = input.files && input.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { alert('Photo too large. Max 2MB.'); input.value=''; return; }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Photo too large. Maximum 2MB allowed.'); input.value=''; return;
+  }
   var reader = new FileReader();
   reader.onload = function(e) {
     photoData[who] = { dataUrl: e.target.result, name: file.name, mime: file.type };
-    var box = document.getElementById('photoBox-' + who);
+    var box  = document.getElementById('photoBox-' + who);
     var slot = document.getElementById('photoSlot-' + who);
+    if (!box || !slot) return;
+    // Remove old preview if any
     var old = box.querySelector('img');
     if (old) old.remove();
-    var img = document.createElement('img');
-    img.src = e.target.result; img.alt = who;
+    // Create new preview image
+    var img     = document.createElement('img');
+    img.src     = e.target.result;
+    img.alt     = who + ' photo';
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px;z-index:2;';
     box.appendChild(img);
     box.classList.add('has-photo');
     slot.classList.add('has-photo');
   };
+  reader.onerror = function() {
+    alert('Could not read the photo file. Please try again.');
+  };
   reader.readAsDataURL(file);
 }
 
+// Attach change listeners via JS as backup (in addition to onchange attribute)
+document.addEventListener('DOMContentLoaded', function() {
+  ['self','spouse'].forEach(function(who) {
+    var inp = document.getElementById('photoInput-' + who);
+    if (inp) {
+      inp.addEventListener('change', function() {
+        handlePhoto(who, this);
+      });
+    }
+  });
+  // Also attach receipt change listener
+  var rec = document.getElementById('receiptFile');
+  if (rec) {
+    rec.addEventListener('change', function() {
+      handleUpload(this);
+    });
+  }
+});
+
 // ── RECEIPT HANDLER ──
 function handleUpload(input) {
-  var file = input.files[0];
+  var file = input.files && input.files[0];
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); input.value=''; return; }
   var reader = new FileReader();
   reader.onload = function(e) {
     uploadedFile = { dataUrl: e.target.result, name: file.name, mime: file.type };
-    document.getElementById('uploadPreview').style.display = 'flex';
-    document.getElementById('uploadName').textContent = file.name;
-    document.getElementById('uploadZone').style.display = 'none';
+    var prev = document.getElementById('uploadPreview');
+    var zone = document.getElementById('uploadZone');
+    var name = document.getElementById('uploadName');
+    if (prev) prev.style.display = 'flex';
+    if (zone) zone.style.display = 'none';
+    if (name) name.textContent = file.name;
   };
+  reader.onerror = function() { alert('Could not read the file. Please try again.'); };
   reader.readAsDataURL(file);
 }
 
