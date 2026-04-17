@@ -202,7 +202,7 @@
   <div class="reg-header">
     <div class="reg-logo-mark">🎵</div>
     <div class="reg-org">॥ Manthan ॥</div>
-    <div class="reg-sub">Manthan Kala Centre (Regdd.)</div>
+    <div class="reg-sub">Manthan Kala Centre (Regd.)</div>
     <div class="reg-tagline">A-62, Mayfair Garden, New Delhi – 110016</div>
     <div class="reg-addr">Ph: 011-26850232 &nbsp;|&nbsp; M: 8527922395 &nbsp;|&nbsp; manthantree@gmail.com</div>
   </div>
@@ -559,8 +559,9 @@
 
 <script>
 // MKC Registration Form - register.js
-var SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
-
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2R9WL7mCyHiYpEG32wGveIFTIZwmKuvpVXccnBHKwXLjN-_VLME05RcclV7tKplvC/exec
+';
+YOUR_
 var currentStep  = 1;
 var uploadedFile = null;
 var photoData    = { self: null, spouse: null };
@@ -760,7 +761,8 @@ function jsonpGet(url, timeoutMs) {
 // ?????? CHUNKED FILE UPLOAD ??????
 function uploadFileInChunks(fileObj, appID, label) {
   if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
-  if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') return Promise.resolve('');
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycby2R9WL7mCyHiYpEG32wGveIFTIZwmKuvpVXccnBHKwXLjN-_VLME05RcclV7tKplvC/exec
+') return Promise.resolve('');
 
   var b64   = fileObj.dataUrl.split(',')[1];
   var mime  = fileObj.mime  || 'image/jpeg';
@@ -863,7 +865,8 @@ function submitForm() {
       photoSpouseLink:  driveLinks.photoSpouse || ''
     };
 
-    if (SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+    if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycby2R9WL7mCyHiYpEG32wGveIFTIZwmKuvpVXccnBHKwXLjN-_VLME05RcclV7tKplvC/exec
+') {
       console.log('DEMO mode:', data);
       showSuccess(appID);
       return Promise.resolve();
