@@ -446,13 +446,13 @@ function viewMember(appID) {
     '<div style="font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Passport Photographs</div>'+
     '<div style="display:flex;gap:20px;flex-wrap:wrap;">'+selfThumb+spouseThumb+'</div></div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin-bottom:1rem;">'+
-    dr('App ID',m.appID)+dr('Date of Birth',m.dob||'-')+
+    dr('App ID',m.appID)+dr('Date of Birth',fmtDate(m.dob))+
     dr('Gender',m.gender||'-')+dr('Occupation',m.occupation||'-')+
     dr('City / PIN',(m.city||'')+(m.pin?' - '+m.pin:''))+dr('WhatsApp',m.whatsapp||'-')+
-    dr('Spouse',m.spouseName||'-')+dr('Anniversary',m.anniversary||'-')+
+    dr('Spouse',m.spouseName||'-')+dr('Anniversary',fmtDate(m.anniversary))+
     dr('Interests',m.interests||'-')+dr('Referred By',m.referredBy||'-')+
     dr('Payment Method',m.paymentMethod||'-')+dr('Payment Ref',m.paymentRef||'-')+
-    dr('Payment Date',m.paymentDate||'-')+dr('Amount Paid','Rs.'+Number(m.amountPaid||0).toLocaleString('en-IN'))+
+    dr('Payment Date',fmtDate(m.paymentDate))+dr('Amount Paid','Rs.'+Number(m.amountPaid||0).toLocaleString('en-IN'))+
     dr('Invoice Sent',m.invoiceSent?'Yes':'No')+dr('Submitted At',m.submittedAt||'-')+
     '</div>'+
     '<div style="background:var(--ivory2);border-radius:var(--radius);padding:12px 14px;">'+
@@ -472,6 +472,28 @@ function dr(lbl,val){
   return '<div style="padding:8px 0;border-bottom:1px solid var(--iborder);padding-right:1rem;">'+
     '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#7A8BA8;margin-bottom:2px;">'+lbl+'</div>'+
     '<div style="font-size:13.5px;color:var(--navy);font-weight:500;">'+(val||'-')+'</div></div>';
+}
+
+// Format any date value cleanly (handles ISO, JS Date string, dd/mm/yyyy etc.)
+function fmtDate(val) {
+  if (!val || val === '-') return '-';
+  // If it's already a clean date string like 1966-04-09, format it nicely
+  var iso = val.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return iso[3] + ' ' + months[parseInt(iso[2],10)-1] + ' ' + iso[1];
+  }
+  // If it contains GMT or long JS date string, parse and reformat
+  if (val.indexOf('GMT') >= 0 || val.indexOf('00:00:00') >= 0) {
+    try {
+      var d = new Date(val);
+      if (!isNaN(d.getTime())) {
+        var months2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return d.getDate() + ' ' + months2[d.getMonth()] + ' ' + d.getFullYear();
+      }
+    } catch(e) {}
+  }
+  return val;
 }
 function thumb(link, lbl) {
   var fid=''; var m1=link.match(/\/d\/([a-zA-Z0-9_-]+)/); var m2=link.match(/id=([a-zA-Z0-9_-]+)/);
