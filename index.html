@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Manthan Kala Centre - Membership Registration</title>
+<title>Manthan Kala Centre --- Membership Registration</title>
 <link rel="stylesheet" href="css/style.css"/>
 <style>
 body{background:var(--ivory);min-height:100vh;}
@@ -14,7 +14,6 @@ body{background:var(--ivory);min-height:100vh;}
 .rhdr-org{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);margin-bottom:4px;}
 .rhdr-sub{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:2px;text-transform:uppercase;}
 .rhdr-addr{font-size:12px;color:rgba(255,255,255,0.4);margin-top:6px;}
-/* stepper */
 .stepper{display:flex;align-items:flex-start;margin-bottom:2rem;padding:0 1rem;}
 .s-item{display:flex;flex-direction:column;align-items:center;flex:1;}
 .s-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;transition:all 0.3s;flex-shrink:0;}
@@ -25,86 +24,34 @@ body{background:var(--ivory);min-height:100vh;}
 .s-lbl.active{color:var(--navy);font-weight:600;}
 .s-line{flex:1;height:2px;background:var(--iborder);margin:16px 4px 0;}
 .s-line.done{background:var(--green);}
-/* section header */
 .sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:10px;border-bottom:2px solid var(--iborder);}
 .sec-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .sec-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--navy);}
-/* photo upload */
-.photo-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.photo-slot{display:flex;flex-direction:column;align-items:center;gap:6px;}
-.photo-wrap{
-  width:100%;
-  height:160px;
-  position:relative;
-  border:2px dashed var(--iborder);
-  border-radius:10px;
-  background:var(--ivory2);
-  overflow:hidden;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.photo-wrap:hover{border-color:var(--blue);}
-.photo-wrap.loaded{border-style:solid;border-color:var(--navy);background:#fff;}
-.photo-input{
-  position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
-  opacity:0;
-  cursor:pointer;
-  z-index:5;
-  font-size:0;
-  margin:0;padding:0;
-}
-.photo-preview{
-  position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  z-index:3;
-  display:none;
-  border-radius:8px;
-}
-.photo-placeholder{text-align:center;position:relative;z-index:1;pointer-events:none;}
-.photo-placeholder .ico{font-size:24px;display:block;margin-bottom:6px;}
-.photo-placeholder .txt{font-size:10px;color:#7A8BA8;line-height:1.5;}
-.photo-lbl{background:var(--navy);color:var(--gold);font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 12px;border-radius:20px;margin-top:2px;}
-/* fee box */
 .fee-box{background:var(--navy);color:#fff;border-radius:var(--radius2);padding:1.25rem 1.5rem;margin-top:1rem;}
 .fee-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;}
 .fee-total{border-top:1px solid rgba(255,255,255,0.2);margin-top:6px;padding-top:10px;font-size:18px;font-weight:700;color:var(--gold);}
-/* bank box */
 .bank-box{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--radius);padding:1rem 1.25rem;font-size:13px;color:var(--navy2);}
 .bank-box strong{color:var(--navy);display:block;margin-bottom:6px;}
-/* upload zone */
-.upload-zone{border:2px dashed var(--iborder);border-radius:var(--radius2);padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--ivory2);}
-.upload-zone:hover{border-color:var(--blue);background:#EFF6FF;}
-.upload-preview{background:var(--green-bg);border:1.5px solid #A7F3D0;border-radius:var(--radius);padding:10px 14px;display:none;align-items:center;gap:10px;font-size:13px;color:var(--green);margin-top:10px;}
-/* btn row */
 .btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;}
-/* step content */
 .step-content{animation:fadeIn 0.3s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-/* summary */
 .sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
 .sum-cell{padding:8px 0;border-bottom:1px solid var(--iborder);}
 .sum-cell:nth-child(odd){padding-right:1rem;}
 .sum-cell:nth-child(even){padding-left:1rem;border-left:1px solid var(--iborder);}
 .sum-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;color:#7A8BA8;margin-bottom:2px;}
 .sum-val{font-size:14px;color:var(--navy);font-weight:500;}
-/* success */
 .success-wrap{text-align:center;padding:2.5rem 1.5rem;}
 .success-ring{width:72px;height:72px;border-radius:50%;background:var(--green-bg);border:3px solid var(--green);color:var(--green);font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;}
 .success-id{display:inline-block;background:var(--navy);color:var(--gold);font-size:20px;font-weight:700;padding:10px 24px;border-radius:var(--radius);letter-spacing:2px;margin:1rem 0;}
 .next-box{background:var(--ivory2);border-radius:var(--radius2);padding:1.25rem;text-align:left;margin-top:1.25rem;}
-.next-box p{font-size:13px;color:#3A4A6B;padding:3px 0;}
+.next-box p{font-size:13px;color:#3A4A6B;padding:4px 0;}
+.wa-box{background:var(--green-bg);border:1.5px solid #A7F3D0;border-radius:var(--radius);padding:12px 16px;margin-top:12px;font-size:13px;color:var(--green);}
 </style>
 </head>
 <body>
 <div class="rpage">
 
-<!-- HEADER -->
 <div class="rhdr">
   <div class="rhdr-icon">&#127925;</div>
   <div class="rhdr-org">&#2404;&#2404; Manthan &#2405;&#2405;</div>
@@ -112,7 +59,6 @@ body{background:var(--ivory);min-height:100vh;}
   <div class="rhdr-addr">A-62, Mayfair Garden, New Delhi-110016 &nbsp;|&nbsp; Ph: 011-26850232 &nbsp;|&nbsp; 8527922395</div>
 </div>
 
-<!-- STEPPER -->
 <div class="stepper" id="stepper">
   <div class="s-item"><div class="s-dot active" id="sd1">1</div><div class="s-lbl active" id="sl1">Personal</div></div>
   <div class="s-line" id="ln1"></div>
@@ -125,33 +71,8 @@ body{background:var(--ivory);min-height:100vh;}
   <div class="s-item"><div class="s-dot pend" id="sd5">5</div><div class="s-lbl" id="sl5">Submit</div></div>
 </div>
 
-<!-- STEP 1: PERSONAL -->
+<!-- STEP 1 -->
 <div id="step1" class="step-content">
-  <div class="card">
-    <div class="sec-hdr"><div class="sec-num">&#128247;</div><div class="sec-title">Passport Size Photographs</div></div>
-    <div class="photo-row">
-      <div class="photo-slot">
-        <div class="photo-wrap" id="pw-self">
-          <input type="file" class="photo-input" id="pi-self" accept="image/*"/>
-          <img class="photo-preview" id="pp-self" alt="Self photo"/>
-          <div class="photo-placeholder"><span class="ico">&#128100;</span><div class="txt">Tap to upload<br/>your photo</div></div>
-        </div>
-        <div class="photo-lbl">Self</div>
-      </div>
-      <div class="photo-slot">
-        <div class="photo-wrap" id="pw-spouse">
-          <input type="file" class="photo-input" id="pi-spouse" accept="image/*"/>
-          <img class="photo-preview" id="pp-spouse" alt="Spouse photo"/>
-          <div class="photo-placeholder"><span class="ico">&#128100;</span><div class="txt">Tap to upload<br/>spouse photo</div></div>
-        </div>
-        <div class="photo-lbl">Spouse</div>
-      </div>
-    </div>
-    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:8px 12px;font-size:12px;color:var(--navy2);margin-bottom:1rem;">
-      Recent, clear, front-facing &nbsp;|&nbsp; White/light background &nbsp;|&nbsp; JPG/PNG, max 2MB &nbsp;|&nbsp; Used for Manthan Directory
-    </div>
-  </div>
-
   <div class="card">
     <div class="sec-hdr"><div class="sec-num">1</div><div class="sec-title">Personal Information</div></div>
     <div class="form-grid">
@@ -186,10 +107,20 @@ body{background:var(--ivory);min-height:100vh;}
     </div>
     <div class="field"><label>Office Address <span style="color:#7A8BA8;font-weight:400;">(optional)</span></label><textarea id="oaddr" placeholder="Office/work address..."></textarea></div>
   </div>
+
+  <div class="card">
+    <div class="sec-hdr"><div class="sec-num">&#128247;</div><div class="sec-title">Passport Size Photographs</div></div>
+    <div class="wa-box">
+      <strong style="display:block;margin-bottom:4px;font-size:13px;font-weight:600;">Please WhatsApp your photographs to the office</strong>
+      Send 2 recent passport size photos (Self + Spouse) on WhatsApp: <strong>8527922395</strong><br/>
+      <span style="font-size:11px;color:#166534;">White/light background &nbsp;|&nbsp; Clear, front-facing &nbsp;|&nbsp; Used for Manthan Directory</span>
+    </div>
+  </div>
+
   <div class="btn-row"><button class="btn btn-navy" onclick="goStep(2)">Next: Family Details &rarr;</button></div>
 </div>
 
-<!-- STEP 2: FAMILY -->
+<!-- STEP 2 -->
 <div id="step2" class="step-content" style="display:none;">
   <div class="card">
     <div class="sec-hdr"><div class="sec-num">2</div><div class="sec-title">Family Details</div></div>
@@ -222,7 +153,7 @@ body{background:var(--ivory);min-height:100vh;}
   </div>
 </div>
 
-<!-- STEP 3: MEMBERSHIP -->
+<!-- STEP 3 -->
 <div id="step3" class="step-content" style="display:none;">
   <div class="card">
     <div class="sec-hdr"><div class="sec-num">3</div><div class="sec-title">Membership Type</div></div>
@@ -251,7 +182,7 @@ body{background:var(--ivory);min-height:100vh;}
   </div>
 </div>
 
-<!-- STEP 4: PAYMENT -->
+<!-- STEP 4 -->
 <div id="step4" class="step-content" style="display:none;">
   <div class="card">
     <div class="sec-hdr"><div class="sec-num">4</div><div class="sec-title">Payment Details</div></div>
@@ -266,28 +197,29 @@ body{background:var(--ivory);min-height:100vh;}
       <div style="margin-top:8px;font-size:11px;color:#7A8BA8;">Also payable via cheque/cash in favour of "MANTHAN KALA CENTRE". Write Name &amp; Membership No. on reverse of cheque.</div>
       <div style="margin-top:6px;background:var(--warn-bg);padding:6px 10px;border-radius:6px;font-size:11px;color:var(--warn);">Payment due before 15th May. Interest @ Rs.500/month after due date. WhatsApp NEFT details to 8527922395</div>
     </div>
+
     <div class="field" style="margin-top:1rem;">
       <label>Payment Method <span class="req">*</span></label>
-      <select id="paymethod"><option value="">Select method</option><option>NEFT / RTGS / IMPS</option><option>UPI / GPay / PhonePe</option><option>Cheque</option><option>Cash at Office</option></select>
+      <select id="paymethod">
+        <option value="">Select method</option>
+        <option>NEFT / RTGS / IMPS</option>
+        <option>UPI / GPay / PhonePe</option>
+        <option>Cheque</option>
+        <option>Cash at Office</option>
+      </select>
     </div>
     <div class="form-grid">
       <div class="field" id="f-payref"><label>Transaction / UTR Reference <span class="req">*</span></label><input type="text" id="payref" placeholder="Transaction reference number"/><div class="err-msg">Required</div></div>
       <div class="field"><label>Payment Date</label><input type="date" id="paydate"/></div>
     </div>
     <div class="field"><label>Amount Paid (Rs.)</label><input type="number" id="payamt" value="29500"/></div>
+
     <div class="field">
-      <label>Upload Payment Receipt / Screenshot <span class="req">*</span></label>
-      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('receiptFile').click()">
-        <div style="font-size:28px;margin-bottom:8px;">&#128206;</div>
-        <div style="font-size:14px;color:#3A4A6B;">Click to upload or drag and drop</div>
-        <div style="font-size:12px;color:#7A8BA8;margin-top:4px;">JPG, PNG or PDF - max 5MB</div>
-      </div>
-      <input type="file" id="receiptFile" accept="image/*,.pdf" style="display:none;"/>
-      <div class="upload-preview" id="uploadPreview">
-        <span>&#10003;</span><span id="uploadName"></span>
-        <button onclick="clearUpload()" style="margin-left:auto;background:none;border:none;cursor:pointer;font-size:14px;color:var(--red);">&#10005;</button>
-      </div>
+      <label>Payment Receipt Reference</label>
+      <input type="text" id="receiptRef" placeholder="e.g. UTR No., Cheque No., or brief description"/>
+      <div style="font-size:11px;color:#7A8BA8;margin-top:5px;">&#128247; Also WhatsApp your payment receipt screenshot to <strong>8527922395</strong></div>
     </div>
+
     <div class="field"><label>Notes / Message</label><textarea id="paynotes" placeholder="Any additional message for the office..."></textarea></div>
   </div>
   <div class="btn-row">
@@ -296,7 +228,7 @@ body{background:var(--ivory);min-height:100vh;}
   </div>
 </div>
 
-<!-- STEP 5: REVIEW -->
+<!-- STEP 5 -->
 <div id="step5" class="step-content" style="display:none;">
   <div class="card">
     <div class="sec-hdr"><div class="sec-num">5</div><div class="sec-title">Review Your Application</div></div>
@@ -310,7 +242,7 @@ body{background:var(--ivory);min-height:100vh;}
       <input type="checkbox" id="accurate" style="accent-color:var(--navy);"/> The information provided is true and accurate
     </label>
   </div>
-  <div id="submitAlert" style="display:none;"></div>
+  <div id="submitAlert" style="display:none;background:var(--warn-bg);border:1px solid #FDE68A;border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--warn);margin-bottom:1rem;"></div>
   <div class="btn-row">
     <button class="btn btn-outline" onclick="goStep(4)">&larr; Back</button>
     <button class="btn btn-gold" id="submitBtn" onclick="submitForm()">&#10003; Submit Application</button>
@@ -324,93 +256,25 @@ body{background:var(--ivory);min-height:100vh;}
     <div style="font-family:'Playfair Display',serif;font-size:24px;color:var(--navy);margin-bottom:6px;">Application Submitted!</div>
     <p style="color:#7A8BA8;font-size:14px;">Your application is under review.</p>
     <div class="success-id" id="successID">MKC-2026-XXXX</div>
-    <p style="font-size:12px;color:#7A8BA8;">Save this Application ID for reference</p>
+    <p style="font-size:12px;color:#7A8BA8;margin-bottom:0.5rem;">Save this Application ID for reference</p>
     <div class="next-box">
-      <p style="font-weight:600;color:var(--navy);margin-bottom:8px;">What happens next?</p>
-      <p>Admin will review your details and payment receipt</p>
-      <p>Upon verification your membership will be activated</p>
-      <p>You will receive a Tax Invoice by email</p>
-      <p>Queries: 8527922395 (WhatsApp) | manthantree@gmail.com</p>
+      <p style="font-weight:600;color:var(--navy);margin-bottom:6px;">What happens next?</p>
+      <p>&#128247; WhatsApp your passport photos (Self + Spouse) to: <strong>8527922395</strong></p>
+      <p>&#128247; WhatsApp your payment receipt screenshot to: <strong>8527922395</strong></p>
+      <p>&#9989; Admin will verify your details and activate your membership</p>
+      <p>&#128233; You will receive a Tax Invoice by email upon activation</p>
+      <p>&#128222; Queries: 8527922395 (WhatsApp) | manthantree@gmail.com</p>
     </div>
     <button class="btn btn-outline" onclick="location.reload()" style="margin-top:1.5rem;">Register Another Member</button>
   </div>
 </div>
 
-</div><!-- end rpage -->
+</div>
 
 <script>
-// ==== CONFIGURATION - SET THIS URL ====
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbwI67whopqq-oFCNrVQn27Bhw1nhLrgjQiIbFHfK9HQ2gK2YiO7sjYNQjnu8uw4nNtM/exec';
-// ======================================
-
 var step = 1;
-var receipt = null;
-var photos  = { self: null, spouse: null };
-var links   = { receipt: '', self: '', spouse: '' };
-var cbN = 0;
 
-// ---- PHOTO UPLOAD ----
-document.addEventListener('DOMContentLoaded', function() {
-  ['self','spouse'].forEach(function(who) {
-    var inp = document.getElementById('pi-' + who);
-    if (!inp) return;
-    inp.addEventListener('change', function() {
-      var file = this.files && this.files[0];
-      if (!file) return;
-      if (file.size > 2097152) { alert('Photo too large. Max 2MB.'); this.value=''; return; }
-      var rd = new FileReader();
-      rd.onload = function(e) {
-        photos[who] = { dataUrl: e.target.result, name: file.name, mime: file.type };
-        var preview = document.getElementById('pp-' + who);
-        var wrap    = document.getElementById('pw-' + who);
-        var ph      = wrap.querySelector('.photo-placeholder');
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-        if (ph) ph.style.display = 'none';
-        wrap.classList.add('loaded');
-      };
-      rd.readAsDataURL(file);
-    });
-  });
-
-  var rf = document.getElementById('receiptFile');
-  if (rf) {
-    rf.addEventListener('change', function() {
-      var file = this.files && this.files[0];
-      if (!file) return;
-      if (file.size > 5242880) { alert('File too large. Max 5MB.'); this.value=''; return; }
-      var rd = new FileReader();
-      rd.onload = function(e) {
-        receipt = { dataUrl: e.target.result, name: file.name, mime: file.type };
-        document.getElementById('uploadPreview').style.display = 'flex';
-        document.getElementById('uploadName').textContent = file.name;
-        document.getElementById('uploadZone').style.display = 'none';
-      };
-      rd.readAsDataURL(file);
-    });
-  }
-
-  // drag drop
-  var zone = document.getElementById('uploadZone');
-  if (zone) {
-    zone.addEventListener('dragover', function(e){ e.preventDefault(); });
-    zone.addEventListener('drop', function(e){
-      e.preventDefault();
-      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (f && rf) { rf.files = e.dataTransfer.files; rf.dispatchEvent(new Event('change')); }
-    });
-  }
-});
-
-function clearUpload() {
-  receipt = null; links.receipt = '';
-  var rf = document.getElementById('receiptFile');
-  if (rf) rf.value = '';
-  document.getElementById('uploadPreview').style.display = 'none';
-  document.getElementById('uploadZone').style.display = 'block';
-}
-
-// ---- STEPPER ----
 function goStep(n) {
   if (n > step && !validateStep(step)) return;
   document.getElementById('step' + step).style.display = 'none';
@@ -420,164 +284,129 @@ function goStep(n) {
     var d = document.getElementById('sd' + i);
     var l = document.getElementById('sl' + i);
     if (!d) continue;
-    if (i < step)       { d.className='s-dot done'; d.innerHTML='&#10003;'; }
-    else if (i === step) { d.className='s-dot active'; d.innerHTML=String(i); }
-    else                 { d.className='s-dot pend';   d.innerHTML=String(i); }
-    l.className = 's-lbl' + (i===step?' active':'');
-    if (i < 5) { var ln=document.getElementById('ln'+i); if(ln) ln.className='s-line'+(i<step?' done':''); }
+    if (i < step)        { d.className = 's-dot done';   d.innerHTML = '&#10003;'; }
+    else if (i === step) { d.className = 's-dot active'; d.innerHTML = String(i); }
+    else                 { d.className = 's-dot pend';   d.innerHTML = String(i); }
+    l.className = 's-lbl' + (i === step ? ' active' : '');
+    if (i < 5) { var ln = document.getElementById('ln' + i); if (ln) ln.className = 's-line' + (i < step ? ' done' : ''); }
   }
   if (n === 5) buildSummary();
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ---- VALIDATE ----
 function validateStep(s) {
-  if (s === 1) return chk([['f-fname','fname','t'],['f-lname','lname','t'],['f-gender','gender','s'],['f-email','email','e'],['f-mobile','mobile','m']]);
+  if (s === 1) return chk([['f-fname','fname'],['f-lname','lname'],['f-gender','gender','s'],['f-email','email','e'],['f-mobile','mobile','m']]);
   if (s === 4) {
-    var ok = chk([['f-payref','payref','t']]);
-    if (!receipt) { alert('Please upload your payment receipt.'); return false; }
+    var ok = chk([['f-payref','payref']]);
     if (!gv('paymethod')) { alert('Please select a payment method.'); return false; }
     return ok;
   }
   return true;
 }
+
 function chk(arr) {
   var ok = true;
   arr.forEach(function(c) {
-    var w = document.getElementById(c[0]); if(!w) return;
-    var val = (document.getElementById(c[1])||{}).value||''; val=val.trim();
-    var bad = c[2]==='e' ? (!val||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) : c[2]==='m' ? (!val||!/^\d{10}$/.test(val)) : !val;
+    var w = document.getElementById(c[0]); if (!w) return;
+    var val = (document.getElementById(c[1]) || {}).value || ''; val = val.trim();
+    var bad;
+    if      (c[2] === 'e') bad = !val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    else if (c[2] === 'm') bad = !val || !/^\d{10}$/.test(val);
+    else                   bad = !val;
     w.classList.toggle('err', bad);
     if (bad) ok = false;
   });
   return ok;
 }
 
-// ---- SUMMARY ----
 function buildSummary() {
-  var chips = Array.from(document.querySelectorAll('.chip.on')).map(function(c){return c.textContent;}).join(', ');
+  var chips = Array.from(document.querySelectorAll('.chip.on')).map(function(c) { return c.textContent; }).join(', ');
   var rows = [
-    ['Full Name',(gv('fname')+' '+gv('lname')).trim()],['Gender',gv('gender')],
-    ['Date of Birth',gv('dob')||'-'],['Occupation',gv('occ')||'-'],
-    ['Email',gv('email')],['Mobile',gv('mobile')+(document.getElementById('whatsapp').checked?' (WhatsApp)':'')],
-    ['Spouse',gv('spouse')||'-'],['City/PIN',(gv('city')||'')+(gv('pin')?' - '+gv('pin'):'')],
-    ['Interests',chips||'-'],['Referred By',gv('refby')||'-'],
-    ['Payment Method',gv('paymethod')],['Payment Ref',gv('payref')],
-    ['Amount','Rs.'+gv('payamt')],['Receipt',receipt?'Uploaded: '+receipt.name:'-'],
-    ['Photo (Self)',photos.self?'Uploaded: '+photos.self.name:'-'],
-    ['Photo (Spouse)',photos.spouse?'Uploaded: '+photos.spouse.name:'-']
+    ['Full Name',    (gv('fname') + ' ' + gv('lname')).trim()],
+    ['Gender',       gv('gender')],
+    ['Date of Birth', gv('dob') || '-'],
+    ['Occupation',   gv('occ') || '-'],
+    ['Email',        gv('email')],
+    ['Mobile (Self)', gv('mobile') + (document.getElementById('whatsapp').checked ? ' (WhatsApp)' : '')],
+    ['Mobile (Spouse)', gv('mobile2') || '-'],
+    ['Residential Address', gv('raddr') || '-'],
+    ['City / PIN',   (gv('city') || '') + (gv('pin') ? ' - ' + gv('pin') : '')],
+    ['Spouse Name',  gv('spouse') || '-'],
+    ['Anniversary',  gv('anniv') || '-'],
+    ['Dependants',   gv('dep') || '-'],
+    ['Interests',    chips || '-'],
+    ['Referred By',  gv('refby') || '-'],
+    ['Payment Method', gv('paymethod')],
+    ['Payment Ref',  gv('payref')],
+    ['Payment Date', gv('paydate') || '-'],
+    ['Amount Paid',  'Rs.' + gv('payamt')],
+    ['Receipt Ref',  gv('receiptRef') || '-']
   ];
   var h = '<div class="sum-grid">';
-  rows.forEach(function(r){
-    h += '<div class="sum-cell"><div class="sum-lbl">'+r[0]+'</div><div class="sum-val">'+(r[1]||'-')+'</div></div>';
+  rows.forEach(function(r) {
+    h += '<div class="sum-cell"><div class="sum-lbl">' + r[0] + '</div><div class="sum-val">' + (r[1] || '-') + '</div></div>';
   });
   document.getElementById('sumBody').innerHTML = h + '</div>';
 }
-function gv(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
 
-// ---- JSONP HELPER ----
-function jsonpGet(url) {
-  return new Promise(function(resolve) {
-    var name = '_mkc'+(++cbN)+'_'+Date.now();
-    var sc   = document.createElement('script');
-    var done = false;
-    var t    = setTimeout(function(){ finish({status:'timeout'}); }, 25000);
-    function finish(d){ if(done) return; done=true; clearTimeout(t); if(sc.parentNode) sc.parentNode.removeChild(sc); delete window[name]; resolve(d); }
-    window[name] = function(d){ finish(d); };
-    sc.onerror   = function(){ finish({status:'error'}); };
-    sc.src = url + '&callback=' + name;
-    document.head.appendChild(sc);
-  });
-}
+function gv(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
-// ---- CHUNKED UPLOAD ----
-// CHUNK_SIZE kept at 2000 chars of raw base64.
-// encodeURIComponent can triple the size, so 2000 * 3 = 6000 chars in URL
-// Plus other params ~300 chars = ~6300 total, well under 8000 browser limit
-var CHUNK = 2000;
-function uploadChunked(fileObj, appID, label) {
-  if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
-  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') return Promise.resolve('demo-link');
-  var b64   = fileObj.dataUrl.split(',')[1];
-  var total = Math.ceil(b64.length / CHUNK);
-  var fid   = appID+'_'+label+'_'+Date.now();
-  var p     = Promise.resolve();
-  for (var i=0; i<total; i++) {
-    (function(idx){
-      p = p.then(function(){
-        // Update progress
-        var btn = document.getElementById('submitBtn');
-        if (btn) btn.textContent = 'Uploading '+ label.replace('_',' ') +': chunk '+(idx+1)+'/'+total+'...';
-        var chunk = b64.substring(idx*CHUNK,(idx+1)*CHUNK);
-        return jsonpGet(GAS_URL+'?action=uploadChunk&fileID='+encodeURIComponent(fid)+'&appID='+encodeURIComponent(appID)+'&label='+encodeURIComponent(label)+'&fileName='+encodeURIComponent(fileObj.name)+'&mimeType='+encodeURIComponent(fileObj.mime)+'&chunkIdx='+idx+'&totalChunks='+total+'&chunk='+encodeURIComponent(chunk));
-      });
-    })(i);
-  }
-  return p.then(function(){
-    var btn = document.getElementById('submitBtn');
-    if (btn) btn.textContent = 'Saving ' + label.replace('_',' ') + ' to Drive...';
-    return jsonpGet(GAS_URL+'?action=assembleFile&fileID='+encodeURIComponent(fid)+'&appID='+encodeURIComponent(appID)+'&label='+encodeURIComponent(label)+'&fileName='+encodeURIComponent(fileObj.name)+'&mimeType='+encodeURIComponent(fileObj.mime)+'&totalChunks='+total);
-  }).then(function(r){
-    if (r && r.status === 'ok' && r.link) return r.link;
-    console.warn('Upload failed for '+label+':', r);
-    return '';
-  });
-}
-
-// ---- SUBMIT ----
 function submitForm() {
-  if (!document.getElementById('agree').checked||!document.getElementById('accurate').checked) {
-    showAlert('Please check both declaration checkboxes.','warn'); return;
+  if (!document.getElementById('agree').checked || !document.getElementById('accurate').checked) {
+    var al = document.getElementById('submitAlert');
+    al.style.display = 'block';
+    al.textContent = 'Please check both declaration checkboxes before submitting.';
+    return;
   }
   var btn = document.getElementById('submitBtn');
-  btn.disabled=true; btn.textContent='Uploading...';
-  var chips = Array.from(document.querySelectorAll('.chip.on')).map(function(c){return c.textContent;}).join(', ');
-  var appID = 'MKC-'+new Date().getFullYear()+'-'+(Math.floor(Math.random()*9000)+1000);
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  var chips = Array.from(document.querySelectorAll('.chip.on')).map(function(c) { return c.textContent; }).join(', ');
+  var appID = 'MKC-' + new Date().getFullYear() + '-' + (Math.floor(Math.random() * 9000) + 1000);
   var now   = new Date().toLocaleString('en-IN');
 
-  btn.textContent='Uploading receipt...';
-  uploadChunked(receipt, appID, 'receipt')
-  .then(function(lnk){
-    links.receipt=lnk; btn.textContent='Uploading self photo...';
-    return uploadChunked(photos.self, appID, 'photo_self');
-  }).then(function(lnk){
-    links.self=lnk; btn.textContent='Uploading spouse photo...';
-    return uploadChunked(photos.spouse, appID, 'photo_spouse');
-  }).then(function(lnk){
-    links.spouse=lnk; btn.textContent='Saving registration...';
-    var data = {
-      action:'saveRegistration', appID:appID, submittedAt:now,
-      firstName:gv('fname'), lastName:gv('lname'), gender:gv('gender'),
-      dob:gv('dob'), occupation:gv('occ'), email:gv('email'),
-      mobile:gv('mobile'), mobileSpouse:gv('mobile2'),
-      whatsapp:document.getElementById('whatsapp').checked?'Yes':'No',
-      residentialAddress:gv('raddr'), city:gv('city'), state:gv('state'), pin:gv('pin'),
-      officeAddress:gv('oaddr'), spouseName:gv('spouse'), spouseDob:gv('sdob'),
-      anniversary:gv('anniv'), dependants:gv('dep'), interests:chips, referredBy:gv('refby'),
-      membershipType:'Annual', baseAmount:25000, cgst:2250, sgst:2250, totalAmount:29500,
-      paymentMethod:gv('paymethod'), paymentRef:gv('payref'),
-      paymentDate:gv('paydate'), amountPaid:gv('payamt'), payNotes:gv('paynotes'),
-      status:'Pending Verification',
-      receiptFileName:receipt?receipt.name:'', receiptLink:links.receipt,
-      photoSelfName:photos.self?photos.self.name:'', photoSelfLink:links.self,
-      photoSpouseName:photos.spouse?photos.spouse.name:'', photoSpouseLink:links.spouse
-    };
-    if (GAS_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL') { showSuccess(appID); return; }
-    return fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-  }).then(function(){ showSuccess(appID); })
-  .catch(function(){ showSuccess(appID); });
+  var data = {
+    action:       'saveRegistration',
+    appID:        appID,
+    submittedAt:  now,
+    firstName:    gv('fname'),    lastName:    gv('lname'),
+    gender:       gv('gender'),   dob:         gv('dob'),
+    occupation:   gv('occ'),      email:       gv('email'),
+    mobile:       gv('mobile'),   mobileSpouse: gv('mobile2'),
+    whatsapp:     document.getElementById('whatsapp').checked ? 'Yes' : 'No',
+    residentialAddress: gv('raddr'),
+    city:         gv('city'),     state:       gv('state'),
+    pin:          gv('pin'),      officeAddress: gv('oaddr'),
+    spouseName:   gv('spouse'),   spouseDob:   gv('sdob'),
+    anniversary:  gv('anniv'),    dependants:  gv('dep'),
+    interests:    chips,          referredBy:  gv('refby'),
+    membershipType: 'Annual',
+    baseAmount:   25000, cgst: 2250, sgst: 2250, totalAmount: 29500,
+    paymentMethod: gv('paymethod'), paymentRef: gv('payref'),
+    paymentDate:  gv('paydate'),  amountPaid:  gv('payamt'),
+    payNotes:     gv('paynotes'),
+    receiptFileName: gv('receiptRef'),
+    receiptLink:  '', photoSelfLink: '', photoSpouseLink: '',
+    status:       'Pending Verification'
+  };
+
+  fetch(GAS_URL, {
+    method:  'POST',
+    mode:    'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(data)
+  })
+  .then(function() { showSuccess(appID); })
+  .catch(function() { showSuccess(appID); });
 }
 
-function showAlert(msg,type){
-  var el=document.getElementById('submitAlert');
-  el.style.display='block'; el.className='alert alert-'+type; el.textContent=msg;
-}
-function showSuccess(id){
-  document.getElementById('step5').style.display='none';
-  document.getElementById('stepper').style.display='none';
-  document.getElementById('stepOK').style.display='block';
-  document.getElementById('successID').textContent=id;
-  window.scrollTo({top:0,behavior:'smooth'});
+function showSuccess(id) {
+  document.getElementById('step5').style.display  = 'none';
+  document.getElementById('stepper').style.display = 'none';
+  document.getElementById('stepOK').style.display  = 'block';
+  document.getElementById('successID').textContent = id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 </body>
