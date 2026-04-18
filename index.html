@@ -491,7 +491,10 @@ function jsonpGet(url) {
 }
 
 // ---- CHUNKED UPLOAD ----
-var CHUNK = 6000;
+// CHUNK_SIZE kept at 2000 chars of raw base64.
+// encodeURIComponent can triple the size, so 2000 * 3 = 6000 chars in URL
+// Plus other params ~300 chars = ~6300 total, well under 8000 browser limit
+var CHUNK = 2000;
 function uploadChunked(fileObj, appID, label) {
   if (!fileObj || !fileObj.dataUrl) return Promise.resolve('');
   if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL') return Promise.resolve('demo-link');
@@ -502,14 +505,23 @@ function uploadChunked(fileObj, appID, label) {
   for (var i=0; i<total; i++) {
     (function(idx){
       p = p.then(function(){
+        // Update progress
+        var btn = document.getElementById('submitBtn');
+        if (btn) btn.textContent = 'Uploading '+ label.replace('_',' ') +': chunk '+(idx+1)+'/'+total+'...';
         var chunk = b64.substring(idx*CHUNK,(idx+1)*CHUNK);
         return jsonpGet(GAS_URL+'?action=uploadChunk&fileID='+encodeURIComponent(fid)+'&appID='+encodeURIComponent(appID)+'&label='+encodeURIComponent(label)+'&fileName='+encodeURIComponent(fileObj.name)+'&mimeType='+encodeURIComponent(fileObj.mime)+'&chunkIdx='+idx+'&totalChunks='+total+'&chunk='+encodeURIComponent(chunk));
       });
     })(i);
   }
   return p.then(function(){
+    var btn = document.getElementById('submitBtn');
+    if (btn) btn.textContent = 'Saving ' + label.replace('_',' ') + ' to Drive...';
     return jsonpGet(GAS_URL+'?action=assembleFile&fileID='+encodeURIComponent(fid)+'&appID='+encodeURIComponent(appID)+'&label='+encodeURIComponent(label)+'&fileName='+encodeURIComponent(fileObj.name)+'&mimeType='+encodeURIComponent(fileObj.mime)+'&totalChunks='+total);
-  }).then(function(r){ return (r&&r.status==='ok'&&r.link)?r.link:''; });
+  }).then(function(r){
+    if (r && r.status === 'ok' && r.link) return r.link;
+    console.warn('Upload failed for '+label+':', r);
+    return '';
+  });
 }
 
 // ---- SUBMIT ----
